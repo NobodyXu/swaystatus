@@ -28,5 +28,5 @@ void print_time(const char * const format)
     if (cnt == 0)
         errx(1, "strftime returns 0: buffer too small!");
 
-    puts(buffer);
+    printf("%s", buffer);
 }
