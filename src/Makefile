@@ -1,11 +1,32 @@
 CC=clang
 
-CFLAGS=-Oz -march=native -flto -fno-asynchronous-unwind-tables -fno-unwind-tables -fmerge-all-constants -fomit-frame-pointer
-LDFLAGS=-s -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3
+CFLAGS := -march=native -mtune=native -Oz -Wall -flto
+CFLAGS += -fno-asynchronous-unwind-tables -fno-unwind-tables
 
-print_time: print_time.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+LDFLAGS := -s -flto -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3
 
-.PHONY: install
-install: print_time
-	cp -f print_time /usr/local/bin/
+LIBS := 
+
+TARGET_DIR := /usr/local
+
+## Objects to build
+SRCS := $(shell find . -name '*.c' -a ! -wholename './test/*' -a ! -wholename './benchmark/*')
+OBJS := $(SRCS:.c=.o)
+
+## Build rules
+swaystatus: $(OBJS)
+	$(CC) $(LDFLAGS) $(LIBS) $^ -o $@
+
+%.o: %.c Makefile
+	$(CC) -std=c11 -c $(CFLAGS) -o $@ $<
+
+%.o: %.c %.h Makefile
+	$(CC) -std=c11 -c $(CFLAGS) -o $@ $<
+
+install: swaystatus
+	cp -f swaystatus $(TARGET_DIR)/bin/
+
+clean:
+	rm -f $(OBJS) swaystatus
+
+.PHONY: install clean
