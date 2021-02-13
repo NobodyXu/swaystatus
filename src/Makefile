@@ -3,11 +3,11 @@ CC=clang
 CFLAGS := -march=native -mtune=native -Oz -Wall -flto
 CFLAGS += -fno-asynchronous-unwind-tables -fno-unwind-tables
 
-CFLAGS += $(shell pkg-config --cflags upower-glib)
+CFLAGS += $(shell pkg-config --cflags upower-glib alsa)
 
 LDFLAGS := -s -flto -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3
 
-LIBS := $(shell pkg-config --libs upower-glib)
+LIBS := $(shell pkg-config --libs upower-glib alsa)
 
 TARGET_DIR := /usr/local
 
