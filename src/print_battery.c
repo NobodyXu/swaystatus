@@ -7,11 +7,13 @@
 
 #include "print_battery.h"
 
-void init_print_battery(struct Print_Battery_Data *data)
+static UpClient *client;
+
+void init_upclient()
 {
     GError *error = NULL;
-    data->upclient = up_client_new_full(NULL, &error);
-    if (data->upclient == NULL)
+    client = up_client_new_full(NULL, &error);
+    if (client == NULL)
         errx(1, "up_client_new failed: %s", error->message);
 }
 
@@ -36,10 +38,8 @@ static const char* state2str(UpDeviceState state)
     }
 }
 
-void print_battery(const struct Print_Battery_Data *data)
+void print_battery()
 {
-    UpClient *client = data->upclient;
-
     UpDevice *device = up_client_get_display_device(client);
 
     UpDeviceState state;
