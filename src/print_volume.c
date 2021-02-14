@@ -18,9 +18,6 @@
 #include <err.h>
 #include <alloca.h>
 
-#include <unistd.h>
-#include <fcntl.h>
-
 #include "print_volume.h"
 
 static snd_mixer_t *handle;
