@@ -23,14 +23,16 @@
 
 #include "print_volume.h"
 
-static snd_mixer_selem_id_t *sid;
 static snd_mixer_t *handle;
 static snd_mixer_elem_t *elem;
+static long volume;
+
+static long calculate_audio_volume();
 
 void init_alsa(const char *mix_name, const char *card)
 {
-    if (snd_mixer_selem_id_malloc(&sid) < 0)
-        errx(1, "%s failed", "snd_mixer_selem_id_malloc");
+    snd_mixer_selem_id_t *sid;
+    snd_mixer_selem_id_alloca(&sid);
 
     snd_mixer_selem_id_set_index(sid, 0);
     snd_mixer_selem_id_set_name(sid, mix_name);
@@ -50,12 +52,12 @@ void init_alsa(const char *mix_name, const char *card)
     elem = snd_mixer_find_selem(handle, sid);
     if (!elem)
         errx(1, "%s failed", "snd_mixer_find_selem");
+
+    volume = calculate_audio_volume();
 }
 
-static long audio_volume()
+static long calculate_audio_volume()
 {
-    snd_mixer_handle_events(handle);
-
     long minv, maxv;
     snd_mixer_selem_get_playback_volume_range(elem, &minv, &maxv);
 
@@ -68,8 +70,18 @@ static long audio_volume()
     maxv -= minv;
     return 100 * vol / maxv;
 }
+static long get_audio_volume()
+{
+    if (snd_mixer_wait(handle, 0) == 0) {
+        if (snd_mixer_handle_events(handle) < 0)
+            errx(1, "%s failed", "snd_mixer_handle_events");
+
+        volume = calculate_audio_volume();
+    }
+    return volume;
+}
 
 void print_volume()
 {
-    printf("volume: %ld%%", audio_volume());
+    printf("volume: %ld%%", get_audio_volume());
 }
