@@ -6,6 +6,7 @@
 #include "print_battery.h"
 #include "print_time.h"
 #include "print_volume.h"
+#include "print_network_interfaces.h"
 
 void print_delimiter()
 {
@@ -24,12 +25,16 @@ int main(int argc, char* argv[])
 
     init_upclient();
     init_alsa("Master", "default");
+    init_network_interfaces_scanning();
 
     for ( ; ; sleep(1)) {
         print_volume();
         print_delimiter();
 
         print_battery();
+        print_delimiter();
+
+        print_network_interfaces();
         print_delimiter();
 
         print_time(format);
