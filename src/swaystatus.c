@@ -7,6 +7,7 @@
 #include "print_time.h"
 #include "print_volume.h"
 #include "print_network_interfaces.h"
+#include "print_brightness.h"
 
 void print_delimiter()
 {
@@ -26,8 +27,12 @@ int main(int argc, char* argv[])
     init_upclient();
     init_alsa("Master", "default");
     init_network_interfaces_scanning();
+    init_brightness_detection();
 
     for ( ; ; sleep(1)) {
+        print_brightness();
+        print_delimiter();
+
         print_volume();
         print_delimiter();
 
