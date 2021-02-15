@@ -14,9 +14,17 @@
 #include "utility.h"
 #include "print_memory_usage.h"
 
+struct ReadableMem {
+    size_t mem;
+    const char *unit;
+};
+
 static int meminfo_fd;
 static char *buffer;
 static size_t buffer_sz;
+static struct ReadableMem memtotal;
+
+static struct ReadableMem get_readable_memusage(const char *element, size_t element_sz);
 
 void init_memory_usage_collection()
 {
@@ -25,6 +33,7 @@ void init_memory_usage_collection()
     if (!buffer)
         err(1, "%s failed", "malloc");
     buffer_sz = 100;
+    memtotal = get_readable_memusage("MemTotal:", sizeof("Memtotal:") - 1);
 }
 
 static size_t read_meminfo(void *buf, size_t len)
@@ -42,9 +51,10 @@ static char* skip_space(char *str)
 }
 
 /**
- * @return free memory in byte
+ * @param element_sz excluding terminating null byte
+ * @return in byte
  */
-static size_t get_memfree()
+static size_t get_memusage(const char *element, size_t element_sz)
 {
     char *line = NULL;
     char *eol;
@@ -54,7 +64,7 @@ static size_t get_memfree()
         buffer[cnt] = '\0';
 
         if (!line)
-            line = strstr(buffer, "MemFree:");
+            line = strstr(buffer, element);
         if (line) {
             eol = strstr(line, "\n");
             if (eol)
@@ -68,7 +78,7 @@ static size_t get_memfree()
     if (lseek(meminfo_fd, 0, SEEK_SET) == (off_t) -1)
         err(1, "%s on %s failed", "lseek", "/proc/meminfo");
 
-    line += sizeof("MemFree:") - 1;
+    line += element_sz;
     line = skip_space(line);
 
     errno = 0;
@@ -108,14 +118,23 @@ static const char *get_unit(size_t ratio)
             errx(1, "ratio %zu too large in %s:%d", ratio, __FILE__, __LINE__);
     }
 }
+static struct ReadableMem get_readable_memusage(const char *element, size_t element_sz)
+{
+    size_t mem = get_memusage(element, element_sz);
+
+    size_t ratio = 1;
+    for (; ratio < 9 && mem > 1024; ratio += 1)
+        mem /= 1024;
+
+    return (struct ReadableMem){
+        .mem = mem,
+        .unit = get_unit(ratio)
+    };
+}
 
 void print_memory_usage()
 {
-    size_t memfree = get_memfree();
+    struct ReadableMem memfree = get_readable_memusage("MemFree:", sizeof("MemFree:") - 1);
 
-    size_t ratio = 1;
-    for (; ratio < 9 && memfree > 1024; ratio += 1)
-        memfree /= 1024;
-
-    printf("MemFree: %zu %s", memfree, get_unit(ratio));
+    printf("%zu %s/%zu %s", memfree.mem, memfree.unit, memtotal.mem, memtotal.unit);
 }
