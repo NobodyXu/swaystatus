@@ -8,6 +8,7 @@
 #include "print_battery.h"
 
 static UpClient *client;
+static UpDevice *device;
 
 void init_upclient()
 {
@@ -15,6 +16,8 @@ void init_upclient()
     client = up_client_new_full(NULL, &error);
     if (client == NULL)
         errx(1, "up_client_new failed: %s", error->message);
+
+    device = up_client_get_display_device(client);
 }
 
 static const char* state2str(UpDeviceState state)
@@ -40,8 +43,6 @@ static const char* state2str(UpDeviceState state)
 
 void print_battery()
 {
-    UpDevice *device = up_client_get_display_device(client);
-
     UpDeviceState state;
     gdouble percentage;
     g_object_get(device, "state", &state, "percentage", &percentage, NULL);
