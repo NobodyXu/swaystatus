@@ -23,8 +23,8 @@ void reallocarray_checked(void **ptr, size_t nmemb, size_t size);
 char* strdup_checked(const char *s);
 
 /**
- * @param dir should end with '/'
- * @param path should be relative, eitherwise the error message will be confusing.
+ * @param dir should end with '/' or ""
+ * @param dirfd if dir == "", then dirfd got to be AT_FDCWD.
  */
 int openat_checked(const char *dir, int dirfd, const char *path, int flags);
 
