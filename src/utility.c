@@ -75,15 +75,19 @@ const char* readall_as_uintmax(int fd, uintmax_t *val)
     ssize_t sz = readall(fd, line, sizeof(line));
     if (sz == -1)
         return "read";
-    if (sz == 0 || sz == sizeof(line) || line[sz - 1] != '\n')
+    if (sz == 0 || sz == sizeof(line) || line[sz - 1] != '\n') {
+        errno = 0;
         return "readall_as_uintmax assumption";
+    }
     line[sz - 1] = '\0';
 
     errno = 0;
     char *endptr;
     uintmax_t ret = strtoumax(line, &endptr, 10);
-    if (*endptr != '\0')
+    if (*endptr != '\0') {
+        errno = 0;
         return "readall_as_uintmax assumption";
+    }
     if (errno == ERANGE)
         return "strtoumax";
 
