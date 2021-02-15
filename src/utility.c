@@ -42,7 +42,7 @@ int openat_checked(const char *dir, int dirfd, const char *path, int flags)
     return fd;
 }
 
-static ssize_t read_autorestart(int fd, void *buf, size_t count)
+ssize_t read_autorestart(int fd, void *buf, size_t count)
 {
     ssize_t ret;
     do {

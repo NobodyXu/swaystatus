@@ -28,6 +28,8 @@ char* strdup_checked(const char *s);
  */
 int openat_checked(const char *dir, int dirfd, const char *path, int flags);
 
+ssize_t read_autorestart(int fd, void *buf, size_t count);
+
 /**
  * @param len should be euqal to (file_size + 1), should be smaller than SSIZE_MAX.
  *            If the line is larger than len, then errx will be called.
