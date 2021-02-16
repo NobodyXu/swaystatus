@@ -87,7 +87,7 @@ static size_t get_memusage(const char *element, size_t element_sz)
     if (errno == ERANGE)
         err(1, "%s on %s failed", "strtoumax", "/proc/meminfo");
     if (strncmp(endptr, " kB", 3) != 0)
-        errx(1, "Unexpected format in %s", "/proc/meminfo");
+        errx(1, "%s on %s failed", "Assumption", "/proc/meminfo");
 
     return val * 1000;
 }
