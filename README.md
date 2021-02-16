@@ -1,6 +1,6 @@
 # swaystatus
 
-A lightweight yet feature-rich status bar for i3 or sway.
+A lightweight yet feature-rich status bar for i3 or swaybar.
 
 ![screenshot]
 
