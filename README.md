@@ -8,7 +8,7 @@ It is written completely in C to make it as lightweight as possible and specific
 
 It uses libraries like `libupower-glib`, `libasound` and `libnm` to retrieve battery, volume and network information as opposed to using `upower`, `amixer` or `nmcli`.
 
-For backlight, load, and meminfo, it is directly read from `/sys/class/backlight`, `/proc/loadavg` and `/proc/meminfo`.
+For backlight, load, and meminfo, it reads directly from `/sys/class/backlight`, `/proc/loadavg` and `/proc/meminfo`.
 
 On my x86-64 computer, it compiles to a single binary that is only `16K` large using `clang-11`.
 
