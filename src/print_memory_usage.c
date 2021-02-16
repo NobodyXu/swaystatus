@@ -136,6 +136,6 @@ void print_memory_usage()
 {
     struct ReadableMem memfree = get_readable_memusage("MemFree:", sizeof("MemFree:") - 1);
 
-    printf("%s %zu %s/%s %zu %s",
-           "MemFree:", memfree.mem, memfree.unit, "MemTotal:", memtotal.mem, memtotal.unit);
+    printf("Mem %s=%zu%s/%s=%zu%s",
+           "Free", memfree.mem, memfree.unit, "Total", memtotal.mem, memtotal.unit);
 }

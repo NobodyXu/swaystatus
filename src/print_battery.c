@@ -47,5 +47,5 @@ void print_battery()
     gdouble percentage;
     g_object_get(device, "state", &state, "percentage", &percentage, NULL);
 
-    printf("BAT: %s %u%%", state2str(state), (unsigned) percentage);
+    printf("%s %u%%", state2str(state), (unsigned) percentage);
 }

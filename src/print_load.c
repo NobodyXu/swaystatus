@@ -52,8 +52,7 @@ void print_load()
     const char* statistics[5];
     split(buffer, statistics);
 
-    printf("1m: %s 5m: %s 15m: %s kthreads: %s last created process: %s", 
-            statistics[0], statistics[1], statistics[2], statistics[3], statistics[4]);
+    printf("1m: %s 5m: %s 15m: %s", statistics[0], statistics[1], statistics[2]);
 
     if (lseek(load_fd, 0, SEEK_SET) == (off_t) -1)
         err(1, "%s on %s failed", "lseek", loadavg_path);

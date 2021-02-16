@@ -80,5 +80,5 @@ static long get_audio_volume()
 
 void print_volume()
 {
-    printf("volume: %ld%%", get_audio_volume());
+    printf("vol %ld%%", get_audio_volume());
 }

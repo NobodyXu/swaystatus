@@ -13,7 +13,7 @@
 
 void print_delimiter()
 {
-    fputs(" | ", stdout);
+    fputs("|", stdout);
 }
 
 int main(int argc, char* argv[])
