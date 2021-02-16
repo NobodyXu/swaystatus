@@ -73,9 +73,9 @@ void print_network_interfaces()
     }
 
     const char *connectivity = connectivity2str(connectivity_state);
-    if (cnt++ % 5 == 0)
+    if (cnt++ % 120 == 0)
         /*
-         * Check connectivity every 5 seconds
+         * Check connectivity every 120 seconds
          */
         nm_client_check_connectivity_async(client, NULL, set_connectivity, NULL);
 
