@@ -1,6 +1,6 @@
 # swaystatus
 
-A lightweight, minimal executable for displaying sway status per second
+A lightweight yet feature-rich program for displaying sway status per second
 
 ## Runtime Dependency
  - libupower-glib.so.3
