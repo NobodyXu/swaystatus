@@ -1,4 +1,4 @@
-#define _DEFAULT_SOURCE         /* For macro constants of struct dirent::d_type */
+#define _DEFAULT_SOURCE /* For macro constants of struct dirent::d_type and struct timespec */
 
 #include <stdint.h>
 #include <inttypes.h>
@@ -9,6 +9,7 @@
 #include <errno.h>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <fcntl.h>     /* For O_RDONLY */
 #include <unistd.h>    /* For close and lseek */
@@ -28,10 +29,19 @@ struct Backlight {
      * opened file of /sys/class/backlight/{BacklightDevice}/brightness
      */
     int fd;
+    /**
+     * cached_brightness is the cached value of brightness --
+     * 100 * {BacklightDevice/brightness} / max_brightness,
+     * and cached_st_mtim is not later than the time which the value is cached.
+     */
+    struct timespec cached_st_mtim;
+    uintmax_t cached_brightness;
 };
 
 static struct Backlight *backlights;
 static size_t backlight_sz;
+
+static void update_brightness(struct Backlight *backlight);
 
 static void addBacklight(int path_fd, const char *filename)
 {
@@ -62,6 +72,9 @@ static void addBacklight(int path_fd, const char *filename)
 
     memcpy(buffer + filename_sz + 1, "brightness", sizeof("brightness"));
     backlight->fd = openat_checked(path, path_fd, buffer, O_RDONLY);
+
+    memset(&backlight->cached_st_mtim, 0, sizeof(struct timespec));
+    update_brightness(backlight);
 }
 
 void init_brightness_detection()
@@ -93,27 +106,50 @@ void init_brightness_detection()
         err(1, "%s on %s failed", "readdir", path);
 
     if (backlight_sz == 0)
-        errx(1, "No %s dir is found", path);
+        errx(1, "No dir is found under %s", path);
 
     closedir(dir);
+}
+
+static void calculate_brightness(struct Backlight *backlight, const struct timespec *st_mtim)
+{
+    uintmax_t val;
+    const char *failed_part = readall_as_uintmax(backlight->fd, &val);
+    if (failed_part)
+        err(1, "%s on %s%s/%s failed", failed_part, path, backlight->filename, "brightness");
+
+    backlight->cached_brightness = 100 * val / backlight->max_brightness;
+    backlight->cached_st_mtim = *st_mtim;
+
+    if (lseek(backlight->fd, 0, SEEK_SET) == (off_t) -1)
+        err(1, "%s on %s%s/%s failed", "lseek", path, backlight->filename, "brightness");
+}
+static void update_brightness(struct Backlight *backlight)
+{
+    struct stat file_stat;
+    if (fstat(backlight->fd, &file_stat) == -1)
+        err(1, "%s on %s%s/%s failed", "fstat", path, backlight->filename, "brightness");
+
+    const struct timespec * const st_mtim = &file_stat.st_mtim;
+    const struct timespec * const cached_st_mtim = &backlight->cached_st_mtim;
+    /*
+     * st_mtim cannot be a value smaller than cached_st_mtim.
+     * So if tv_nsec or tv_sec differs, then a change is made.
+     */
+    if (st_mtim->tv_nsec != cached_st_mtim->tv_nsec || st_mtim->tv_sec != cached_st_mtim->tv_sec)
+        calculate_brightness(backlight, st_mtim);
 }
 
 void print_brightness()
 {
     for (size_t i = 0; i != backlight_sz; ++i) {
-        const struct Backlight * const backlight = &backlights[i];
+        struct Backlight * const backlight = &backlights[i];
 
-        uintmax_t brightness;
-        const char *failed_part = readall_as_uintmax(backlight->fd, &brightness);
-        if (failed_part)
-            err(1, "%s on %s%s/%s failed",
-                    failed_part, path, backlight->filename, "max_brightness");
+        update_brightness(backlight);
 
-        printf("%s: %" PRIuMAX, backlight->filename, 100 * brightness / backlight->max_brightness);
+        printf("%s: %" PRIuMAX, backlight->filename, backlight->cached_brightness);
 
         if (i + 1 != backlight_sz)
             fputs(" ", stdout);
-        if (lseek(backlight->fd, 0, SEEK_SET) == (off_t) -1)
-            err(1, "%s on %s%s/%s failed", "lseek", path, backlight->filename, "brightness");
     }
 }
