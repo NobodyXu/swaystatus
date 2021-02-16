@@ -73,7 +73,7 @@ void print_network_interfaces()
     }
 
     const char *connectivity = connectivity2str(connectivity_state);
-    if (cnt++ == 5)
+    if (cnt++ % 5 == 0)
         /*
          * Check connectivity every 5 seconds
          */
