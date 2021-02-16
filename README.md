@@ -1,6 +1,6 @@
 # swaystatus
 
-A lightweight yet feature-rich status bar for i3 or swaybar.
+A lightweight yet feature-rich status bar for i3bar or swaybar.
 
 ![screenshot]
 
@@ -32,6 +32,14 @@ To install, run `sudo make install`, which by default will install a single bina
 ## Usage
 
 `swaystatus` accepts one optional arg for formating date and time, which will be passed to [`strftime`] directly.
+
+To use swaystatus in sway, change configuration entry `status_command` in `bar` to:
+
+```
+bar {
+    status_command swaystatus
+}
+```
 
 [screenshot]: https://raw.githubusercontent.com/NobodyXu/swaystatus/main/screenshot.png
 [`strftime`]: https://man7.org/linux/man-pages/man3/strftime.3.html
