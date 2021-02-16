@@ -9,6 +9,7 @@
 #include "print_network_interfaces.h"
 #include "print_brightness.h"
 #include "print_memory_usage.h"
+#include "print_load.h"
 
 void print_delimiter()
 {
@@ -30,6 +31,7 @@ int main(int argc, char* argv[])
     init_network_interfaces_scanning();
     init_brightness_detection();
     init_memory_usage_collection();
+    init_load();
 
     for ( ; ; sleep(1)) {
         print_brightness();
@@ -42,6 +44,9 @@ int main(int argc, char* argv[])
         print_delimiter();
 
         print_network_interfaces();
+        print_delimiter();
+
+        print_load();
         print_delimiter();
 
         print_memory_usage();
