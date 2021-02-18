@@ -1,4 +1,4 @@
-#define _DEFAULT_SOURCE /* For setlintbuf */
+#define _DEFAULT_SOURCE /* For setlintbuf and nice */
 
 #include <stdio.h>
 #include <string.h>
@@ -71,6 +71,8 @@ static void print_delimiter()
 
 int main(int argc, char* argv[])
 {
+    nice(19);
+
     struct JSON_elements_strs elements;
     parse_cmdline_arg_and_initialize(argc, argv, &elements);
 
