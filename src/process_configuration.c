@@ -88,6 +88,10 @@ void* load_config(const char *filename)
 
     return config;
 }
+void free_config(void *config)
+{
+    json_object_put(config);
+}
 
 const char* get_property(void *config, const char *name, const char *property,
                          const char *default_val)

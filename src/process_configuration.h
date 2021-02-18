@@ -5,6 +5,7 @@
  * load and verify the configuration.
  */
 void* load_config(const char *filename);
+void free_config(void *config);
 
 const char* get_property(void *config, const char *name, const char *property,
                          const char *default_val);
