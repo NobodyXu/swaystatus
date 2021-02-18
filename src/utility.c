@@ -13,6 +13,13 @@
 
 #include "utility.h"
 
+void* malloc_checked(size_t size)
+{
+    void *ret = malloc(size);
+    if (!ret)
+        err(1, "%s failed", "malloc");
+    return ret;
+}
 void reallocarray_checked(void **ptr, size_t nmemb, size_t size)
 {
     void *newp = reallocarray(*ptr, nmemb, size);

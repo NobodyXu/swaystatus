@@ -12,6 +12,8 @@
     x > y ? x : y;           \
 }
 
+void* malloc_checked(size_t size);
+
 void reallocarray_checked(void **ptr, size_t nmemb, size_t size);
 
 /**
