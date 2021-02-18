@@ -1,0 +1,41 @@
+#ifndef  __swaystatus_help_H__
+# define __swaystatus_help_H__
+
+static const char * const help = 
+    "Usage: swaystatus [options] configuration_filename\n\n"
+    "  --help                  Show help message and exit\n"
+    "Config file format:\n\n"
+    "    {\n"
+    "        \"name\": {\n"
+    "            \"format\": \"##RRGGBBA\",\n"
+    "            \"color\": \"##RRGGBBA\",\n"
+    "            \"background: \"##RRGGBBA\",\n"
+    "            \"border\": \"##RRGGBBA\",\n"
+    "            \"border_top\": 1,\n"
+    "            \"border_bottom\": 1,\n"
+    "            \"border_left\": 1,\n"
+    "            \"border_right\": 1,\n"
+    "            \"min_width\": 1,\n"
+    "            \"align\": \"center\",\n"
+    "            \"separator\": true,\n"
+    "            \"separator_block_width\": 9\n"
+    "        },\n"
+    "    }\n\n"
+    "All property present for \"name\" above are optional.\n"
+    "For volume, you can also set property mix_name and card.\n"
+    "NOTE that property \"format\" is now only supported by time.\n\n"
+    "The following values are valid name:\n\n"
+    " - brightness\n"
+    " - volume\n"
+    " - battery\n"
+    " - network_interface\n"
+    " - load\n"
+    " - memory_usage\n"
+    " - time\n\n"
+    "If you want to disable a certain feature, say brightness,\n"
+    "then add the following to your configuration:\n\n"
+    "    {\n"
+    "        \"brightness\": false,\n"
+    "    }";
+
+#endif

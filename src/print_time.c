@@ -8,7 +8,13 @@
 #include <time.h>
 #include <unistd.h>
 
-void print_time(const char * const format)
+static const char *format;
+
+void init_time(const char * const format_arg)
+{
+    format = format_arg;
+}
+void print_time()
 {
     const time_t epoch = time(NULL);
     struct tm local_time;
