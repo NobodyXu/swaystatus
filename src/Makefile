@@ -25,6 +25,9 @@ swaystatus: $(OBJS)
 %.o: %.c %.h Makefile
 	$(CC) -std=c11 -c $(CFLAGS) -o $@ $<
 
+## Dependencies
+swaystatus.o: help.h
+
 install: swaystatus
 	cp -f swaystatus $(TARGET_DIR)/bin/
 
