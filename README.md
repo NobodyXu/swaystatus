@@ -37,7 +37,9 @@ To install, run `sudo make install`, which by default will install a single bina
 ```
 swaystatus: Usage: swaystatus [options] configuration_filename
 
-  --help                  Show help message and exit
+  --help                    Show help message and exit
+  --interval=unsigned_msec  Specify update interval in milliseconds, must be an unsignerinteger.
+
 Config file format:
 
     {
