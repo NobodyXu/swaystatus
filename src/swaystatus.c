@@ -17,11 +17,6 @@
 #include "print_memory_usage.h"
 #include "print_load.h"
 
-void print_delimiter()
-{
-    fputs("|", stdout);
-}
-
 static void parse_cmdline_arg_and_initialize(
     int argc, char* argv[],
     struct JSON_elements_strs *elements
@@ -60,35 +55,54 @@ static void parse_cmdline_arg_and_initialize(
 
     free_config(config);
 }
+
+static void print_block(void (*print)(), const char *json_element_str)
+{
+    fputs("{\"full_text\":\"", stdout);
+    print();
+    fputs("\",", stdout);
+    fputs(json_element_str, stdout);
+    fputs("}", stdout);
+}
+static void print_delimiter()
+{
+    fputs(",", stdout);
+}
+
 int main(int argc, char* argv[])
 {
     struct JSON_elements_strs elements;
     parse_cmdline_arg_and_initialize(argc, argv, &elements);
 
+    /* Print header */
     puts("{\"version\":1}");
+    /* Begin an infinite array */
+    puts("[");
 
     for ( ; ; sleep(1)) {
-        print_brightness();
+        fputs("[", stdout);
+
+        print_block(print_brightness, elements.brightness);
         print_delimiter();
 
-        print_volume();
+        print_block(print_volume, elements.volume);
         print_delimiter();
 
-        print_battery();
+        print_block(print_battery, elements.battery);
         print_delimiter();
 
-        print_network_interfaces();
+        print_block(print_network_interfaces, elements.network_interface);
         print_delimiter();
 
-        print_load();
+        print_block(print_load, elements.load);
         print_delimiter();
 
-        print_memory_usage();
+        print_block(print_memory_usage, elements.memory_usage);
         print_delimiter();
 
-        print_time();
+        print_block(print_time, elements.time);
 
-        puts("");
+        puts("],");
     }
 
     return 0;
