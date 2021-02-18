@@ -147,13 +147,16 @@ static const char* get_elements_str(void *config, const char *name)
 
     const int has_sep = has_seperator(properties);
     if (!has_sep)
-        size += sizeof(DEFAULT_PROPERTY) - 1;
+        size += /* For the comma */ 1 + sizeof(DEFAULT_PROPERTY) - 1;
 
     size = size - /* Remove '{' and '}' */ 2 + 1;
     char *ret = malloc_checked(size);
     memcpy(ret, json_str + 1, json_str_len - 2);
-    if (!has_sep)
-        memcpy(ret + json_str_len - 2, DEFAULT_PROPERTY, sizeof(DEFAULT_PROPERTY) - 1);
+    if (!has_sep) {
+        char *dest = ret + json_str_len - 2;
+        *dest++ = ',';
+        memcpy(dest, DEFAULT_PROPERTY, sizeof(DEFAULT_PROPERTY) - 1);
+    }
     ret[size - 1] = '\0';
 
     return ret;
