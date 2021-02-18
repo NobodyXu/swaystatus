@@ -77,9 +77,11 @@ static void verify_config(const char *filename, struct json_object *config)
         }
         if (i == valid_name_sz)
             errx(1, "Invalid name %s found in %s", name, filename);
-        if (json_object_get_type(properties) != json_type_object)
+        json_type properties_type = json_object_get_type(properties);
+        if (properties_type != json_type_object && properties_type != json_type_boolean)
             errx(1, "Invalid value for name %s found in %s", name, filename);
-        verify_entry(filename, name, properties);
+        if (properties_type == json_type_object)
+            verify_entry(filename, name, properties);
     }
 }
 void* load_config(const char *filename)
@@ -105,6 +107,9 @@ const char* get_property(void *config, const char *name, const char *property,
     struct json_object *properties;
     if (!json_object_object_get_ex(config, name, &properties))
         return default_val;
+
+    if (json_object_get_type(properties) == json_type_boolean)
+        return default_val;
     
     struct json_object *value;
     if (!json_object_object_get_ex(properties, property, &value))
@@ -115,6 +120,27 @@ const char* get_property(void *config, const char *name, const char *property,
 const char* get_format(void *config, const char *name, const char *default_val)
 {
     return get_property(config, name, "format", default_val);
+}
+
+static bool get_feature(void *config, const char *name)
+{
+    struct json_object *val;
+    if (!json_object_object_get_ex(config, name, &val))
+        return true;
+    if (json_object_get_type(val) == json_type_object)
+        return true;
+
+    return json_object_get_boolean(val);
+}
+void config2features(void *config, struct Features *features)
+{
+    features->brightness        = get_feature(config, "brightness");
+    features->volume            = get_feature(config, "volume");
+    features->battery           = get_feature(config, "battery");
+    features->network_interface = get_feature(config, "network_interface");
+    features->load              = get_feature(config, "load");
+    features->memory_usage      = get_feature(config, "memory_usage");
+    features->time              = get_feature(config, "time");
 }
 
 static int has_seperator(struct json_object *properties)
@@ -128,6 +154,9 @@ static const char* get_elements_str(void *config, const char *name)
 
     struct json_object *properties;
     if (!json_object_object_get_ex(config, name, &properties))
+        return DEFAULT_PROPERTY;
+
+    if (json_object_get_type(properties) == json_type_boolean)
         return DEFAULT_PROPERTY;
 
     json_object_object_del(properties, "format");
@@ -163,11 +192,11 @@ static const char* get_elements_str(void *config, const char *name)
 }
 void config2json_elements_strs(void *config, struct JSON_elements_strs *elements)
 {
-    elements->brightness = get_elements_str(config, "brightness");
-    elements->volume = get_elements_str(config, "volume");
-    elements->battery = get_elements_str(config, "battery");
+    elements->brightness        = get_elements_str(config, "brightness");
+    elements->volume            = get_elements_str(config, "volume");
+    elements->battery           = get_elements_str(config, "battery");
     elements->network_interface = get_elements_str(config, "network_interface");
-    elements->load = get_elements_str(config, "load");
-    elements->memory_usage = get_elements_str(config, "memory_usage");
-    elements->time = get_elements_str(config, "time");
+    elements->load              = get_elements_str(config, "load");
+    elements->memory_usage      = get_elements_str(config, "memory_usage");
+    elements->time              = get_elements_str(config, "time");
 }

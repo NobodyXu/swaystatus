@@ -1,6 +1,8 @@
 #ifndef  __swaystatus_process_configuration_H__
 # define __swaystatus_process_configuration_H__
 
+# include <stdbool.h>
+
 /**
  * load and verify the configuration.
  */
@@ -10,6 +12,18 @@ void free_config(void *config);
 const char* get_property(void *config, const char *name, const char *property,
                          const char *default_val);
 const char* get_format(void *config, const char *name, const char *default_val);
+
+struct Features {
+    bool brightness;
+    bool volume;
+    bool battery;
+    bool network_interface;
+    bool load;
+    bool memory_usage;
+    bool time;
+};
+
+void config2features(void *config, struct Features *features);
 
 struct JSON_elements_strs {
     /**

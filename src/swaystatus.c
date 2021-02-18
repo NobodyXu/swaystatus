@@ -19,6 +19,7 @@
 
 static void parse_cmdline_arg_and_initialize(
     int argc, char* argv[],
+    struct Features *features,
     struct JSON_elements_strs *elements
 )
 {
@@ -34,22 +35,31 @@ static void parse_cmdline_arg_and_initialize(
         }
     }
 
+    config2features(config, features);
+
     /*
      * Make sure fflush only happens when a newline is outputed.
      * Otherwise, swaybar might misbehave.
      */
     setlinebuf(stdout); 
 
-    init_time(get_format(config, "time", "%Y-%m-%d %T"));
-    init_upclient();
-    init_alsa(
-        get_property(config, "volume", "mix_name", "Master"),
-        get_property(config, "volume", "card",     "default")
-    );
-    init_network_interfaces_scanning();
-    init_brightness_detection();
-    init_memory_usage_collection();
-    init_load();
+    if (features->time)
+        init_time(get_format(config, "time", "%Y-%m-%d %T"));
+    if (features->battery)
+        init_upclient();
+    if (features->volume)
+        init_alsa(
+            get_property(config, "volume", "mix_name", "Master"),
+            get_property(config, "volume", "card",     "default")
+        );
+    if (features->network_interface)
+        init_network_interfaces_scanning();
+    if (features->brightness)
+        init_brightness_detection();
+    if (features->memory_usage)
+        init_memory_usage_collection();
+    if (features->load)
+        init_load();
 
     config2json_elements_strs(config, elements);
 
@@ -73,8 +83,9 @@ int main(int argc, char* argv[])
 {
     nice(19);
 
+    struct Features features;
     struct JSON_elements_strs elements;
-    parse_cmdline_arg_and_initialize(argc, argv, &elements);
+    parse_cmdline_arg_and_initialize(argc, argv, &features, &elements);
 
     /* Print header */
     puts("{\"version\":1}");
@@ -84,27 +95,43 @@ int main(int argc, char* argv[])
     for ( ; ; sleep(1)) {
         fputs("[", stdout);
 
-        print_block(print_brightness, elements.brightness);
-        print_delimiter();
+        if (features.brightness) {
+            print_block(print_brightness, elements.brightness);
+            print_delimiter();
+        }
 
-        print_block(print_volume, elements.volume);
-        print_delimiter();
+        if (features.volume) {
+            print_block(print_volume, elements.volume);
+            print_delimiter();
+        }
 
-        print_block(print_battery, elements.battery);
-        print_delimiter();
+        if (features.battery) {
+            print_block(print_battery, elements.battery);
+            print_delimiter();
+        }
 
-        print_block(print_network_interfaces, elements.network_interface);
-        print_delimiter();
+        if (features.network_interface) {
+            print_block(print_network_interfaces, elements.network_interface);
+            print_delimiter();
+        }
 
-        print_block(print_load, elements.load);
-        print_delimiter();
+        if (features.load) {
+            print_block(print_load, elements.load);
+            print_delimiter();
+        }
 
-        print_block(print_memory_usage, elements.memory_usage);
-        print_delimiter();
+        if (features.memory_usage) {
+            print_block(print_memory_usage, elements.memory_usage);
+            print_delimiter();
+        }
 
-        print_block(print_time, elements.time);
+        if (features.time) {
+            print_block(print_time, elements.time);
+            print_delimiter();
+        }
 
-        puts("],");
+        /* Print dummy */
+        puts("{}],");
     }
 
     return 0;
