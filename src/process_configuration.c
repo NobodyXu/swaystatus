@@ -7,6 +7,7 @@
 #include <json_object.h>
 #include <json_util.h>
 
+#include "utility.h"
 #include "process_configuration.h"
 
 static const char * const valid_names[] = {
@@ -78,4 +79,20 @@ void* load_config(const char *filename)
     verify_config(filename, config);
 
     return config;
+}
+
+const char* get_format(void *config, const char *name, const char *default_val)
+{
+    if (!config)
+        return default_val;
+
+    struct json_object *properties;
+    if (!json_object_object_get_ex(config, name, &properties))
+        return default_val;
+    
+    struct json_object *format;
+    if (!json_object_object_get_ex(properties, "format", &format))
+        return default_val;
+
+    return strdup_checked(json_object_get_string(format));
 }

@@ -24,7 +24,6 @@ void print_delimiter()
 
 int main(int argc, char* argv[])
 {
-    const char *format = "%Y-%m-%d %T";
     void *config = NULL;
 
     for (int i = 1; i != argc; ++i) {
@@ -44,7 +43,7 @@ int main(int argc, char* argv[])
      */
     setlinebuf(stdout); 
 
-    init_time(format);
+    init_time(get_format(config, "time", "%Y-%m-%d %T"));
     init_upclient();
     init_alsa("Master", "default");
     init_network_interfaces_scanning();
