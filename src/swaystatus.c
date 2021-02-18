@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
      */
     setlinebuf(stdout); 
 
+    init_time(format);
     init_upclient();
     init_alsa("Master", "default");
     init_network_interfaces_scanning();
@@ -52,7 +53,7 @@ int main(int argc, char* argv[])
         print_memory_usage();
         print_delimiter();
 
-        print_time(format);
+        print_time();
 
         puts("");
     }
