@@ -32,9 +32,54 @@ To install, run `sudo make install`, which by default will install a single bina
 
 ## Usage
 
-`swaystatus` accepts one optional arg for formating date and time, which will be passed to [`strftime`] directly.
+### swaybar usage:
 
-To use swaystatus in sway, change configuration entry `status_command` in `bar` to:
+```
+swaystatus: Usage: swaystatus [options] configuration_filename
+
+  --help                  Show help message and exit
+Config file format:
+
+    {
+        "name": {
+            "format": "##RRGGBBA",
+            "color": "##RRGGBBA",
+            "background: "##RRGGBBA",
+            "border": "##RRGGBBA",
+            "border_top": 1,
+            "border_bottom": 1,
+            "border_left": 1,
+            "border_right": 1,
+            "min_width": 1,
+            "align": "center",
+            "separator": true,
+            "separator_block_width": 9
+        },
+    }
+
+All property present for "name" above are optional.
+For volume, you can also set property mix_name and card.
+NOTE that property "format" is now only supported by time.
+
+The following values are valid name:
+
+ - brightness
+ - volume
+ - battery
+ - network_interface
+ - load
+ - memory_usage
+ - time
+
+If you want to disable a certain feature, say brightness,
+then add the following to your configuration:
+
+    {
+        "brightness": false,
+    }
+```
+
+### Use `swaybar` in `sway`
 
 ```
 bar {
