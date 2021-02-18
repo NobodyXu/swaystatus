@@ -45,7 +45,8 @@ int main(int argc, char* argv[])
 
     init_time(get_format(config, "time", "%Y-%m-%d %T"));
     init_upclient();
-    init_alsa("Master", "default");
+    init_alsa(get_property(config, "volume", "mix_name", "Master"),
+              get_property(config, "volume", "card",     "default"));
     init_network_interfaces_scanning();
     init_brightness_detection();
     init_memory_usage_collection();

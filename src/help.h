@@ -24,6 +24,7 @@ static const char * const help =
     "        },\n"
     "    }\n\n"
     "All property present for \"name\" above are optional.\n"
+    "For volume, you can also set property mix_name and card.\n"
     "NOTE that property \"format\" is now only supported by time.\n\n"
     "The following values are valid name:\n\n"
     " - brightness\n"

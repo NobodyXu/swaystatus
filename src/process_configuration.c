@@ -44,6 +44,14 @@ static const size_t valid_property_sz = sizeof(valid_properties) / sizeof(struct
 static void verify_entry(const char *filename, const char *name, struct json_object *entry)
 {
     json_object_object_foreach(entry, property, val) {
+        if (strcmp(name, "volume") == 0) {
+            if (strcmp(property, "mix_name") == 0 || strcmp(property, "card") == 0) {
+                if (json_object_get_type(val) != json_type_string)
+                    errx(1, "Invalid type of value for %s.%s in %s", name, property, filename);
+                continue;
+            }
+        }
+
         size_t i = 0;
         for (; i != valid_property_sz; ++i) {
             if (strcmp(property, valid_properties[i].name) == 0) {
@@ -81,7 +89,8 @@ void* load_config(const char *filename)
     return config;
 }
 
-const char* get_format(void *config, const char *name, const char *default_val)
+const char* get_property(void *config, const char *name, const char *property,
+                         const char *default_val)
 {
     if (!config)
         return default_val;
@@ -90,9 +99,13 @@ const char* get_format(void *config, const char *name, const char *default_val)
     if (!json_object_object_get_ex(config, name, &properties))
         return default_val;
     
-    struct json_object *format;
-    if (!json_object_object_get_ex(properties, "format", &format))
+    struct json_object *value;
+    if (!json_object_object_get_ex(properties, property, &value))
         return default_val;
 
-    return strdup_checked(json_object_get_string(format));
+    return strdup_checked(json_object_get_string(value));
+}
+const char* get_format(void *config, const char *name, const char *default_val)
+{
+    return get_property(config, name, "format", default_val);
 }
