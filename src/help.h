@@ -19,7 +19,6 @@ static const char * const help =
     "            \"border_right\": 1,\n"
     "            \"min_width\": 1,\n"
     "            \"align\": \"...\",\n"
-    "            \"urgent\": true,\n"
     "            \"separator\": true,\n"
     "            \"separator_block_width\": 9\n"
     "        },\n"
