@@ -4,8 +4,6 @@
 static const char * const help = 
     "Usage: swaystatus [options] configuration_filename\n\n"
     "  --help                  Show help message and exit\n"
-    "  --time-format=format    Overrides the default time format.\n"
-    "                          The time format is specified in man page of strftime.\n"
     "Config file format:\n\n"
     "    {\n"
     "        \"name\": {\n"
