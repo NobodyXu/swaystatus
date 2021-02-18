@@ -36,6 +36,12 @@ char* strdup_checked(const char *s)
     return ret;
 }
 
+void msleep(uintmax_t msec)
+{
+    if (usleep(msec * 1000) && errno == EINVAL)
+        err(1, "%s failed", "usleep");
+}
+
 int openat_checked(const char *dir, int dirfd, const char *path, int flags)
 {
     int fd;

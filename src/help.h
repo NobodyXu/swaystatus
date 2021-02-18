@@ -3,7 +3,9 @@
 
 static const char * const help = 
     "Usage: swaystatus [options] configuration_filename\n\n"
-    "  --help                  Show help message and exit\n\n"
+    "  --help                    Show help message and exit\n"
+    "  --interval=unsigned_msec  Specify update interval in milliseconds, must be an unsigner"
+    "integer.\n\n"
     "Config file format:\n\n"
     "    {\n"
     "        \"name\": {\n"

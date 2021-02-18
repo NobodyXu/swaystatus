@@ -25,6 +25,11 @@ void reallocarray_checked(void **ptr, size_t nmemb, size_t size);
 char* strdup_checked(const char *s);
 
 /**
+ * NOTE that msleep does not restart on interruption.
+ */
+void msleep(uintmax_t msec);
+
+/**
  * @param dir should end with '/' or ""
  * @param dirfd if dir == "", then dirfd got to be AT_FDCWD.
  */
