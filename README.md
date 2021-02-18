@@ -16,6 +16,7 @@ On my x86-64 computer, it compiles to a single binary that is only `16K` large u
  - libupower-glib.so.3
  - libasound.so.2
  - libnm.so.0
+ - libjson-c.so.5 (the same json library as sway and swaybar)
 
 ## Build
 
