@@ -22,14 +22,16 @@ void print_delimiter()
     fputs("|", stdout);
 }
 
-int main(int argc, char* argv[])
+static void parse_cmdline_arg_and_initialize(
+    int argc, char* argv[],
+    struct JSON_elements_strs *elements
+)
 {
     void *config = NULL;
 
     for (int i = 1; i != argc; ++i) {
         if (strcmp(argv[i], "--help") == 0) {
-            puts(help);
-            return 1;
+            errx(1, help);
         } else {
             if (config)
                 errx(1, "Error: configuration file is specified twice");
@@ -45,12 +47,25 @@ int main(int argc, char* argv[])
 
     init_time(get_format(config, "time", "%Y-%m-%d %T"));
     init_upclient();
-    init_alsa(get_property(config, "volume", "mix_name", "Master"),
-              get_property(config, "volume", "card",     "default"));
+    init_alsa(
+        get_property(config, "volume", "mix_name", "Master"),
+        get_property(config, "volume", "card",     "default")
+    );
     init_network_interfaces_scanning();
     init_brightness_detection();
     init_memory_usage_collection();
     init_load();
+
+    config2json_elements_strs(config, elements);
+
+    free_config(config);
+}
+int main(int argc, char* argv[])
+{
+    struct JSON_elements_strs elements;
+    parse_cmdline_arg_and_initialize(argc, argv, &elements);
+
+    puts("{\"version\":1}");
 
     for ( ; ; sleep(1)) {
         print_brightness();

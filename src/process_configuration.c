@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <string.h>
 
+#include <assert.h>
 #include <err.h>
 
 #include <json.h>
@@ -9,6 +10,8 @@
 
 #include "utility.h"
 #include "process_configuration.h"
+
+static const int json2str_flag = JSON_C_TO_STRING_PLAIN | JSON_C_TO_STRING_NOZERO;
 
 static const char * const valid_names[] = {
     "brightness",
@@ -66,17 +69,17 @@ static void verify_entry(const char *filename, const char *name, struct json_obj
 }
 static void verify_config(const char *filename, struct json_object *config)
 {
-    json_object_object_foreach(config, key, val) {
+    json_object_object_foreach(config, name, properties) {
         size_t i = 0;
         for (; i != valid_name_sz; ++i) {
-            if (strcmp(key, valid_names[i]) == 0)
+            if (strcmp(name, valid_names[i]) == 0)
                 break;
         }
         if (i == valid_name_sz)
-            errx(1, "Invalid name %s found in %s", key, filename);
-        if (json_object_get_type(val) != json_type_object)
-            errx(1, "Invalid value for name %s found in %s", key, filename);
-        verify_entry(filename, key, val);
+            errx(1, "Invalid name %s found in %s", name, filename);
+        if (json_object_get_type(properties) != json_type_object)
+            errx(1, "Invalid value for name %s found in %s", name, filename);
+        verify_entry(filename, name, properties);
     }
 }
 void* load_config(const char *filename)
@@ -112,4 +115,56 @@ const char* get_property(void *config, const char *name, const char *property,
 const char* get_format(void *config, const char *name, const char *default_val)
 {
     return get_property(config, name, "format", default_val);
+}
+
+static int has_seperator(struct json_object *properties)
+{
+    struct json_object *separator;
+    return json_object_object_get_ex(properties, "separator", &separator);
+}
+static const char* get_elements_str(void *config, const char *name)
+{
+#define DEFAULT_PROPERTY "\"separator\":true"
+
+    struct json_object *properties;
+    if (!json_object_object_get_ex(config, name, &properties))
+        return DEFAULT_PROPERTY;
+
+    json_object_object_del(properties, "format");
+    if (strcmp(name, "volume") == 0) {
+        json_object_object_del(properties, "mix_name");
+        json_object_object_del(properties, "card");
+    }
+
+    size_t json_str_len;
+    const char *json_str = json_object_to_json_string_length(
+        properties,
+        json2str_flag,
+        &json_str_len
+    );
+
+    size_t size = json_str_len;
+
+    const int has_sep = has_seperator(properties);
+    if (!has_sep)
+        size += sizeof(DEFAULT_PROPERTY) - 1;
+
+    size = size - /* Remove '{' and '}' */ 2 + 1;
+    char *ret = malloc_checked(size);
+    memcpy(ret, json_str + 1, json_str_len - 2);
+    if (!has_sep)
+        memcpy(ret + json_str_len - 2, DEFAULT_PROPERTY, sizeof(DEFAULT_PROPERTY) - 1);
+    ret[size - 1] = '\0';
+
+    return ret;
+}
+void config2json_elements_strs(void *config, struct JSON_elements_strs *elements)
+{
+    elements->brightness = get_elements_str(config, "brightness");
+    elements->volume = get_elements_str(config, "volume");
+    elements->battery = get_elements_str(config, "battery");
+    elements->network_interface = get_elements_str(config, "network_interface");
+    elements->load = get_elements_str(config, "load");
+    elements->memory_usage = get_elements_str(config, "memory_usage");
+    elements->time = get_elements_str(config, "time");
 }
