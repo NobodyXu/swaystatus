@@ -1,9 +1,33 @@
 #ifndef  __swaystatus_printer_HPP__
 # define __swaystatus_printer_HPP__
 
-# include "dep/fmt/include/fmt/core.h"
+# ifdef __cplusplus
+#  include "dep/fmt/include/fmt/core.h"
+# endif
 
+# ifdef __cplusplus
+extern "C" {
+# endif
+
+/**
+ * @param str must not be NULL
+ */
+void print_str(const char *str);
+
+# ifdef __cplusplus
+}
+# endif
+
+# ifdef __cplusplus
 namespace swaystatus {
+/**
+ * @param str must not be nullptr
+ */
+inline void print_str(const char *str)
+{
+    ::print_str(str);
+}
+
 /**
  * Prints to the buffer of stdout, but does not flush the buffer, not thread safe.
  */
@@ -23,5 +47,6 @@ void print(const S &format, Args &&...args)
  */
 void flush();
 } /* End of namespace swaystatus */
+# endif
 
 #endif

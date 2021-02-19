@@ -1,5 +1,6 @@
 #define FMT_HEADER_ONLY
 
+#include <string.h>
 #include <err.h>
 
 #include <algorithm>
@@ -12,6 +13,16 @@
 #include "utility.h"
 
 static fmt::basic_memory_buffer<char, /* Inline buffer size */ 4096> out;
+
+extern "C" {
+void print_str(const char *str)
+{
+    /* len, excluding the terminating null byte */
+    const size_t len = strlen(str);
+
+    out.append(str, str + len);
+}
+}
 
 namespace swaystatus {
 void vprint(fmt::string_view format, fmt::format_args args)
