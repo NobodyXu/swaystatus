@@ -1,14 +1,15 @@
 #include <stddef.h>
-#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <err.h>
 #include <upower.h>
 
+#include "printer.hpp"
 #include "print_battery.h"
 
 static UpClient *client;
 
+extern "C" {
 void init_upclient()
 {
     GError *error = NULL;
@@ -46,7 +47,8 @@ void print_battery()
     gdouble percentage;
     g_object_get(device, "state", &state, "percentage", &percentage, NULL);
 
-    printf("%s %u%%", state2str(state), (unsigned) percentage);
+    swaystatus::print("{} {}%", state2str(state), (unsigned) percentage);
 
     g_object_unref(device);
+}
 }

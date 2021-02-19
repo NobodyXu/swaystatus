@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <inttypes.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <err.h>
@@ -15,6 +14,7 @@
 #include <unistd.h>    /* For close and lseek */
 
 #include "utility.h"
+#include "printer.hpp"
 #include "print_brightness.h"
 
 static const char * const path = "/sys/class/backlight/";
@@ -41,6 +41,7 @@ struct Backlight {
 static struct Backlight *backlights;
 static size_t backlight_sz;
 
+extern "C" {
 static void update_brightness(struct Backlight *backlight);
 
 static void addBacklight(int path_fd, const char *filename)
@@ -147,9 +148,10 @@ void print_brightness()
 
         update_brightness(backlight);
 
-        printf("%s: %" PRIuMAX, backlight->filename, backlight->cached_brightness);
+        swaystatus::print("{}: {}", backlight->filename, backlight->cached_brightness);
 
         if (i + 1 != backlight_sz)
-            fputs(" ", stdout);
+            swaystatus::print_str(" ");
     }
+}
 }

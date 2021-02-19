@@ -14,11 +14,10 @@
 
 #include <alsa/asoundlib.h>
 
-#include <stdio.h>
 #include <err.h>
 #include <alloca.h>
 
-#include "print_volume.h"
+#include "alsa.h"
 
 static snd_mixer_t *handle;
 static snd_mixer_elem_t *elem;
@@ -26,7 +25,7 @@ static long volume;
 
 static long calculate_audio_volume();
 
-void init_alsa(const char *mix_name, const char *card)
+void initialize_alsa_lib(const char *mix_name, const char *card)
 {
     snd_mixer_selem_id_t *sid;
     snd_mixer_selem_id_alloca(&sid);
@@ -67,7 +66,7 @@ static long calculate_audio_volume()
     maxv -= minv;
     return 100 * vol / maxv;
 }
-static long get_audio_volume()
+long get_audio_volume()
 {
     if (snd_mixer_wait(handle, 0) == 0) {
         if (snd_mixer_handle_events(handle) < 0)
@@ -76,9 +75,4 @@ static long get_audio_volume()
         volume = calculate_audio_volume();
     }
     return volume;
-}
-
-void print_volume()
-{
-    printf("vol %ld%%", get_audio_volume());
 }

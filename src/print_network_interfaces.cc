@@ -1,14 +1,15 @@
-#include <stdio.h>
 #include <err.h>
 
 #include <NetworkManager.h>
 
+#include "printer.hpp"
 #include "print_network_interfaces.h"
 
 static NMClient *client;
 static NMConnectivityState connectivity_state;
 static unsigned cnt;
 
+extern "C" {
 void init_network_interfaces_scanning()
 {
     GError *error = NULL;
@@ -53,7 +54,7 @@ static void print_address(gpointer data, gpointer user_data)
 {
     const char *address = nm_ip_address_get_address((NMIPAddress*) data);
 
-    printf("%s ", address);
+    swaystatus::print("{} ", address);
 }
 static void print_addresses(NMIPConfig *config)
 {
@@ -96,4 +97,5 @@ void print_network_interfaces()
 
     print_addresses(ipv4_config);
     print_addresses(ipv6_config);
+}
 }

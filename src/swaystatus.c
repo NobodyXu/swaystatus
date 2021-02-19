@@ -1,7 +1,7 @@
-#define _DEFAULT_SOURCE /* For setlintbuf and nice */
+#define _DEFAULT_SOURCE /* For nice */
+#define _POSIX_C_SOURCE /* For sigaction */
 
 #include <inttypes.h>
-#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -10,6 +10,7 @@
 
 #include "help.h"
 #include "utility.h"
+#include "printer.hpp"
 #include "process_configuration.h"
 
 #include "print_battery.h"
@@ -53,12 +54,6 @@ static uintmax_t parse_cmdline_arg_and_initialize(
 
     config2features(config, features);
 
-    /*
-     * Make sure fflush only happens when a newline is outputed.
-     * Otherwise, swaybar might misbehave.
-     */
-    setlinebuf(stdout); 
-
     if (features->time)
         init_time(get_format(config, "time", "%Y-%m-%d %T"));
     if (features->battery)
@@ -86,15 +81,15 @@ static uintmax_t parse_cmdline_arg_and_initialize(
 
 static void print_block(void (*print)(), const char *json_element_str)
 {
-    fputs("{\"full_text\":\"", stdout);
+    print_str("{\"full_text\":\"");
     print();
-    fputs("\",", stdout);
-    fputs(json_element_str, stdout);
-    fputs("}", stdout);
+    print_str("\",");
+    print_str(json_element_str);
+    print_str("}");
 }
 static void print_delimiter()
 {
-    fputs(",", stdout);
+    print_str(",");
 }
 
 int main(int argc, char* argv[])
@@ -106,12 +101,15 @@ int main(int argc, char* argv[])
     const uintmax_t interval = parse_cmdline_arg_and_initialize(argc, argv, &features, &elements);
 
     /* Print header */
-    puts("{\"version\":1}");
+    print_str("{\"version\":1}\n");
+    flush();
+
     /* Begin an infinite array */
-    puts("[");
+    print_str("[\n");
+    flush();
 
     for ( ; ; msleep(interval)) {
-        fputs("[", stdout);
+        print_str("[");
 
         if (features.brightness) {
             print_block(print_brightness, elements.brightness);
@@ -149,7 +147,8 @@ int main(int argc, char* argv[])
         }
 
         /* Print dummy */
-        puts("{}],");
+        print_str("{}],\n");
+        flush();
     }
 
     return 0;

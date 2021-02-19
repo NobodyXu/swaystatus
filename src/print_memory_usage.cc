@@ -1,6 +1,5 @@
 #define _POSIX_C_SOURCE 200809L /* For AT_FDCWD */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -12,6 +11,7 @@
 #include <fcntl.h>
 
 #include "utility.h"
+#include "printer.hpp"
 #include "print_memory_usage.h"
 
 struct ReadableMem {
@@ -24,12 +24,14 @@ static char *buffer;
 static size_t buffer_sz;
 static struct ReadableMem memtotal;
 
+extern "C" {
+
 static struct ReadableMem get_readable_memusage(const char *element, size_t element_sz);
 
 void init_memory_usage_collection()
 {
     meminfo_fd = openat_checked("", AT_FDCWD, "/proc/meminfo", O_RDONLY);
-    buffer = malloc(100);
+    buffer = static_cast<char*>(malloc(100));
     if (!buffer)
         err(1, "%s failed", "malloc");
     buffer_sz = 100;
@@ -136,6 +138,7 @@ void print_memory_usage()
 {
     struct ReadableMem memfree = get_readable_memusage("MemFree:", sizeof("MemFree:") - 1);
 
-    printf("Mem %s=%zu%s/%s=%zu%s",
-           "Free", memfree.mem, memfree.unit, "Total", memtotal.mem, memtotal.unit);
+    swaystatus::print("Mem {}={}{}/{}={}{}",
+                      "Free", memfree.mem, memfree.unit, "Total", memtotal.mem, memtotal.unit);
+}
 }

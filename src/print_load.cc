@@ -1,7 +1,6 @@
 #define _DEFAULT_SOURCE         /* For strsep */
 #define _POSIX_C_SOURCE 200809L /* For AT_FDCWD */
 
-#include <stdio.h>
 #include <string.h>
 #include <err.h>
 
@@ -9,12 +8,14 @@
 #include <fcntl.h>  /* For AT_FDCWD and O_RDONLY */
 
 #include "utility.h"
+#include "printer.hpp"
 #include "print_load.h"
 
 static const char * const loadavg_path = "/proc/loadavg";
 
 static int load_fd;
 
+extern "C" {
 void init_load()
 {
     load_fd = openat_checked("", AT_FDCWD, loadavg_path, O_RDONLY);
@@ -52,8 +53,9 @@ void print_load()
     const char* statistics[5];
     split(buffer, statistics);
 
-    printf("1m: %s 5m: %s 15m: %s", statistics[0], statistics[1], statistics[2]);
+    swaystatus::print("1m: {} 5m: {} 15m: {}", statistics[0], statistics[1], statistics[2]);
 
     if (lseek(load_fd, 0, SEEK_SET) == (off_t) -1)
         err(1, "%s on %s failed", "lseek", loadavg_path);
+}
 }

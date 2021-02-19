@@ -1,12 +1,12 @@
 #define _POSIX_C_SOURCE 200112L /* For localtime_r */
 
-#include "print_time.h"
-
-#include <stdio.h>
 #include <err.h>
 
 #include <time.h>
 #include <unistd.h>
+
+#include "printer.hpp"
+#include "print_time.h"
 
 static const char *format;
 
@@ -34,5 +34,5 @@ void print_time()
     if (cnt == 0)
         errx(1, "strftime returns 0: buffer too small!");
 
-    fputs(buffer, stdout);
+    print_str(buffer);
 }
