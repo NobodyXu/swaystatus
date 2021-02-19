@@ -151,7 +151,7 @@ void print_brightness()
         swaystatus::print("{}: {}", backlight->filename, backlight->cached_brightness);
 
         if (i + 1 != backlight_sz)
-            swaystatus::print_str(" ");
+            print_literal_str(" ");
     }
 }
 }

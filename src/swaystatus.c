@@ -92,15 +92,15 @@ static uintmax_t parse_cmdline_arg_and_initialize(
 
 static void print_block(void (*print)(), const char *json_element_str)
 {
-    print_str("{\"full_text\":\"");
+    print_literal_str("{\"full_text\":\"");
     print();
-    print_str("\",");
-    print_str(json_element_str);
-    print_str("}");
+    print_literal_str("\",");
+    print_literal_str(json_element_str);
+    print_literal_str("}");
 }
 static void print_delimiter()
 {
-    print_str(",");
+    print_literal_str(",");
 }
 
 int main(int argc, char* argv[])
@@ -122,15 +122,15 @@ int main(int argc, char* argv[])
     const uintmax_t interval = parse_cmdline_arg_and_initialize(argc, argv, &features, &elements);
 
     /* Print header */
-    print_str("{\"version\":1}\n");
+    print_literal_str("{\"version\":1}\n");
     flush();
 
     /* Begin an infinite array */
-    print_str("[\n");
+    print_literal_str("[\n");
     flush();
 
     for ( ; ; msleep(interval)) {
-        print_str("[");
+        print_literal_str("[");
 
         if (features.brightness) {
             print_block(print_brightness, elements.brightness);
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
         }
 
         /* Print dummy */
-        print_str("{}],\n");
+        print_literal_str("{}],\n");
         flush();
     }
 
