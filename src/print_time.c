@@ -34,5 +34,5 @@ void print_time()
     if (cnt == 0)
         errx(1, "strftime returns 0: buffer too small!");
 
-    print_str(buffer);
+    print_str2(buffer, cnt);
 }
