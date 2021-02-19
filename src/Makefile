@@ -40,6 +40,8 @@ swaystatus.o: help.h utility.h printer.hpp process_configuration.h $(wildcard *.
 
 $(filter print_%.o,$(OBJS)): printer.hpp
 
+print_volume.o: alsa.h
+
 printer.hpp: dep/fmt/include/fmt/core.h
 printer.cc: dep/fmt/include/fmt/format.h dep/fmt/include/fmt/format-inl.h
 
