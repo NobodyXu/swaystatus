@@ -20,7 +20,7 @@ On my x86-64 computer, it compiles to a single binary that is only `16K` large u
 
 ## Build
 
-Install `clang`, `lld`, `make` and `pkg-config`, then run
+Install `clang` (must have lto support), `lld`, `make` and `pkg-config`, then run
 
 ```
 git clone https://github.com/NobodyXu/swaystatus
