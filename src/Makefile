@@ -43,7 +43,7 @@ swaystatus: $(OBJS)
 	$(CXX) -std=c++17 -c $(CXXFLAGS) $(CFLAGS) -o $@ $<
 
 ## Dependencies
-swaystatus.o: help.h
+swaystatus.o: help.h printer.hpp
 
 $(filter print_%.o,$(OBJS)): printer.hpp
 
