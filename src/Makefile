@@ -24,22 +24,15 @@ CXX_OBJS := $(CXX_SRCS:.cc=.o)
 OBJS := $(C_OBJS) $(CXX_OBJS)
 
 ## Build rules
+.SECONDEXPANSION:
+
 swaystatus: $(OBJS)
 	$(CXX) $(LDFLAGS) $(LIBS) $^ -o $@
 
-%.o: %.c Makefile
+%.o: %.c $$(wildcard %.h) Makefile
 	$(CC) -std=c11 -c $(CFLAGS) -o $@ $<
 
-%.o: %.cc Makefile
-	$(CXX) -std=c++17 -c $(CXXFLAGS) $(CFLAGS) -o $@ $<
-
-%.o: %.c %.h Makefile
-	$(CC) -std=c11 -c $(CFLAGS) -o $@ $<
-
-%.o: %.cc %.h Makefile
-	$(CXX) -std=c++17 -c $(CXXFLAGS) $(CFLAGS) -o $@ $<
-
-%.o: %.cc %.hpp Makefile
+%.o: %.cc $$(wildcard %.h) $$(wildcard %.hpp) Makefile
 	$(CXX) -std=c++17 -c $(CXXFLAGS) $(CFLAGS) -o $@ $<
 
 ## Dependencies
