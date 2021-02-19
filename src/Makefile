@@ -47,6 +47,9 @@ swaystatus.o: help.h printer.hpp
 
 $(filter print_%.o,$(OBJS)): printer.hpp
 
+printer.hpp: dep/fmt/include/fmt/core.h
+printer.cc: dep/fmt/include/fmt/format.h dep/fmt/include/fmt/format-inl.h
+
 install: swaystatus
 	cp -f swaystatus $(TARGET_DIR)/bin/
 
