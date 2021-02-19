@@ -3,6 +3,7 @@
 
 # include "dep/fmt/include/fmt/core.h"
 
+namespace swaystatus {
 /**
  * Prints to the buffer of stdout, but does not flush the buffer, not thread safe.
  */
@@ -14,12 +15,13 @@ void vprint(fmt::string_view format, fmt::format_args args);
 template <typename S, typename ...Args>
 void print(const S &format, Args &&...args)
 {
-    vprint(format, fmt::make_args_checked<Args...>(format, args...));
+    swaystatus::vprint(format, fmt::make_args_checked<Args...>(format, args...));
 }
 
 /**
  * Flush the buffer of stdout, not thread safe.
  */
 void flush();
+} /* End of namespace swaystatus */
 
 #endif

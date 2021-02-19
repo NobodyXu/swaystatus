@@ -13,6 +13,7 @@
 
 static fmt::basic_memory_buffer<char, /* Inline buffer size */ 4096> out;
 
+namespace swaystatus {
 void vprint(fmt::string_view format, fmt::format_args args)
 {
     fmt::vformat_to(out, format, args);
@@ -36,3 +37,4 @@ void flush()
 
     out.clear();
 }
+} /* End of namespace swaystatus */
