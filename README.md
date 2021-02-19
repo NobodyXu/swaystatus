@@ -4,7 +4,7 @@ A lightweight yet feature-rich status bar for i3bar or swaybar.
 
 ![screenshot]
 
-It is written completely in C to make it as lightweight as possible and specifically, to avoid creating new processes every second as in bash script.
+It is written completely in C/C++ to make it as lightweight as possible and specifically, to avoid creating new processes every second as in bash script.
 
 It uses libraries like `libupower-glib`, `libasound` and `libnm` to retrieve battery, volume and network information as opposed to using `upower`, `amixer` or `nmcli`.
 
