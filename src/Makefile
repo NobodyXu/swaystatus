@@ -41,6 +41,9 @@ swaystatus: $(OBJS)
 ## Dependencies
 swaystatus.o: help.h
 
+print_%.o: print_%.cc printer.hpp
+print_%.o: print_%.c printer.hpp
+
 install: swaystatus
 	cp -f swaystatus $(TARGET_DIR)/bin/
 
