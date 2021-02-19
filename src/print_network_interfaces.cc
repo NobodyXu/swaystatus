@@ -65,11 +65,11 @@ static void print_addresses(NMIPConfig *config)
 void print_network_interfaces()
 {
     if (!nm_client_networking_get_enabled(client)) {
-        fputs("Network disabled", stdout);
+        print_literal_str("Network disabled");
         return;
     }
     if (connectivity_state == NM_CONNECTIVITY_NONE) {
-        fputs("Not connected", stdout);
+        print_literal_str("Not connected");
         return;
     }
 
@@ -82,18 +82,18 @@ void print_network_interfaces()
 
     NMActiveConnection * const conn = nm_client_get_primary_connection(client);
     if (!conn) {
-        fputs("Unrecongnizable device", stdout);
+        print_literal_str("Unrecongnizable device");
         return;
     }
 
     NMIPConfig * const ipv4_config = nm_active_connection_get_ip4_config(conn);
     NMIPConfig * const ipv6_config = nm_active_connection_get_ip6_config(conn);
     if (ipv4_config == NULL || ipv6_config == NULL) {
-        fputs("Error: Current activate connection get deactivated", stdout);
+        print_literal_str("Error: Current activate connection get deactivated");
         return;
     }
 
-    fputs(connectivity, stdout);
+    swaystatus::print_str(connectivity);
 
     print_addresses(ipv4_config);
     print_addresses(ipv6_config);
