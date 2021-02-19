@@ -1,6 +1,8 @@
 #ifndef  __swaystatus_printer_HPP__
 # define __swaystatus_printer_HPP__
 
+# include <stddef.h>
+
 # ifdef __cplusplus
 #  include "dep/fmt/include/fmt/core.h"
 # endif
@@ -14,12 +16,22 @@ extern "C" {
  */
 void print_str(const char *str);
 /**
+ * @param str must not be NULL
+ */
+void print_str2(const char *str, size_t len);
+/**
  * Flush the buffer of stdout, not thread safe.
  */
 void flush();
 
 # ifdef __cplusplus
 }
+# endif
+
+# ifdef __cplusplus
+#  define print_literal_str(literal) swaystatus::print_str2((literal), sizeof(literal) - 1)
+# else
+#  define print_literal_str(literal) print_str2((literal), sizeof(literal) - 1)
 # endif
 
 # ifdef __cplusplus
@@ -30,6 +42,13 @@ namespace swaystatus {
 inline void print_str(const char *str)
 {
     ::print_str(str);
+}
+/**
+ * @param str must not be nullptr
+ */
+inline void print_str2(const char *str, size_t len)
+{
+    ::print_str2(str, len);
 }
 
 /**

@@ -20,6 +20,10 @@ void print_str(const char *str)
     /* len, excluding the terminating null byte */
     const size_t len = strlen(str);
 
+    print_str2(str, len);
+}
+void print_str2(const char *str, size_t len)
+{
     out.append(str, str + len);
 }
 
