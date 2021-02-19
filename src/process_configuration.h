@@ -1,6 +1,10 @@
 #ifndef  __swaystatus_process_configuration_H__
 # define __swaystatus_process_configuration_H__
 
+# ifdef __cplusplus
+extern "C" {
+# endif
+
 # include <stdbool.h>
 
 /**
@@ -50,5 +54,9 @@ struct JSON_elements_strs {
  * if not specified by user.
  */
 void config2json_elements_strs(void *config, struct JSON_elements_strs *elements);
+
+# ifdef __cplusplus
+}
+# endif
 
 #endif

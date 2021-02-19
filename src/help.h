@@ -1,6 +1,10 @@
 #ifndef  __swaystatus_help_H__
 # define __swaystatus_help_H__
 
+# ifdef __cplusplus
+extern "C" {
+# endif
+
 static const char * const help = 
     "Usage: swaystatus [options] configuration_filename\n\n"
     "  --help                    Show help message and exit\n"
@@ -39,5 +43,9 @@ static const char * const help =
     "    {\n"
     "        \"brightness\": false,\n"
     "    }";
+
+# ifdef __cplusplus
+}
+# endif
 
 #endif
