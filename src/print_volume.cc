@@ -10,6 +10,6 @@ void init_alsa(const char *mix_name, const char *card)
 
 void print_volume()
 {
-    printf("vol %ld%%", get_audio_volume());
+    swaystatus::print("vol {}%", get_audio_volume());
 }
 }
