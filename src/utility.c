@@ -64,6 +64,15 @@ ssize_t read_autorestart(int fd, void *buf, size_t count)
 
     return ret;
 }
+ssize_t write_autorestart(int fd, const void *buf, size_t count)
+{
+    ssize_t ret;
+    do {
+        ret = write(fd, buf, count);
+    } while (ret == -1 && errno == EINTR);
+
+    return ret;
+}
 
 ssize_t readall(int fd, void *buffer, size_t len)
 {

@@ -12,6 +12,10 @@
     x > y ? x : y;           \
 }
 
+# ifdef __cplusplus
+extern "C" {
+# endif
+
 void* malloc_checked(size_t size);
 
 void reallocarray_checked(void **ptr, size_t nmemb, size_t size);
@@ -36,6 +40,7 @@ void msleep(uintmax_t msec);
 int openat_checked(const char *dir, int dirfd, const char *path, int flags);
 
 ssize_t read_autorestart(int fd, void *buf, size_t count);
+ssize_t write_autorestart(int fd, const void *buf, size_t count);
 
 /**
  * @param len should be euqal to (file_size + 1), should be smaller than SSIZE_MAX.
@@ -56,5 +61,9 @@ const char* readall_as_uintmax(int fd, uintmax_t *val);
  * isdir follows symlink
  */
 int isdir(const char *dir, int dirfd, const char *path);
+
+# ifdef __cplusplus
+}
+# endif
 
 #endif
