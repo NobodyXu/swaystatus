@@ -16,8 +16,12 @@ TARGET_DIR := /usr/local
 
 ## Objects to build
 C_SRCS := $(wildcard *.c)
+C_OBJS := $(C_SRCS:.c=.o)
+
 CXX_SRCS := $(wildcard *.cc)
-OBJS := $(C_SRCS:.c=.o) $(CXX_SRCS:.cc=.o)
+CXX_OBJS := $(CXX_SRCS:.cc=.o)
+
+OBJS := $(C_OBJS) $(CXX_OBJS)
 
 ## Build rules
 swaystatus: $(OBJS)
@@ -41,8 +45,7 @@ swaystatus: $(OBJS)
 ## Dependencies
 swaystatus.o: help.h
 
-print_%.o: print_%.cc printer.hpp
-print_%.o: print_%.c printer.hpp
+$(filter print_%.o,$(OBJS)): printer.hpp
 
 install: swaystatus
 	cp -f swaystatus $(TARGET_DIR)/bin/
