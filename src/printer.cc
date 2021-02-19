@@ -22,13 +22,6 @@ void print_str(const char *str)
 
     out.append(str, str + len);
 }
-}
-
-namespace swaystatus {
-void vprint(fmt::string_view format, fmt::format_args args)
-{
-    fmt::vformat_to(out, format, args);
-}
 
 void flush()
 {
@@ -47,5 +40,12 @@ void flush()
     }
 
     out.clear();
+}
+}
+
+namespace swaystatus {
+void vprint(fmt::string_view format, fmt::format_args args)
+{
+    fmt::vformat_to(out, format, args);
 }
 } /* End of namespace swaystatus */

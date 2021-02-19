@@ -13,6 +13,10 @@ extern "C" {
  * @param str must not be NULL
  */
 void print_str(const char *str);
+/**
+ * Flush the buffer of stdout, not thread safe.
+ */
+void flush();
 
 # ifdef __cplusplus
 }
@@ -45,7 +49,10 @@ void print(const S &format, Args &&...args)
 /**
  * Flush the buffer of stdout, not thread safe.
  */
-void flush();
+inline void flush()
+{
+    ::flush();
+}
 } /* End of namespace swaystatus */
 # endif
 
