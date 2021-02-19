@@ -1,10 +1,14 @@
+#define _GNU_SOURCE     /* For RTLD_DEFAULT */
 #define _DEFAULT_SOURCE /* For nice */
 #define _POSIX_C_SOURCE /* For sigaction */
 
 #include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
+#include <dlfcn.h>
 
+#include <execinfo.h>
 #include <err.h>
 #include <errno.h>
 
@@ -22,6 +26,13 @@
 #include "print_load.h"
 
 #define starts_with(str, prefix) (strncmp((str), (prefix), sizeof(prefix) - 1) == 0)
+
+static void *buffer[20];
+static void sigabort_handler(int sig)
+{
+    int sz = backtrace(buffer, sizeof(buffer) / sizeof(void*));
+    backtrace_symbols_fd(buffer, sz, 2);
+}
 
 static uintmax_t parse_cmdline_arg_and_initialize(
     int argc, char* argv[],
@@ -94,7 +105,17 @@ static void print_delimiter()
 
 int main(int argc, char* argv[])
 {
+    /* Force dynamic linker to load function backtrace */
+    if (dlsym(RTLD_DEFAULT, "backtrace") == NULL)
+        err(1, "%s on %s failed", "dlsym", "backtrace");
+
     nice(19);
+
+    struct sigaction act;
+    memset(&act, 0, sizeof(act));
+    act.sa_handler = sigabort_handler;
+    if (sigaction(SIGABRT, &act, NULL) == -1)
+        err(1, "%s on %s failed", "sigaction", "SIGABRT");
 
     struct Features features;
     struct JSON_elements_strs elements;

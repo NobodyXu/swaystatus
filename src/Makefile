@@ -10,7 +10,7 @@ CXXFLAGS := -fno-exceptions -fno-rtti
 
 LDFLAGS := -s -flto -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3
 
-LIBS := $(shell pkg-config --libs upower-glib alsa libnm json-c)
+LIBS := $(shell pkg-config --libs upower-glib alsa libnm json-c) -ldl
 
 TARGET_DIR := /usr/local
 
