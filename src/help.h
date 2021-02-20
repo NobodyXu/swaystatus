@@ -96,6 +96,8 @@ static const char * const help =
     "print other variables conditionally.\n"
     "For example, \"{is_charging:{level}%}\" will print \"98%\" when charging, where \n"
     "\"98\" is the actual level of battery.\n\n"
+    "Check https://github.com/NobodyXu/swaystatus/blob/main/example-config.json for example\n"
+    "configuration.\n\n"
 ;
 
 # ifdef __cplusplus
