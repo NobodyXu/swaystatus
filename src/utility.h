@@ -42,6 +42,14 @@ ssize_t write_autorestart(int fd, const void *buf, size_t count);
  *         -1 if read failed, error code is stored in errno.
  */
 ssize_t readall(int fd, void *buffer, size_t len);
+/**
+ * @param buffer it must point to a heap allocated buffer, can be NULL
+ * @param len must point to length of *buffer, can be 0
+ * @return -1 if read failed, error code is stored in errno.
+ *
+ * If buffer isn't large enough, then asreadall will realloc it.
+ */
+ssize_t asreadall(int fd, char **buffer, size_t *len);
 
 /**
  * @return function name/assumption that failed or NULL if succeeded.

@@ -93,6 +93,24 @@ ssize_t readall(int fd, void *buffer, size_t len)
 
     return bytes;
 }
+ssize_t asreadall(int fd, char **buffer, size_t *len)
+{
+    size_t bytes = 0;
+    for (ssize_t ret; ; bytes += ret) {
+        if (bytes == *len) {
+            *len += 100;
+            reallocarray_checked((void**) buffer, *len, sizeof(char));
+        }
+
+        ret = read_autorestart(fd, *buffer + bytes, min_unsigned(*len - bytes, SSIZE_MAX));
+        if (ret == 0)
+            break;
+        if (ret == -1)
+            return -1;
+    }
+
+    return bytes;
+}
 
 const char* readall_as_uintmax(int fd, uintmax_t *val)
 {
