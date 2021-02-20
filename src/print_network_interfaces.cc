@@ -1,5 +1,7 @@
 #include <err.h>
 
+#include <atomic>
+
 #include <NetworkManager.h>
 
 #include "printer.hpp"
@@ -7,7 +9,7 @@
 #include "print_network_interfaces.h"
 
 static NMClient *client;
-static NMConnectivityState connectivity_state;
+static std::atomic<NMConnectivityState> connectivity_state;
 static unsigned cnt;
 
 extern "C" {
@@ -64,7 +66,7 @@ void print_network_interfaces()
 
     swaystatus::print(
         "{} {} {}",
-        connectivity_state,
+        connectivity_state.load(),
         ipv4_config,
         ipv6_config
     );
