@@ -35,6 +35,18 @@ static void split(char *str, const char *statistics[5])
     if (i != 5)
         errx(1, "%s on %s failed", "Assumption", loadavg_path);
 }
+static void parse_loadavg(char *str, const char *statistics[6])
+{
+    char *delimiter = strchr(str, '/');
+    if (!delimiter)
+        errx(1, "%s on %s failed", "Assumption", loadavg_path);
+
+    split(str, statistics);
+
+    statistics[5] = statistics[4];
+    statistics[4] = delimiter + 1;
+    *delimiter = '\0';
+}
 
 void print_load()
 {
@@ -50,8 +62,8 @@ void print_load()
         errx(1, "%s on %s failed", "Assumption", loadavg_path);
     buffer[cnt] = '\0';
 
-    const char* statistics[5];
-    split(buffer, statistics);
+    const char* statistics[6];
+    parse_loadavg(buffer, statistics);
 
     swaystatus::print("1m: {} 5m: {} 15m: {}", statistics[0], statistics[1], statistics[2]);
 
