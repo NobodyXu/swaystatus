@@ -12,29 +12,24 @@
 
 #include "utility.h"
 #include "printer.hpp"
+#include "mem_size_t.hpp"
 #include "print_memory_usage.h"
-
-struct ReadableMem {
-    size_t mem;
-    const char *unit;
-};
 
 static int meminfo_fd;
 static char *buffer;
 static size_t buffer_sz;
-static struct ReadableMem memtotal;
+static size_t memtotal;
 
 extern "C" {
-
-static struct ReadableMem get_readable_memusage(const char *element, size_t element_sz);
 static void read_meminfo();
+static size_t get_memusage(const char *element, size_t element_sz);
 
 void init_memory_usage_collection()
 {
     meminfo_fd = openat_checked("", AT_FDCWD, "/proc/meminfo", O_RDONLY);
 
     read_meminfo();
-    memtotal = get_readable_memusage("MemTotal:", sizeof("Memtotal:") - 1);
+    memtotal = get_memusage("MemTotal:", sizeof("Memtotal:") - 1);
 }
 
 static void read_meminfo()
@@ -75,52 +70,12 @@ static size_t get_memusage(const char *element, size_t element_sz)
     return val * 1000;
 }
 
-static const char *get_unit(size_t ratio)
-{
-    switch (ratio) {
-        case 1:
-            return "bytes";
-        case 2:
-            return "K";
-        case 3:
-            return "M";
-        case 4:
-            return "G";
-        case 5:
-            return "T";
-        case 6:
-            return "P";
-        case 7:
-            return "E";
-        case 8:
-            return "Z";
-        case 9:
-            return "Y";
-
-        default:
-            errx(1, "ratio %zu too large in %s:%d", ratio, __FILE__, __LINE__);
-    }
-}
-static struct ReadableMem get_readable_memusage(const char *element, size_t element_sz)
-{
-    size_t mem = get_memusage(element, element_sz);
-
-    size_t ratio = 1;
-    for (; ratio < 9 && mem > 1024; ratio += 1)
-        mem /= 1024;
-
-    return (struct ReadableMem){
-        .mem = mem,
-        .unit = get_unit(ratio)
-    };
-}
-
 void print_memory_usage()
 {
     read_meminfo();
-    struct ReadableMem memfree = get_readable_memusage("MemFree:", sizeof("MemFree:") - 1);
+    size_t memfree = get_memusage("MemFree:", sizeof("MemFree:") - 1);
 
-    swaystatus::print("Mem {}={}{}/{}={}{}",
-                      "Free", memfree.mem, memfree.unit, "Total", memtotal.mem, memtotal.unit);
+    swaystatus::print("Mem Free={}/Total={:A}",
+                      swaystatus::mem_size_t{memfree}, swaystatus::mem_size_t{memtotal});
 }
 }
