@@ -5,7 +5,7 @@
 extern "C" {
 # endif
 
-void init_brightness_detection();
+void init_brightness_detection(const char *format_str);
 void print_brightness();
 
 # ifdef __cplusplus

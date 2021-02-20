@@ -15,7 +15,10 @@
 
 #include "utility.h"
 #include "printer.hpp"
+#include "Conditional.hpp"
 #include "print_brightness.h"
+
+using swaystatus::Conditional;
 
 static const char * const path = "/sys/class/backlight/";
 
@@ -40,6 +43,8 @@ struct Backlight {
 
 static struct Backlight *backlights;
 static size_t backlight_sz;
+
+static const char *format;
 
 extern "C" {
 static void update_brightness(struct Backlight *backlight);
@@ -78,8 +83,10 @@ static void addBacklight(int path_fd, const char *filename)
     update_brightness(backlight);
 }
 
-void init_brightness_detection()
+void init_brightness_detection(const char *format_str)
 {
+    format = format_str;
+
     DIR *dir = opendir(path);
     if (!dir)
         err(1, "%s on %s failed", "opendir", path);
@@ -148,7 +155,12 @@ void print_brightness()
 
         update_brightness(backlight);
 
-        swaystatus::print("{}: {}", backlight->filename, backlight->cached_brightness);
+        swaystatus::print(
+            format,
+            fmt::arg("backlight_device", backlight->filename),
+            fmt::arg("brightness", backlight->cached_brightness),
+            fmt::arg("has_multiple_backlight_devices", Conditional{backlight_sz != 1})
+        );
 
         if (i + 1 != backlight_sz)
             print_literal_str(" ");
