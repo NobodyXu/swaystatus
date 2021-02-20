@@ -14,10 +14,12 @@
 static const char * const loadavg_path = "/proc/loadavg";
 
 static int load_fd;
+static const char *format;
 
 extern "C" {
-void init_load()
+void init_load(const char *format_str)
 {
+    format = format_str;
     load_fd = openat_checked("", AT_FDCWD, loadavg_path, O_RDONLY);
 }
 
@@ -62,12 +64,20 @@ void print_load()
         errx(1, "%s on %s failed", "Assumption", loadavg_path);
     buffer[cnt] = '\0';
 
+    if (lseek(load_fd, 0, SEEK_SET) == (off_t) -1)
+        err(1, "%s on %s failed", "lseek", loadavg_path);
+
     const char* statistics[6];
     parse_loadavg(buffer, statistics);
 
-    swaystatus::print("1m: {} 5m: {} 15m: {}", statistics[0], statistics[1], statistics[2]);
-
-    if (lseek(load_fd, 0, SEEK_SET) == (off_t) -1)
-        err(1, "%s on %s failed", "lseek", loadavg_path);
+    swaystatus::print(
+        format,
+        fmt::arg("loadavg_1m", statistics[0]),
+        fmt::arg("loadavg_5m", statistics[1]),
+        fmt::arg("loadavg_15m", statistics[2]),
+        fmt::arg("running_kthreads_cnt", statistics[3]),
+        fmt::arg("total_kthreads_cnt", statistics[4]),
+        fmt::arg("last_created_process_pid", statistics[5])
+    );
 }
 }

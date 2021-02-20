@@ -90,7 +90,9 @@ static uintmax_t parse_cmdline_arg_and_initialize(
             get_format(config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}")
         );
     if (features->load)
-        init_load();
+        init_load(
+            get_format(config, "load", "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}")
+        );
 
     config2json_elements_strs(config, elements);
 

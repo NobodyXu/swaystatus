@@ -5,7 +5,7 @@
 extern "C" {
 # endif
 
-void init_load();
+void init_load(const char *format_str);
 void print_load();
 
 # ifdef __cplusplus
