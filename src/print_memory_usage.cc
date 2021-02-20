@@ -92,7 +92,6 @@ void print_memory_usage()
 {
     read_meminfo();
 
-    warn("Before print");
     swaystatus::print(
         format,
         fmt::arg("MemFree", get_memusage_lazy("MemFree")),
