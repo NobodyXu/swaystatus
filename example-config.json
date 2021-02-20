@@ -8,5 +8,8 @@
     },
     "brightness": {
         "format": "{has_multiple_backlight_devices:{backlight_device} }{brightness}"
+    },
+    "volume": {
+        "format": "volume: {volume}%"
     }
 }
