@@ -24,27 +24,6 @@ void init_upclient(const char *format_str)
         errx(1, "up_client_new failed: %s", error->message);
 }
 
-static const char* state2str(UpDeviceState state)
-{
-    switch (state) {
-        default:
-        case 0:
-            return "Unknown";
-        case 1:
-            return "Charging";
-        case 2:
-            return "Discharging";
-        case 3:
-            return "Empty";
-        case 4:
-            return "Fully charged";
-        case 5:
-            return "Pending charge";
-        case 6:
-            return "Pending discharge";
-    }
-}
-
 void print_battery()
 {
     UpDevice *device = up_client_get_display_device(client);
@@ -55,12 +34,12 @@ void print_battery()
 
     swaystatus::print(
         format,
-        fmt::arg("state", state2str(state)),
+        fmt::arg("state", up_device_state_to_string(state)),
         fmt::arg("level", static_cast<unsigned>(percentage)),
-        fmt::arg("is_fully_charged", Conditional{state == 4}),
-        fmt::arg("is_discharging", Conditional{state == 2}),
-        fmt::arg("is_charging", Conditional{state == 1}),
-        fmt::arg("is_empty", Conditional{state == 3})
+        fmt::arg("is_fully_charged", Conditional{state == UP_DEVICE_STATE_FULLY_CHARGED}),
+        fmt::arg("is_discharging",   Conditional{state == UP_DEVICE_STATE_DISCHARGING}),
+        fmt::arg("is_charging",      Conditional{state == UP_DEVICE_STATE_CHARGING}),
+        fmt::arg("is_empty",         Conditional{state == UP_DEVICE_STATE_EMPTY})
     );
 
     g_object_unref(device);
