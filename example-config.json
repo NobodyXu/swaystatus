@@ -11,5 +11,9 @@
     },
     "volume": {
         "format": "volume: {volume}%"
+    },
+    "load": {
+        "format":
+            "1m {loadavg_1m} kthreads:{running_kthreads_cnt}/{total_kthreads_cnt} {last_created_process_pid}"
     }
 }
