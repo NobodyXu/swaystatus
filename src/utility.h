@@ -5,13 +5,6 @@
 # include <inttypes.h>
 # include <sys/types.h>
 
-# define MAX(arg1, arg2)     \
-{                            \
-    typeof(arg1) x = (arg1); \
-    typeof(arg2) x = (arg2); \
-    x > y ? x : y;           \
-}
-
 # ifdef __cplusplus
 extern "C" {
 # endif
