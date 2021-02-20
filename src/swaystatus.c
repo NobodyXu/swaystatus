@@ -75,6 +75,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
         init_battery_monitor(get_format(config, "battery", "{state} {level}%"));
     if (features->volume)
         init_volume_monitor(
+            get_format(config, "volume", "vol {volume}%"),
             get_property(config, "volume", "mix_name", "Master"),
             get_property(config, "volume", "card",     "default")
         );

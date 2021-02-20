@@ -5,7 +5,7 @@
 extern "C" {
 # endif
 
-void init_volume_monitor(const char *mix_name, const char *card);
+void init_volume_monitor(const char *format_str, const char *mix_name, const char *card);
 void print_volume();
 
 # ifdef __cplusplus
