@@ -24,8 +24,9 @@ auto formatter::parse(format_parse_context &ctx) -> format_parse_context_it
         case 'Z':
         case 'Y':
             presentation = *it;
+            /* If no terminating '}' is present */
             if (++it == end)
-                return it;
+                FMT_THROW(format_error("invalid format"));
     }
 
     if (*it == '}')
