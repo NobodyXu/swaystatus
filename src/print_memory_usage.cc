@@ -27,23 +27,21 @@ static struct ReadableMem memtotal;
 extern "C" {
 
 static struct ReadableMem get_readable_memusage(const char *element, size_t element_sz);
+static void read_meminfo();
 
 void init_memory_usage_collection()
 {
     meminfo_fd = openat_checked("", AT_FDCWD, "/proc/meminfo", O_RDONLY);
-    buffer = static_cast<char*>(malloc(100));
-    if (!buffer)
-        err(1, "%s failed", "malloc");
-    buffer_sz = 100;
+
+    read_meminfo();
     memtotal = get_readable_memusage("MemTotal:", sizeof("Memtotal:") - 1);
 }
 
-static size_t read_meminfo(void *buf, size_t len)
+static void read_meminfo()
 {
-    ssize_t cnt = read_autorestart(meminfo_fd, buf, len);
-    if (cnt < 0)
-        err(1, "%s on %s failed", "read", "/proc/meminfo");
-    return cnt;
+    asreadall(meminfo_fd, &buffer, &buffer_sz);
+    if (lseek(meminfo_fd, 0, SEEK_SET) == (off_t) -1)
+        err(1, "%s on %s failed", "lseek", "/proc/meminfo");
 }
 static char* skip_space(char *str)
 {
@@ -53,32 +51,15 @@ static char* skip_space(char *str)
 }
 
 /**
+ * @pre must call read_meminfo() before calling get_memusage.
  * @param element_sz excluding terminating null byte
  * @return in byte
  */
 static size_t get_memusage(const char *element, size_t element_sz)
 {
-    char *line = NULL;
-    char *eol;
-
-    for (size_t cnt = 0; ;) {
-        cnt += read_meminfo(buffer + cnt, buffer_sz - cnt - 1);
-        buffer[cnt] = '\0';
-
-        if (!line)
-            line = strstr(buffer, element);
-        if (line) {
-            eol = strstr(line, "\n");
-            if (eol)
-                break;
-        }
-
-        if (cnt == buffer_sz - 1)
-            reallocate(buffer, (buffer_sz += 100));
-    }
-
-    if (lseek(meminfo_fd, 0, SEEK_SET) == (off_t) -1)
-        err(1, "%s on %s failed", "lseek", "/proc/meminfo");
+    char *line = strstr(buffer, element);
+    if (!line)
+        errx(1, "%s on %s failed", "Assumption", "/proc/meminfo");
 
     line += element_sz;
     line = skip_space(line);
@@ -88,7 +69,7 @@ static size_t get_memusage(const char *element, size_t element_sz)
     uintmax_t val = strtoumax(line, &endptr, 10);
     if (errno == ERANGE)
         err(1, "%s on %s failed", "strtoumax", "/proc/meminfo");
-    if (strncmp(endptr, " kB", 3) != 0)
+    if (strncmp(endptr, " kB\n", 4) != 0)
         errx(1, "%s on %s failed", "Assumption", "/proc/meminfo");
 
     return val * 1000;
@@ -136,6 +117,7 @@ static struct ReadableMem get_readable_memusage(const char *element, size_t elem
 
 void print_memory_usage()
 {
+    read_meminfo();
     struct ReadableMem memfree = get_readable_memusage("MemFree:", sizeof("MemFree:") - 1);
 
     swaystatus::print("Mem {}={}{}/{}={}{}",
