@@ -30,12 +30,18 @@ void print_battery()
 
     UpDeviceState state;
     gdouble percentage;
-    g_object_get(device, "state", &state, "percentage", &percentage, NULL);
+    gdouble temperature;
+    g_object_get(device, 
+        "state", &state,
+        "percentage", &percentage,
+        "temperature", &temperature,
+    NULL);
 
     swaystatus::print(
         format,
         fmt::arg("state", up_device_state_to_string(state)),
         fmt::arg("level", static_cast<unsigned>(percentage)),
+        fmt::arg("temperature", temperature),
         fmt::arg("is_fully_charged", Conditional{state == UP_DEVICE_STATE_FULLY_CHARGED}),
         fmt::arg("is_discharging",   Conditional{state == UP_DEVICE_STATE_DISCHARGING}),
         fmt::arg("is_charging",      Conditional{state == UP_DEVICE_STATE_CHARGING}),

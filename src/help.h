@@ -46,6 +46,7 @@ static const char * const help =
     "Battery format variables:\n\n"
     " - state\n"
     " - level\n"
+    " - temperature\n"
     " - is_fully_charged (Check \"Conditional Variable\" section for usage)\n"
     " - is_charging\n"
     " - is_discharging\n"
