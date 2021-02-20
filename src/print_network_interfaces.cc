@@ -3,6 +3,7 @@
 #include <NetworkManager.h>
 
 #include "printer.hpp"
+#include "NMIPConfig.hpp"
 #include "print_network_interfaces.h"
 
 static NMClient *client;
@@ -30,37 +31,6 @@ static void set_connectivity(GObject *src, GAsyncResult *res, gpointer user_data
     if (error)
         errx(1, "%s failed: %s", "nm_client_check_connectivity_finish", error->message);
 }
-static const char* connectivity2str(NMConnectivityState state)
-{
-    switch (nm_client_get_connectivity(client)) {
-        case NM_CONNECTIVITY_UNKNOWN:
-            return "Unknown Connectivity";
-
-        case NM_CONNECTIVITY_NONE:
-            return "Not Connected";
-
-        case NM_CONNECTIVITY_PORTAL:
-            return "Hijacked by Portal";
-
-        case NM_CONNECTIVITY_LIMITED:
-            return "Limited Connection";
-
-        case NM_CONNECTIVITY_FULL:
-            return "";
-    }
-}
-
-static void print_address(gpointer data, gpointer user_data)
-{
-    const char *address = nm_ip_address_get_address((NMIPAddress*) data);
-
-    swaystatus::print("{} ", address);
-}
-static void print_addresses(NMIPConfig *config)
-{
-    GPtrArray *addresses = nm_ip_config_get_addresses(config);
-    g_ptr_array_foreach(addresses, print_address, NULL);
-}
 
 void print_network_interfaces()
 {
@@ -73,7 +43,6 @@ void print_network_interfaces()
         return;
     }
 
-    const char *connectivity = connectivity2str(connectivity_state);
     if (cnt++ % 120 == 0)
         /*
          * Check connectivity every 120 seconds
@@ -93,9 +62,11 @@ void print_network_interfaces()
         return;
     }
 
-    swaystatus::print_str(connectivity);
-
-    print_addresses(ipv4_config);
-    print_addresses(ipv6_config);
+    swaystatus::print(
+        "{} {} {}",
+        connectivity_state,
+        ipv4_config,
+        ipv6_config
+    );
 }
 }

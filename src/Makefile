@@ -52,6 +52,7 @@ Conditional.hpp: dep/fmt/include/fmt/format.h
 print_brightness.o: Conditional.hpp
 print_battery.o: Conditional.hpp
 print_memory_usage.o: mem_size_t.hpp LazyEval.hpp
+print_network_interfaces.o: NMIPConfig.hpp
 
 install: swaystatus
 	cp -f swaystatus $(TARGET_DIR)/bin/
