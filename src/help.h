@@ -81,7 +81,7 @@ static const char * const help =
     "In additional to printing strings conditionally, conditional variables can also be used to\n"
     "print other variables conditionally.\n"
     "For example, \"{is_charging:{level}%}\" will print \"98%\" when charging, where \n"
-    "\"98\" is the actual level of battery."
+    "\"98\" is the actual level of battery.\n\n"
 ;
 
 # ifdef __cplusplus

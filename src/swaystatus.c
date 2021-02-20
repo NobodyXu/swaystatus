@@ -2,8 +2,11 @@
 #define _DEFAULT_SOURCE /* For nice */
 #define _POSIX_C_SOURCE /* For sigaction */
 
+#include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
+#include <stdlib.h>
+
 #include <unistd.h>
 #include <signal.h>
 #include <dlfcn.h>
@@ -47,7 +50,8 @@ static uintmax_t parse_cmdline_arg_and_initialize(
 
     for (int i = 1; i != argc; ++i) {
         if (strcmp(argv[i], "--help") == 0) {
-            errx(1, help);
+            fputs(help, stderr);
+            exit(1);
         } else if (starts_with(argv[i], "--interval=")) {
             char *endptr;
             errno = 0;
