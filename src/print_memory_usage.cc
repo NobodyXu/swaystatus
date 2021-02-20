@@ -10,10 +10,16 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <string_view>
+
 #include "utility.h"
 #include "printer.hpp"
 #include "mem_size_t.hpp"
+#include "LazyEval.hpp"
 #include "print_memory_usage.h"
+
+using namespace std::literals;
+using swaystatus::mem_size_t;
 
 static int meminfo_fd;
 static char *buffer;
@@ -22,14 +28,14 @@ static size_t memtotal;
 
 extern "C" {
 static void read_meminfo();
-static size_t get_memusage(const char *element, size_t element_sz);
+static size_t get_memusage(std::string_view element);
 
 void init_memory_usage_collection()
 {
     meminfo_fd = openat_checked("", AT_FDCWD, "/proc/meminfo", O_RDONLY);
 
     read_meminfo();
-    memtotal = get_memusage("MemTotal:", sizeof("Memtotal:") - 1);
+    memtotal = get_memusage("MemTotal:"sv);
 }
 
 static void read_meminfo()
@@ -50,13 +56,13 @@ static char* skip_space(char *str)
  * @param element_sz excluding terminating null byte
  * @return in byte
  */
-static size_t get_memusage(const char *element, size_t element_sz)
+static size_t get_memusage(std::string_view element)
 {
-    char *line = strstr(buffer, element);
+    char *line = strstr(buffer, element.data());
     if (!line)
         errx(1, "%s on %s failed", "Assumption", "/proc/meminfo");
 
-    line += element_sz;
+    line += element.size();
     line = skip_space(line);
 
     errno = 0;
@@ -70,12 +76,21 @@ static size_t get_memusage(const char *element, size_t element_sz)
     return val * 1000;
 }
 
+static auto get_memusage_lazy(std::string_view element)
+{
+    return swaystatus::LazyEval{[=]() noexcept {
+        return mem_size_t{get_memusage(element)};
+    }};
+}
+
 void print_memory_usage()
 {
     read_meminfo();
-    size_t memfree = get_memusage("MemFree:", sizeof("MemFree:") - 1);
 
-    swaystatus::print("Mem Free={}/Total={:A}",
-                      swaystatus::mem_size_t{memfree}, swaystatus::mem_size_t{memtotal});
+    swaystatus::print(
+        "Mem Free={}/Total={}",
+        get_memusage_lazy("MemFree:"sv),
+        mem_size_t{memtotal}
+    );
 }
 }
