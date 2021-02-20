@@ -5,7 +5,7 @@
 extern "C" {
 # endif
 
-void init_memory_usage_collection();
+void init_memory_usage_collection(const char *format_str);
 void print_memory_usage();
 
 # ifdef __cplusplus

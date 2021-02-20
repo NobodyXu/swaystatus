@@ -22,20 +22,25 @@ using namespace std::literals;
 using swaystatus::mem_size_t;
 
 static int meminfo_fd;
+
 static char *buffer;
 static size_t buffer_sz;
+
 static size_t memtotal;
+
+static const char *format;
 
 extern "C" {
 static void read_meminfo();
 static size_t get_memusage(std::string_view element);
 
-void init_memory_usage_collection()
+void init_memory_usage_collection(const char *format_str)
 {
+    format = format_str;
     meminfo_fd = openat_checked("", AT_FDCWD, "/proc/meminfo", O_RDONLY);
 
     read_meminfo();
-    memtotal = get_memusage("MemTotal:"sv);
+    memtotal = get_memusage("MemTotal"sv);
 }
 
 static void read_meminfo()
@@ -60,9 +65,9 @@ static size_t get_memusage(std::string_view element)
 {
     char *line = strstr(buffer, element.data());
     if (!line)
-        errx(1, "%s on %s failed", "Assumption", "/proc/meminfo");
+        return -1;
 
-    line += element.size();
+    line += element.size() + 1;
     line = skip_space(line);
 
     errno = 0;
@@ -87,10 +92,25 @@ void print_memory_usage()
 {
     read_meminfo();
 
+    warn("Before print");
     swaystatus::print(
-        "Mem Free={}/Total={}",
-        get_memusage_lazy("MemFree:"sv),
-        mem_size_t{memtotal}
+        format,
+        fmt::arg("MemFree", get_memusage_lazy("MemFree")),
+        fmt::arg("MemAvailable", get_memusage_lazy("MemAvailable")),
+        fmt::arg("Buffers", get_memusage_lazy("Buffers")),
+        fmt::arg("Cached", get_memusage_lazy("Cached")),
+        fmt::arg("SwapCached", get_memusage_lazy("SwapCached")),
+        fmt::arg("Active", get_memusage_lazy("Active")),
+        fmt::arg("Inactive", get_memusage_lazy("Inactive")),
+        fmt::arg("Mlocked", get_memusage_lazy("Mlocked")),
+        fmt::arg("SwapTotal", get_memusage_lazy("SwapTotal")),
+        fmt::arg("SwapFree", get_memusage_lazy("SwapFree")),
+        fmt::arg("Dirty", get_memusage_lazy("Dirty")),
+        fmt::arg("Writeback", get_memusage_lazy("Writeback")),
+        fmt::arg("AnonPages", get_memusage_lazy("AnonPages")),
+        fmt::arg("Mapped", get_memusage_lazy("Mapped")),
+        fmt::arg("Shmem", get_memusage_lazy("Shmem")),
+        fmt::arg("MemTotal", mem_size_t{memtotal})
     );
 }
 }
