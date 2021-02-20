@@ -5,13 +5,19 @@
 #include <upower.h>
 
 #include "printer.hpp"
+#include "Conditional.hpp"
 #include "print_battery.h"
 
+using swaystatus::Conditional;
+
+static const char *format;
 static UpClient *client;
 
 extern "C" {
-void init_upclient()
+void init_upclient(const char *format_str)
 {
+    format = format_str;
+
     GError *error = NULL;
     client = up_client_new_full(NULL, &error);
     if (client == NULL)
@@ -47,7 +53,15 @@ void print_battery()
     gdouble percentage;
     g_object_get(device, "state", &state, "percentage", &percentage, NULL);
 
-    swaystatus::print("{} {}%", state2str(state), (unsigned) percentage);
+    swaystatus::print(
+        format,
+        fmt::arg("state", state2str(state)),
+        fmt::arg("level", static_cast<unsigned>(percentage)),
+        fmt::arg("is_fully_charged", Conditional{state == 4}),
+        fmt::arg("is_discharging", Conditional{state == 2}),
+        fmt::arg("is_charging", Conditional{state == 1}),
+        fmt::arg("is_empty", Conditional{state == 3})
+    );
 
     g_object_unref(device);
 }
