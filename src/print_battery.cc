@@ -21,7 +21,7 @@ void init_upclient(const char *format_str)
     GError *error = NULL;
     client = up_client_new_full(NULL, &error);
     if (client == NULL)
-        errx(1, "up_client_new failed: %s", error->message);
+        errx(1, "%s failed: %s", "up_client_new", error->message);
 }
 
 void print_battery()
