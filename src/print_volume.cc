@@ -3,7 +3,7 @@
 #include "print_volume.h"
 
 extern "C" {
-void init_alsa(const char *mix_name, const char *card)
+void init_volume_monitor(const char *mix_name, const char *card)
 {
     initialize_alsa_lib(mix_name, card);
 }
