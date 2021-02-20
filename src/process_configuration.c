@@ -165,6 +165,9 @@ static const char* get_elements_str(void *config, const char *name)
         json_object_object_del(properties, "card");
     }
 
+    if (json_object_object_length(properties) == 0)
+        return DEFAULT_PROPERTY;
+
     size_t json_str_len;
     const char *json_str = json_object_to_json_string_length(
         properties,
