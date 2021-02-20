@@ -46,6 +46,7 @@ printer.hpp: dep/fmt/include/fmt/core.h
 printer.cc: dep/fmt/include/fmt/format.h dep/fmt/include/fmt/format-inl.h
 
 mem_size_t.hpp: dep/fmt/include/fmt/format.h
+LazyEval.hpp: dep/fmt/include/fmt/format.h
 
 install: swaystatus
 	cp -f swaystatus $(TARGET_DIR)/bin/
