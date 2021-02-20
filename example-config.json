@@ -5,5 +5,8 @@
     },
     "memory_usage": {
         "format": "<Mem> Free {MemFree}/Total {MemTotal} <Swap> Free {SwapFree}/{SwapTotal}"
+    },
+    "brightness": {
+        "format": "{has_multiple_backlight_devices:{backlight_device} }{brightness}"
     }
 }
