@@ -72,7 +72,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     if (features->time)
         init_time(get_format(config, "time", "%Y-%m-%d %T"));
     if (features->battery)
-        init_upclient(get_format(config, "battery", "{state} {level}%"));
+        init_battery_monitor(get_format(config, "battery", "{state} {level}%"));
     if (features->volume)
         init_alsa(
             get_property(config, "volume", "mix_name", "Master"),

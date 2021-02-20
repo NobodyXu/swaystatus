@@ -5,7 +5,7 @@
 extern "C" {
 # endif
 
-void init_upclient(const char *format_str);
+void init_battery_monitor(const char *format_str);
 void print_battery();
 
 # ifdef __cplusplus

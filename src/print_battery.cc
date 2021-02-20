@@ -14,7 +14,7 @@ static const char *format;
 static UpClient *client;
 
 extern "C" {
-void init_upclient(const char *format_str)
+void init_battery_monitor(const char *format_str)
 {
     format = format_str;
 
