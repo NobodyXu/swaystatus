@@ -16,6 +16,8 @@
 extern "C" {
 # endif
 
+uintmax_t min_unsigned(uintmax_t x, uintmax_t y);
+
 void* malloc_checked(size_t size);
 
 void reallocarray_checked(void **ptr, size_t nmemb, size_t size);
@@ -43,8 +45,6 @@ ssize_t read_autorestart(int fd, void *buf, size_t count);
 ssize_t write_autorestart(int fd, const void *buf, size_t count);
 
 /**
- * @param len should be euqal to (file_size + 1), should be smaller than SSIZE_MAX.
- *            If the line is larger than len, then errx will be called.
  * @return if equal to len, then the file is bigger than expected.
  */
 ssize_t readall(int fd, void *buffer, size_t len);

@@ -1,6 +1,7 @@
 #define _DEFAULT_SOURCE /* For reallocarray */
 #define _POSIX_C_SOURCE 200809L /* For openat, fstatat */
 
+#include <limits.h> /* For SSIZE_MAX */
 #include <stdlib.h>
 #include <string.h>
 #include <err.h>
@@ -12,6 +13,11 @@
 #include <unistd.h>
 
 #include "utility.h"
+
+uintmax_t min_unsigned(uintmax_t x, uintmax_t y)
+{
+    return x < y ? x : y;
+}
 
 void* malloc_checked(size_t size)
 {
@@ -78,7 +84,7 @@ ssize_t readall(int fd, void *buffer, size_t len)
 {
     size_t bytes = 0;
     for (ssize_t ret; bytes < len; bytes += ret) {
-        ret = read_autorestart(fd, (char*) buffer + bytes, len - bytes);
+        ret = read_autorestart(fd, (char*) buffer + bytes, min_unsigned(len - bytes, SSIZE_MAX));
         if (ret == 0)
             break;
         if (ret == -1)
