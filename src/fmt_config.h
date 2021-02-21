@@ -1,3 +1,7 @@
+#ifndef  FMT_HEADER_ONLY
+# define FMT_HEADER_ONLY
+#endif
+
 # ifndef  FMT_STATIC_THOUSANDS_SEPARATOR
 #  define FMT_STATIC_THOUSANDS_SEPARATOR ','
 # endif
