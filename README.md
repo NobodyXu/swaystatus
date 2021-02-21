@@ -138,6 +138,7 @@ NOTE that these variables are evaluated per backlight_device.
 
  - `is_network_enabled`
  - `is_not_network_enabled`
+ - `is_network_disabled`
  - `has_active_connection`
  - `has_no_active_connection`
  - `has_no_connection`

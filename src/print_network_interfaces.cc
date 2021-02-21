@@ -84,6 +84,8 @@ void print_network_interfaces()
         format,
         fmt::arg("is_network_enabled",       Conditional{is_network_enabled}),
         fmt::arg("is_not_network_enabled",   Conditional{!is_network_enabled}),
+        fmt::arg("is_network_disabled",   Conditional{!is_network_enabled}),
+
         fmt::arg("has_active_connection",    Conditional{conn != NULL}),
         fmt::arg("has_no_active_connection", Conditional{conn == NULL}),
 
