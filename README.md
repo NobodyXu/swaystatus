@@ -10,7 +10,7 @@ It uses libraries like `libupower-glib`, `libasound` and `libnm` to retrieve bat
 
 For backlight, load, and meminfo, it reads directly from `/sys/class/backlight`, `/proc/loadavg` and `/proc/meminfo`.
 
-On my x86-64 computer, it compiles to a single binary that is only `64K` large using `clang-11`.
+On my x86-64 computer, it compiles to a single binary that is only `49K` large using `clang-11`.
 
 ## Runtime Dependency
  - libupower-glib.so.3
