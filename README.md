@@ -138,7 +138,6 @@ NOTE that these variables are evaluated per backlight_device.
 
  - `is_network_enabled`
  - `is_not_network_enabled`
-
  - `has_active_connection`
  - `has_no_active_connection`
  - `has_no_connection`
@@ -146,7 +145,6 @@ NOTE that these variables are evaluated per backlight_device.
  - `has_full_connection`
  - `has_limited_connection`
  - `has_portal_connection`
- 
  - `connectivity_state`
  - `ipv4_config`
  - `ipv6_config`
