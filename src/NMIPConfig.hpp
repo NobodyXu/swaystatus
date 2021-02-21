@@ -1,6 +1,8 @@
 #ifndef  __swaystatus_NetworkAddresses_H__
 # define __swaystatus_NetworkAddresses_H__
 
+# include "fmt_config.h"
+
 # include <cstddef>
 # include <string_view>
 
