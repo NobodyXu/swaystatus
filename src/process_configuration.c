@@ -41,6 +41,7 @@ static const struct Property valid_properties[] = {
     {"align", json_type_string},
     {"separator", json_type_boolean},
     {"separator_block_width", json_type_int},
+    {"markup", json_type_string},
 };
 static const size_t valid_property_sz = sizeof(valid_properties) / sizeof(struct Property);
 

@@ -63,7 +63,6 @@ swaystatus: Usage: swaystatus [options] configuration_filename
 
 All property present for "name" above are optional.
 <br>For volume, you can also set property "mix_name" and "card".
-<br>swaybar supports "markup" set to "none" or "pango".
 
 The following values are valid name:
 
