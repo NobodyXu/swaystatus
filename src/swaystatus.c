@@ -7,6 +7,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <malloc.h>
+
 #include <unistd.h>
 #include <signal.h>
 #include <dlfcn.h>
@@ -149,7 +151,7 @@ int main(int argc, char* argv[])
     print_literal_str("[\n");
     flush();
 
-    for ( ; ; msleep(interval)) {
+    for (size_t sec = 0; ; msleep(interval), ++sec) {
         print_literal_str("[");
 
         if (features.brightness) {
@@ -190,6 +192,11 @@ int main(int argc, char* argv[])
         /* Print dummy */
         print_literal_str("{}],\n");
         flush();
+
+        if (sec == 3660) {
+            malloc_trim(4096 * 3);
+            sec = 0;
+        }
     }
 
     return 0;
