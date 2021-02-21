@@ -23,7 +23,7 @@ static const char* connectivity2str(NMConnectivityState state)
             return "Limited Connection";
 
         case NM_CONNECTIVITY_FULL:
-            return "";
+            return "Full Connection";
     }
 }
 auto ConnStateformatter::format(const NMConnectivityState &state, format_context &ctx) ->
@@ -65,9 +65,12 @@ auto IPConfigformatter::parse(format_parse_context &ctx) -> format_parse_context
 }
 auto IPConfigformatter::format(NMIPConfig *ipconfig, format_context &ctx) -> format_context_it
 {
-    GPtrArray *addresses = nm_ip_config_get_addresses(ipconfig);
-
     auto out = ctx.out();
+
+    if (ipconfig == nullptr)
+        return out;
+
+    GPtrArray *addresses = nm_ip_config_get_addresses(ipconfig);
 
     const size_t end = std::min(cnt, static_cast<std::size_t>(addresses->len));
     for (size_t i = 0; i != end; ++i) {

@@ -135,6 +135,18 @@ NOTE that these variables are evaluated per backlight_device.
  - `has_multiple_backlight_devices` (this is a Conditional Variable)
 
 #### Network Interface variables;
+
+ - `is_network_enabled`
+ - `is_not_network_enabled`
+
+ - `has_active_connection`
+ - `has_no_active_connection`
+ - `has_no_connection`
+ - `has_connection`
+ - `has_full_connection`
+ - `has_limited_connection`
+ - `has_portal_connection`
+ 
  - `connectivity_state`
  - `ipv4_config`
  - `ipv6_config`
