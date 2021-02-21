@@ -15,5 +15,8 @@
     "load": {
         "format":
             "1m {loadavg_1m} kthreads:{running_kthreads_cnt}/{total_kthreads_cnt} {last_created_process_pid}"
+    },
+    "network_interface": {
+        "format": "{connectivity_state} {ipv4_config:1} {ipv6_config:1}"
     }
 }
