@@ -134,6 +134,15 @@ NOTE that these variables are evaluated per backlight_device.
  - `brightness`
  - `has_multiple_backlight_devices` (this is a Conditional Variable)
 
+#### Network Interface variables;
+ - `connectivity_state`
+ - `ipv4_config`
+ - `ipv6_config`
+
+`ipv4_config` and `ipv6_config` each denotes an array of valid ip addresses.
+
+To limit number of ip addresses in output, please use `{ipv4_config:1}`.
+
 #### Format string for time:
 
 Format string for time is parsed by strftime instead of fmtlib, so the format is

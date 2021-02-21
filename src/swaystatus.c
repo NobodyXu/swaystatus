@@ -80,7 +80,13 @@ static uintmax_t parse_cmdline_arg_and_initialize(
             get_property(config, "volume", "card",     "default")
         );
     if (features->network_interface)
-        init_network_interfaces_scanning();
+        init_network_interfaces_scanning(
+            get_format(
+                config,
+                "network_interface",
+                "{connectivity_state} {ipv4_config} {ipv6_config}"
+            )
+        );
     if (features->brightness)
         init_brightness_detection(
             get_format(config, "brightness", "{backlight_device}: {brightness}")

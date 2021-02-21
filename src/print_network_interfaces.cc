@@ -11,10 +11,13 @@
 static NMClient *client;
 static std::atomic<NMConnectivityState> connectivity_state;
 static unsigned cnt;
+static const char *format;
 
 extern "C" {
-void init_network_interfaces_scanning()
+void init_network_interfaces_scanning(const char *format_str)
 {
+    format = format_str;
+
     GError *error = NULL;
     client = nm_client_new(NULL, &error);
     if (client == NULL)
@@ -65,10 +68,10 @@ void print_network_interfaces()
     }
 
     swaystatus::print(
-        "{} {} {}",
-        connectivity_state.load(),
-        ipv4_config,
-        ipv6_config
+        format,
+        fmt::arg("connectivity_state", connectivity_state.load()),
+        fmt::arg("ipv4_config", ipv4_config),
+        fmt::arg("ipv6_config", ipv6_config)
     );
 }
 }
