@@ -10,7 +10,7 @@
 
 static NMClient *client;
 static std::atomic<NMConnectivityState> connectivity_state;
-static unsigned cnt;
+static unsigned seconds;
 static const char *format;
 
 extern "C" {
@@ -48,11 +48,13 @@ void print_network_interfaces()
         return;
     }
 
-    if (cnt++ % 120 == 0)
+    if (seconds++ == 120) {
         /*
          * Check connectivity every 120 seconds
          */
         nm_client_check_connectivity_async(client, NULL, set_connectivity, NULL);
+        seconds = 0;
+    }
 
     NMActiveConnection * const conn = nm_client_get_primary_connection(client);
     if (!conn) {
