@@ -39,12 +39,13 @@ swaystatus: Usage: swaystatus [options] configuration_filename
 
   --help                    Show help message and exit
   --interval=unsigned_msec  Specify update interval in milliseconds, must be an unsignerinteger.
+```
 
-Config file format:
+### Config file format
 
     {
         "name": {
-            "format": "##RRGGBBA",
+            "format": "Hello, {variable_name}",
             "color": "##RRGGBBA",
             "background: "##RRGGBBA",
             "border": "##RRGGBBA",
@@ -60,8 +61,8 @@ Config file format:
     }
 
 All property present for "name" above are optional.
-For volume, you can also set property mix_name and card.
-NOTE that property "format" is now only supported by time.
+<br>For volume, you can also set property "mix_name" and "card".
+<br>NOTE that property "format" is unsupported by "network_interface".
 
 The following values are valid name:
 
@@ -79,7 +80,84 @@ then add the following to your configuration:
     {
         "brightness": false,
     }
-```
+
+#### Battery format variables:
+
+ - `state`
+ - `level`
+ - `temperature`
+ - `is_fully_charged (Check section "Conditional Variable" for usage)`
+ - `is_charging`
+ - `is_discharging`
+ - `is_empty`
+
+#### Memory Usage variables:
+
+ - `MemTotal`
+ - `MemFree`
+ - `MemAvailable`
+ - `Buffers`
+ - `Cached`
+ - `SwapCached`
+ - `Active`
+ - `Inactive`
+ - `Mlocked`
+ - `SwapTotal`
+ - `SwapFree`
+ - `Dirty`
+ - `Writeback`
+ - `AnonPages`
+ - `Mapped`
+ - `Shmem`
+
+The unit (supports 'BKMGTPEZY') of the variables printed can be specified.
+<br>For example, '{MemTotal:K}' will print MemTotal in KiloBytes.
+
+#### Volume variables:
+
+ - `volume`
+
+#### Load variables:
+
+ - `loadavg_1m`
+ - `loadavg_5m`
+ - `loadavg_15m`
+ - `running_kthreads_cnt`
+ - `total_kthreads_cnt`
+ - `last_created_process_pid`
+
+#### Brightness variables:
+
+NOTE that these variables are evaluated per backlight_device.
+
+ - `backlight_device`
+ - `brightness`
+ - `has_multiple_backlight_devices (this is a Conditional Variable)`
+
+#### Format string for time:
+
+Format string for time is parsed by strftime instead of fmtlib, so the format is
+specified in [`strftime`] instead.
+
+For format string other than time, check [fmt - Format String Syntax] for more
+information on format specification.Conditional Variable:
+
+#### Conditional Variables
+
+Conditional variables are used to selectively print strings.
+
+For example, setting "format" in "battery" to "{is_charging:Charging} will print "Charging" only
+when the battery is charging.
+
+#### Recursive Conditional Variable:
+
+In additional to printing strings conditionally, conditional variables can also be used to
+print other variables conditionally.
+
+For example, "{is_charging:{level}%}" will print "98%" when charging, where
+"98" is the actual level of battery.
+
+Check [`example-config.json`] for the example configuration.
 
 ### Use `swaybar` in `sway`
 
@@ -91,3 +169,5 @@ bar {
 
 [screenshot]: https://raw.githubusercontent.com/NobodyXu/swaystatus/main/screenshot.png
 [`strftime`]: https://man7.org/linux/man-pages/man3/strftime.3.html
+[fmt - Format String Syntax]: https://fmt.dev/latest/syntax.html
+[`example-config.json`]: https://github.com/NobodyXu/swaystatus/blob/main/example-config.json
