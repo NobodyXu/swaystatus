@@ -84,6 +84,9 @@ auto formatter::format(const mem_size_t &sz, format_context &ctx) -> format_cont
     size_t mem = sz.bytes;
 
     switch (presentation) {
+        case 'B':
+            return format_impl(mem, "B", ctx);
+
         case 'K':
             return format_impl(mem / 1024, "K", ctx);
 
