@@ -42,8 +42,8 @@ $(filter print_%.o,$(OBJS)): printer.hpp
 
 print_volume.o: alsa.h
 
-printer.hpp: dep/fmt/include/fmt/core.h
-printer.cc: dep/fmt/include/fmt/format.h dep/fmt/include/fmt/format-inl.h
+printer.hpp: dep/fmt/include/fmt/core.h fmt_config.h
+printer.cc: dep/fmt/include/fmt/format.h dep/fmt/include/fmt/format-inl.h fmt_config.h
 
 mem_size_t.hpp: dep/fmt/include/fmt/format.h
 LazyEval.hpp: dep/fmt/include/fmt/format.h

@@ -1,4 +1,4 @@
-#define FMT_HEADER_ONLY
+#include "fmt_config.h"
 
 #include <string.h>
 #include <err.h>
@@ -6,11 +6,9 @@
 #include <algorithm>
 
 #include "dep/fmt/include/fmt/format.h"
-#include "dep/fmt/include/fmt/format-inl.h"
-
-#include "printer.hpp"
 
 #include "utility.h"
+#include "printer.hpp"
 
 static fmt::basic_memory_buffer<char, /* Inline buffer size */ 4096> out;
 

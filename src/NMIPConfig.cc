@@ -32,7 +32,7 @@ auto ConnStateformatter::format(const NMConnectivityState &state, format_context
     return format_to(ctx.out(), "{}", connectivity2str(state));
 }
 
-using IPConfigformatter = fmt::formatter<NMIPConfig*>;
+using IPConfigformatter = fmt::formatter<swaystatus::IPConfig>;
 
 static auto strtosize(const char **it, const char *end)
 {
@@ -63,8 +63,10 @@ auto IPConfigformatter::parse(format_parse_context &ctx) -> format_parse_context
     ctx.advance_to(it);
     return fmt::formatter<std::string_view>::parse(ctx);
 }
-auto IPConfigformatter::format(NMIPConfig *ipconfig, format_context &ctx) -> format_context_it
+auto IPConfigformatter::format(const IPConfig &config, format_context &ctx) -> format_context_it
 {
+    auto *ipconfig = config.ipconfig;
+
     auto out = ctx.out();
 
     if (ipconfig == nullptr)
