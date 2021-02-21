@@ -23,7 +23,7 @@ On my x86-64 computer, it compiles to a single binary that is only `64K` large u
 Install `clang` (must have lto support), `lld`, `make` and `pkg-config`, then run
 
 ```
-git clone https://github.com/NobodyXu/swaystatus
+git clone --recurse-submodules https://github.com/NobodyXu/swaystatus
 cd swaystatus/src
 make -j $(nproc)
 ```
