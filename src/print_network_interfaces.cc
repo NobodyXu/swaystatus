@@ -9,6 +9,7 @@
 #include "print_network_interfaces.h"
 
 using swaystatus::Conditional;
+using swaystatus::IPConfig;
 
 static NMClient *client;
 static std::atomic<NMConnectivityState> connectivity_state;
@@ -93,8 +94,8 @@ void print_network_interfaces()
         fmt::arg("has_portal_connection",      Conditional{state == NM_CONNECTIVITY_PORTAL}),
 
         fmt::arg("connectivity_state", state),
-        fmt::arg("ipv4_config", ipv4_config),
-        fmt::arg("ipv6_config", ipv6_config)
+        fmt::arg("ipv4_config", IPConfig{ipv4_config}),
+        fmt::arg("ipv6_config", IPConfig{ipv6_config})
     );
 }
 }
