@@ -86,7 +86,7 @@ then add the following to your configuration:
  - `state`
  - `level`
  - `temperature`
- - `is_fully_charged (Check section "Conditional Variable" for usage)`
+ - `is_fully_charged` (Check section "Conditional Variable" for usage)
  - `is_charging`
  - `is_discharging`
  - `is_empty`
@@ -132,7 +132,7 @@ NOTE that these variables are evaluated per backlight_device.
 
  - `backlight_device`
  - `brightness`
- - `has_multiple_backlight_devices (this is a Conditional Variable)`
+ - `has_multiple_backlight_devices` (this is a Conditional Variable)
 
 #### Format string for time:
 
