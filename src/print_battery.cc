@@ -12,7 +12,6 @@ using swaystatus::Conditional;
 
 static const char *format;
 static UpClient *client;
-static UpDevice *device;
 
 extern "C" {
 void init_battery_monitor(const char *format_str)
@@ -23,15 +22,11 @@ void init_battery_monitor(const char *format_str)
     client = up_client_new_full(NULL, &error);
     if (client == NULL)
         errx(1, "%s failed: %s", "up_client_new", error->message);
-
-    device = up_client_get_display_device(client);
 }
 
 void print_battery()
 {
-    GError *error = NULL;
-    if (!up_device_refresh_sync(device, NULL, &error))
-        errx(1, "%s failed: %s", "up_device_refresh_sync", error->message);
+    UpDevice *device = up_client_get_display_device(client);
 
     UpDeviceState state;
     gdouble percentage;
@@ -52,5 +47,7 @@ void print_battery()
         fmt::arg("is_charging",      Conditional{state == UP_DEVICE_STATE_CHARGING}),
         fmt::arg("is_empty",         Conditional{state == UP_DEVICE_STATE_EMPTY})
     );
+
+    g_object_unref(device);
 }
 }
