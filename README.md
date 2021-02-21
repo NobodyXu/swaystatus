@@ -56,13 +56,14 @@ swaystatus: Usage: swaystatus [options] configuration_filename
             "min_width": 1,
             "align": "center",
             "separator": true,
-            "separator_block_width": 9
+            "separator_block_width": 9,
+            "markup": "none"
         },
     }
 
 All property present for "name" above are optional.
 <br>For volume, you can also set property "mix_name" and "card".
-<br>NOTE that property "format" is unsupported by "network_interface".
+<br>swaybar supports "markup" set to "none" or "pango".
 
 The following values are valid name:
 
