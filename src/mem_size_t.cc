@@ -26,7 +26,7 @@ auto formatter::parse(format_parse_context &ctx) -> format_parse_context_it
             presentation = *it;
             /* If no terminating '}' is present */
             if (++it == end)
-                FMT_THROW(format_error("invalid format"));
+                FMT_THROW(format_error("invalid format: Unterminated '{'"));
     }
 
     if (*it == '}')
