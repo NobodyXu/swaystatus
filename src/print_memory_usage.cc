@@ -45,7 +45,10 @@ void init_memory_usage_collection(const char *format_str)
 
 static void read_meminfo()
 {
-    asreadall(meminfo_fd, &buffer, &buffer_sz);
+    ssize_t cnt = asreadall(meminfo_fd, &buffer, &buffer_sz);
+    if (cnt < 0)
+        err(1, "%s on %s failed", "read", "/proc/meminfo");
+
     if (lseek(meminfo_fd, 0, SEEK_SET) == (off_t) -1)
         err(1, "%s on %s failed", "lseek", "/proc/meminfo");
 }
