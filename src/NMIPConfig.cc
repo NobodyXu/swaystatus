@@ -83,9 +83,9 @@ auto IPConfigformatter::format(const IPConfig &config, format_context &ctx) -> f
         if (i + 1 != end) {
             *out = ' ';
             ++out;
+            
+            ctx.advance_to(out);
         }
-
-        ctx.advance_to(out);
     }
 
     return out;
