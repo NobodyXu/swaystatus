@@ -109,6 +109,13 @@ ssize_t asreadall(int fd, char **buffer, size_t *len)
             return -1;
     }
 
+    if (bytes == *len) {
+        *len += 1;
+        reallocarray_checked((void**) buffer, *len, sizeof(char));
+    }
+
+    (*buffer)[*len - 1] = '\0';
+
     return bytes;
 }
 

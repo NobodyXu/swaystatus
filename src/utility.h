@@ -47,7 +47,8 @@ ssize_t readall(int fd, void *buffer, size_t len);
  * @param len must point to length of *buffer, can be 0
  * @return -1 if read failed, error code is stored in errno.
  *
- * If buffer isn't large enough, then asreadall will realloc it.
+ * If buffer isn't large enough, then asreadall will realloc it
+ * The read in buffer will be zero-terminated.
  */
 ssize_t asreadall(int fd, char **buffer, size_t *len);
 
