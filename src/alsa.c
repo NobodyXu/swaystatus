@@ -49,6 +49,9 @@ void initialize_alsa_lib(const char *mix_name, const char *card)
     if (!elem)
         errx(1, "%s failed", "snd_mixer_find_selem");
 
+    if (snd_config_update_free_global() < 0)
+        errx(1, "%s failed", "snd_config_update_free_global");
+
     volume = calculate_audio_volume();
 }
 
