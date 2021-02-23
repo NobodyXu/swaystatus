@@ -6,17 +6,21 @@ A lightweight yet feature-rich status bar for i3bar or swaybar.
 
 It is written completely in C/C++ to make it as lightweight as possible and specifically, to avoid creating new processes every second as in bash script.
 
-It uses libraries like `libupower-glib`, `libasound` and `libnm` to retrieve battery, volume and network information as opposed to using `upower`, `amixer` or `nmcli`.
+It uses libraries like `libasound` and `libnm` to retrieve battery, volume and network information 
+as opposed to using `amixer` or `nmcli`.
 
-For backlight, load, and meminfo, it reads directly from `/sys/class/backlight`, `/proc/loadavg` and `/proc/meminfo`.
+For battery, backlight, load, and meminfo, it reads directly from `/sys/class/power_supply`,
+`/sys/class/backlight`, `/proc/loadavg` and `/proc/meminfo`.
 
 On my x86-64 computer, it compiles to a single binary that is only `49K` large using `clang-11`.
 
 ## Runtime Dependency
- - libupower-glib.so.3
  - libasound.so.2
  - libnm.so.0
  - libjson-c.so.5 (the same json library as sway and swaybar)
+
+The only dependency that are not portable among system is libnm, which requires NetworkManager
+to be installed, thus it might be removed in the future.
 
 ## Build
 
