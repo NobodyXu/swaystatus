@@ -89,11 +89,12 @@ static uintmax_t parse_cmdline_arg_and_initialize(
             get_format(
                 config,
                 "network_interface",
-                "{is_network_enabled:"
-                    "{has_active_connection:{has_connection:{ipv4_config} {ipv6_config}}}"
-                    "{has_no_active_connection:No active connection}"
-                "}"
-            )
+                "{is_connected:{per_interface_fmt_str:"
+                    "{name} {is_dhcp:DHCP }in: {rx_bytes} out: {tx_bytes} "
+                    "{ipv4_addrs:1} {ipv6_addrs:1}"
+                "}}"
+            ),
+            60 * 10
         );
     if (features->brightness)
         init_brightness_detection(

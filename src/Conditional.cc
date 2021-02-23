@@ -1,26 +1,11 @@
 #include <algorithm>
 
+#include "fmt_utility.hpp"
 #include "Conditional.hpp"
 
 using formatter = fmt::formatter<swaystatus::Conditional>;
 
-template <class It>
-static It find_end_of_format(It beg, It end)
-{
-    size_t level = 1;
-
-    for (It it = beg; it != end; ++it) {
-        if (*it == '{')
-            ++level;
-        if (*it == '}')
-            --level;
-        if (level == 0)
-            return it;
-    }
-
-    FMT_THROW(fmt::format_error("invalid format: Unterminated '{'"));
-    __builtin_unreachable();
-}
+using swaystatus::find_end_of_format;
 
 auto formatter::parse(format_parse_context &ctx) -> format_parse_context_it
 {
@@ -31,7 +16,7 @@ auto formatter::parse(format_parse_context &ctx) -> format_parse_context_it
     if (it == end)
         return it;
 
-    end = find_end_of_format(it, end);
+    end = find_end_of_format(ctx);
 
     if_true_str = std::string_view{it, static_cast<size_t>(end - it)};
 

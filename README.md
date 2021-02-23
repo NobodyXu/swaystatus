@@ -152,21 +152,56 @@ NOTE that these variables are evaluated per backlight_device.
 
 #### Network Interface variables;
 
- - `is_network_enabled`
- - `is_not_network_enabled`
- - `is_network_disabled`
- - `has_active_connection`
- - `has_no_active_connection`
- - `has_no_connection`
- - `has_connection`
- - `has_full_connection`
- - `has_limited_connection`
- - `has_portal_connection`
- - `connectivity_state`
- - `ipv4_config`
- - `ipv6_config`
+ - `is_connected`
+ - `is_not_connected`
+ - `per_interface_fmt_str`:
+    The specification for this variable will be formatted once for each interface.
 
-`ipv4_config` and `ipv6_config` each denotes an array of valid ip addresses.
+    It contains subvariables that can be used inside:
+     - `HAS_UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO`
+     - `has_broadcast_support`
+     - `is_pointopoint`
+     - `has_no_arp_support`
+     - `is_in_promisc_mode`
+     - `is_in_notrailers_mode`
+     - `is_master`
+     - `is_slave`
+     - `has_multicast_support`
+     - `has_portsel_support`
+     - `is_automedia_active`
+     - `is_dhcp`
+	 - `rx_packets`
+	 - `tx_packets`
+	 - `rx_bytes`
+	 - `tx_bytes`
+	 - `rx_errors`
+	 - `tx_errors`
+	 - `rx_dropped`
+	 - `tx_dropped`
+	 - `multicast`
+	 - `collisions`
+	 - `rx_length_errors`
+	 - `rx_over_errors`
+	 - `rx_crc_errors`
+	 - `rx_frame_errors`
+	 - `rx_fifo_errors`
+	 - `rx_missed_errors`
+	 - `tx_aborted_errors`
+	 - `tx_carrier_errors`
+	 - `tx_fifo_errors`
+	 - `tx_heartbeat_errors`
+	 - `tx_window_errors`
+	 - `rx_compressed`
+	 - `tx_compressed`
+     - `ipv4_addrs`
+     - `ipv6_addrs`
+    Limit of number of ip address can be done via `{ipv4_addrs:1}` and `{ipv6_addrs:1}`
+
+    Optionally if `HAS_UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO`, 
+    the following variables are also defined:
+     - `is_lower_up`
+     - `is_dormant`
+     - `is_echo_device`
 
 To limit number of ip addresses in output, please use `{ipv4_config:1}`.
 

@@ -1,103 +1,91 @@
 #include <err.h>
-#include <atomic>
 
-#include <NetworkManager.h>
+#include <sys/types.h>
+#include <net/if.h>
+#include <ifaddrs.h>
 
 #include "printer.hpp"
 #include "Conditional.hpp"
-#include "NMIPConfig.hpp"
+#include "networking.hpp"
 #include "print_network_interfaces.h"
 
 using swaystatus::Conditional;
-using swaystatus::IPConfig;
+using swaystatus::interface_stats;
+using swaystatus::Interfaces;
 
-static NMClient *client;
-static std::atomic<NMConnectivityState> connectivity_state;
-static unsigned seconds;
 static const char *format;
 
+static uint32_t cycle_cnt;
+static uint32_t interval;
+
+static Interfaces interfaces;
+
 extern "C" {
-void init_network_interfaces_scanning(const char *format_str)
+static void getifaddrs_checked()
+{
+    interfaces.clear();
+
+    struct ifaddrs *ifaddr;
+    if (getifaddrs(&ifaddr) < 0)
+        err(1, "%s failed", "getifaddrs");
+
+    for (struct ifaddrs *ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL)
+            continue;
+
+        auto ifa_flags = ifa->ifa_flags;
+        if (ifa_flags & IFF_LOOPBACK)
+            continue;
+        if (!(ifa_flags & IFF_UP))
+            continue;
+        if (!(ifa_flags & IFF_RUNNING))
+            continue;
+
+        auto sa_family = ifa->ifa_addr->sa_family;
+        if (sa_family != AF_INET && sa_family != AF_INET6 && sa_family != AF_PACKET)
+            continue;
+
+        auto *interface = interfaces[ifa->ifa_name];
+        if (!interface)
+            break;
+        interface->flags = ifa->ifa_flags;
+        switch (ifa->ifa_addr->sa_family) {
+            case AF_INET:
+                interface->ipv4_addrs_v.add(ifa->ifa_addr);
+                break;
+
+            case AF_INET6:
+                interface->ipv6_addrs_v.add(ifa->ifa_addr);
+                break;
+
+            case AF_PACKET:
+                interface->stat = *static_cast<interface_stats*>(ifa->ifa_data);
+                break;
+        }
+    }
+
+    freeifaddrs(ifaddr);
+}
+void init_network_interfaces_scanning(const char *format_str, uint32_t interval_arg)
 {
     format = format_str;
+    interval = interval_arg;
 
-    GError *error = NULL;
-    client = nm_client_new(NULL, &error);
-    if (client == NULL)
-        errx(1, "%s failed: %s", "nm_client_new", error->message);
-
-    if (nm_client_networking_get_enabled(client))
-        connectivity_state = nm_client_get_connectivity(client);
-    else
-        connectivity_state = NM_CONNECTIVITY_UNKNOWN;
+    getifaddrs_checked();
 }
 
-static void set_connectivity(GObject *src, GAsyncResult *res, gpointer user_data)
-{
-    GError *error = NULL;
-    connectivity_state = nm_client_check_connectivity_finish(client, res, &error);
-    if (error)
-        errx(1, "%s failed: %s", "nm_client_check_connectivity_finish", error->message);
-}
-
-void retrieve_info(NMActiveConnection **conn, NMIPConfig **ipv4_config, NMIPConfig **ipv6_config)
-{
-    if (connectivity_state == NM_CONNECTIVITY_NONE)
-        return;
-
-    *conn = nm_client_get_primary_connection(client);
-    if (!(*conn))
-        return;
-
-    *ipv4_config = nm_active_connection_get_ip4_config(*conn);
-    *ipv6_config = nm_active_connection_get_ip6_config(*conn);
-}
 void print_network_interfaces()
 {
-    NMActiveConnection *conn = NULL;
-    NMIPConfig *ipv4_config = NULL;
-    NMIPConfig *ipv6_config = NULL;
-
-    if (seconds++ == 120) {
-        /*
-         * Check connectivity every 120 seconds
-         */
-        nm_client_check_connectivity_async(client, NULL, set_connectivity, NULL);
-        seconds = 0;
+    if (cycle_cnt++ == interval) {
+        cycle_cnt = 0;
+        getifaddrs_checked();
     }
-
-    bool is_network_enabled = true;
-    if (nm_client_networking_get_enabled(client))
-        retrieve_info(&conn, &ipv4_config, &ipv6_config);
-    else
-        is_network_enabled = false;
-
-    if (ipv4_config == NULL || ipv6_config == NULL) {
-        conn = NULL;
-        ipv4_config = NULL;
-        ipv6_config = NULL;
-    }
-
-    auto state = connectivity_state.load();
 
     swaystatus::print(
         format,
-        fmt::arg("is_network_enabled",       Conditional{is_network_enabled}),
-        fmt::arg("is_not_network_enabled",   Conditional{!is_network_enabled}),
-        fmt::arg("is_network_disabled",   Conditional{!is_network_enabled}),
-
-        fmt::arg("has_active_connection",    Conditional{conn != NULL}),
-        fmt::arg("has_no_active_connection", Conditional{conn == NULL}),
-
-        fmt::arg("has_no_connection",          Conditional{state == NM_CONNECTIVITY_NONE}),
-        fmt::arg("has_connection",             Conditional{state != NM_CONNECTIVITY_NONE}),
-        fmt::arg("has_full_connection",        Conditional{state == NM_CONNECTIVITY_FULL}),
-        fmt::arg("has_limited_connection",     Conditional{state == NM_CONNECTIVITY_LIMITED}),
-        fmt::arg("has_portal_connection",      Conditional{state == NM_CONNECTIVITY_PORTAL}),
-
-        fmt::arg("connectivity_state", state),
-        fmt::arg("ipv4_config", IPConfig{ipv4_config}),
-        fmt::arg("ipv6_config", IPConfig{ipv6_config})
+        fmt::arg("is_not_connected",      Conditional{interfaces.is_empty()}),
+        fmt::arg("is_connected",          Conditional{!interfaces.is_empty()}),
+        fmt::arg("per_interface_fmt_str", interfaces)
     );
 }
 }
