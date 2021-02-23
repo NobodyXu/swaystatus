@@ -22,6 +22,7 @@
 #include "printer.hpp"
 #include "process_configuration.h"
 
+#include "poller.h"
 #include "print_battery.h"
 #include "print_time.h"
 #include "print_volume.h"
@@ -70,6 +71,8 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     }
 
     config2features(config, features);
+
+    init_poller();
 
     if (features->time)
         init_time(get_format(config, "time", "%Y-%m-%d %T"));
@@ -152,6 +155,8 @@ int main(int argc, char* argv[])
     flush();
 
     for (size_t sec = 0; ; msleep(interval), ++sec) {
+        perform_polling(0);
+
         print_literal_str("[");
 
         if (features.brightness) {
