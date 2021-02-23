@@ -15,7 +15,6 @@ On my x86-64 computer, it compiles to a single binary that less than `60K` using
 
 ## Runtime Dependency
  - libasound.so.2
- - libnm.so.0
  - libjson-c.so.5 (the same json library as sway and swaybar)
 
 The only dependency that are not portable among system is libnm, which requires NetworkManager
