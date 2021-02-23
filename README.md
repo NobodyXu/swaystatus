@@ -83,13 +83,25 @@ then add the following to your configuration:
 
 #### Battery format variables:
 
- - `state`
- - `level`
- - `temperature`
- - `is_fully_charged` (Check section "Conditional Variable" for usage)
- - `is_charging`
+ - `name`
+ - `present`
+ - `technology`
+ - `model_name`
+ - `manufacturer`
+ - `serial_number`
+ - `status`
+ - `cycle_count`
+ - `voltage_min_design`
+ - `voltage_now`
+ - `charge_full_design`
+ - `charge_full`
+ - `charge_now`
+ - `capacity`
+ - `capacity_level`
+ - `is_charging`        (Check section "Conditional Variable" for usage)
  - `is_discharging`
- - `is_empty`
+ - `is_not_charging`
+ - `is_full`
 
 #### Memory Usage variables:
 
@@ -168,6 +180,8 @@ Conditional variables are used to selectively print strings.
 
 For example, setting "format" in "battery" to "{is_charging:Charging}" will print "Charging" only
 when the battery is charging.
+
+All variables start with "is" and "has" are conditional variables.
 
 #### Recursive Conditional Variable:
 
