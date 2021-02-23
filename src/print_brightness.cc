@@ -8,7 +8,6 @@
 #include <errno.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <dirent.h>
 #include <fcntl.h>     /* For O_RDONLY */
 #include <unistd.h>    /* For close and lseek */
@@ -32,13 +31,6 @@ struct Backlight {
      * opened file of /sys/class/backlight/{BacklightDevice}/brightness
      */
     int fd;
-    /**
-     * cached_brightness is the cached value of brightness --
-     * 100 * {BacklightDevice/brightness} / max_brightness,
-     * and cached_st_mtim is not later than the time which the value is cached.
-     */
-    struct timespec cached_st_mtim;
-    uintmax_t cached_brightness;
 };
 
 static struct Backlight *backlights;
@@ -47,8 +39,6 @@ static size_t backlight_sz;
 static const char *format;
 
 extern "C" {
-static void update_brightness(struct Backlight *backlight);
-
 static void addBacklight(int path_fd, const char *filename)
 {
     ++backlight_sz;
@@ -78,9 +68,6 @@ static void addBacklight(int path_fd, const char *filename)
 
     memcpy(buffer + filename_sz + 1, "brightness", sizeof("brightness"));
     backlight->fd = openat_checked(path, path_fd, buffer, O_RDONLY);
-
-    memset(&backlight->cached_st_mtim, 0, sizeof(struct timespec));
-    update_brightness(backlight);
 }
 
 void init_brightness_detection(const char *format_str)
@@ -119,33 +106,17 @@ void init_brightness_detection(const char *format_str)
     closedir(dir);
 }
 
-static void calculate_brightness(struct Backlight *backlight, const struct timespec *st_mtim)
+static uintmax_t calculate_brightness(struct Backlight *backlight)
 {
     uintmax_t val;
     const char *failed_part = readall_as_uintmax(backlight->fd, &val);
     if (failed_part)
         err(1, "%s on %s%s/%s failed", failed_part, path, backlight->filename, "brightness");
 
-    backlight->cached_brightness = 100 * val / backlight->max_brightness;
-    backlight->cached_st_mtim = *st_mtim;
-
     if (lseek(backlight->fd, 0, SEEK_SET) == (off_t) -1)
         err(1, "%s on %s%s/%s failed", "lseek", path, backlight->filename, "brightness");
-}
-static void update_brightness(struct Backlight *backlight)
-{
-    struct stat file_stat;
-    if (fstat(backlight->fd, &file_stat) == -1)
-        err(1, "%s on %s%s/%s failed", "fstat", path, backlight->filename, "brightness");
 
-    const struct timespec * const st_mtim = &file_stat.st_mtim;
-    const struct timespec * const cached_st_mtim = &backlight->cached_st_mtim;
-    /*
-     * st_mtim cannot be a value smaller than cached_st_mtim.
-     * So if tv_nsec or tv_sec differs, then a change is made.
-     */
-    if (st_mtim->tv_nsec != cached_st_mtim->tv_nsec || st_mtim->tv_sec != cached_st_mtim->tv_sec)
-        calculate_brightness(backlight, st_mtim);
+    return 100 * val / backlight->max_brightness;
 }
 
 void print_brightness()
@@ -153,12 +124,12 @@ void print_brightness()
     for (size_t i = 0; i != backlight_sz; ++i) {
         struct Backlight * const backlight = &backlights[i];
 
-        update_brightness(backlight);
+        uintmax_t brightness = calculate_brightness(backlight);
 
         swaystatus::print(
             format,
             fmt::arg("backlight_device", backlight->filename),
-            fmt::arg("brightness", backlight->cached_brightness),
+            fmt::arg("brightness",       brightness),
             fmt::arg("has_multiple_backlight_devices", Conditional{backlight_sz != 1})
         );
 
