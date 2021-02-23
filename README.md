@@ -194,6 +194,7 @@ NOTE that these variables are evaluated per backlight_device.
 	 - `tx_compressed`
      - `ipv4_addrs`
      - `ipv6_addrs`
+
     Limit of number of ip address can be done via `{ipv4_addrs:1}` and `{ipv6_addrs:1}`
 
     Optionally if `HAS_UAPI_DEF_IF_NET_DEVICE_FLAGS_LOWER_UP_DORMANT_ECHO`, 
