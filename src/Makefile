@@ -8,7 +8,7 @@ CFLAGS += $(shell pkg-config --cflags alsa libnm json-c)
 
 CXXFLAGS := -fno-exceptions -fno-rtti
 
-LDFLAGS := -s -flto -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3
+LDFLAGS := -s -flto -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3,--as-needed
 
 LIBS := $(shell pkg-config --libs alsa libnm json-c) -ldl
 
