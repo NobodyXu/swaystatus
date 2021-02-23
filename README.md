@@ -171,8 +171,8 @@ NOTE that these variables are evaluated per backlight_device.
      - `is_dhcp`
 	 - `rx_packets`
 	 - `tx_packets`
-	 - `rx_bytes`
-	 - `tx_bytes`
+	 - `rx_bytes` (Supports unit specification, checks [Memry Usage Variables](#memory-usage-variables) for more info)
+	 - `tx_bytes` (Supports unit specification, checks [Memry Usage Variables](#memory-usage-variables) for more info)
 	 - `rx_errors`
 	 - `tx_errors`
 	 - `rx_dropped`
