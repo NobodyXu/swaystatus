@@ -36,7 +36,13 @@ static uint32_t interval;
  * If battery not found, battery_device is left unchanged, which by default is NULL
  *
  * Since having multiple batteries for laptop/desktop/workstation doesn't make much sense,
- * swaystatus now only supports single battery device.
+ * swaystatus now only supports single battery device
+ *
+ * Android does seem to have multiple batteries, as shown in here:
+ * https://stackoverflow.com/questions/26616073/multiple-battery-entries-in-sys-class-power-supply-on-android
+ *
+ * However, since sway, a tiling wm that heavily depends on keyboard is unlikely
+ * to be used on Android, this is not considered to be a problem.
  */
 static const char *battery_device;
 static int uevent_fd;
