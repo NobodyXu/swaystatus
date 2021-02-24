@@ -59,8 +59,10 @@ static void verify_entry(const char *filename, const char *name, struct json_obj
         }
 
         /* Ignore JSON comments */
-        if (property[0] == '_')
+        if (property[0] == '_') {
+            json_object_object_del(entry, property);
             continue;
+        }
 
         size_t i = 0;
         for (; i != valid_property_sz; ++i) {
