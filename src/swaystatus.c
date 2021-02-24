@@ -102,7 +102,8 @@ static uintmax_t parse_cmdline_arg_and_initialize(
         );
     if (features->brightness)
         init_brightness_detection(
-            get_format(config, "brightness", "{backlight_device}: {brightness}")
+            get_format(config, "brightness", "{backlight_device}: {brightness}"),
+            1
         );
     if (features->memory_usage)
         init_memory_usage_collection(

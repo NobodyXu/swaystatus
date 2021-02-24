@@ -31,6 +31,10 @@ struct Backlight {
      * opened file of /sys/class/backlight/{BacklightDevice}/brightness
      */
     int fd;
+    /**
+     * cached brightness
+     */
+    uintmax_t brightness;
 };
 
 static struct Backlight *backlights;
@@ -38,7 +42,11 @@ static size_t backlight_sz;
 
 static const char *format;
 
+static uint32_t cycle_cnt;
+static uint32_t interval;
+
 extern "C" {
+static void update_brightness(struct Backlight *backlight);
 static void addBacklight(int path_fd, const char *filename)
 {
     ++backlight_sz;
@@ -68,11 +76,14 @@ static void addBacklight(int path_fd, const char *filename)
 
     memcpy(buffer + filename_sz + 1, "brightness", sizeof("brightness"));
     backlight->fd = openat_checked(path, path_fd, buffer, O_RDONLY);
+
+    update_brightness(backlight);
 }
 
-void init_brightness_detection(const char *format_str)
+void init_brightness_detection(const char *format_str, uint32_t interval_arg)
 {
     format = format_str;
+    interval = interval_arg;
 
     DIR *dir = opendir(path);
     if (!dir)
@@ -118,23 +129,33 @@ static uintmax_t calculate_brightness(struct Backlight *backlight)
 
     return 100 * val / backlight->max_brightness;
 }
+static void update_brightness(struct Backlight *backlight)
+{
+    backlight->brightness = calculate_brightness(backlight);
+}
 
 void print_brightness()
 {
+    ++cycle_cnt;
+
     for (size_t i = 0; i != backlight_sz; ++i) {
         struct Backlight * const backlight = &backlights[i];
 
-        uintmax_t brightness = calculate_brightness(backlight);
+        if (cycle_cnt == interval)
+            update_brightness(backlight);
 
         swaystatus::print(
             format,
             fmt::arg("backlight_device", backlight->filename),
-            fmt::arg("brightness",       brightness),
+            fmt::arg("brightness",       backlight->brightness),
             fmt::arg("has_multiple_backlight_devices", Conditional{backlight_sz != 1})
         );
 
         if (i + 1 != backlight_sz)
             print_literal_str(" ");
     }
+
+    if (cycle_cnt == interval)
+        cycle_cnt = 0;
 }
 }
