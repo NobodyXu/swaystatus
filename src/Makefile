@@ -43,15 +43,21 @@ $(filter print_%.o,$(OBJS)): printer.hpp
 print_volume.o: alsa.h
 
 printer.hpp: dep/fmt/include/fmt/core.h fmt_config.h
+	touch $@
 printer.cc: dep/fmt/include/fmt/format.h dep/fmt/include/fmt/format-inl.h fmt_config.h
 
 fmt_utility.hpp: dep/fmt/include/fmt/format.h fmt_config.h
+	touch $@
 
 mem_size_t.hpp: dep/fmt/include/fmt/format.h
+	touch $@
 LazyEval.hpp: dep/fmt/include/fmt/format.h
+	touch $@
 Conditional.hpp: dep/fmt/include/fmt/format.h fmt_utility.hpp
+	touch $@
 
 networking.hpp: dep/fmt/include/fmt/format.h fmt_config.h
+	touch $@
 networking.o: utility.h fmt_utility.hpp Conditional.hpp mem_size_t.hpp dep/fmt/include/fmt/core.h
 
 print_brightness.o: Conditional.hpp
