@@ -107,7 +107,8 @@ static uintmax_t parse_cmdline_arg_and_initialize(
         );
     if (features->memory_usage)
         init_memory_usage_collection(
-            get_format(config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}")
+            get_format(config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}"),
+            10
         );
     if (features->load)
         init_load(
