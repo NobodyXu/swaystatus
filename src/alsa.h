@@ -9,6 +9,8 @@ extern "C" {
 # endif
 
 void initialize_alsa_lib(const char *mix_name, const char *card);
+
+void update_volume();
 long get_audio_volume();
 
 # ifdef __cplusplus

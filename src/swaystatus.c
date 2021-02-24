@@ -84,6 +84,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     if (features->volume)
         init_volume_monitor(
             get_format(config, "volume", "vol {volume}%"),
+            1,
             get_property(config, "volume", "mix_name", "Master"),
             get_property(config, "volume", "card",     "default")
         );

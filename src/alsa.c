@@ -69,7 +69,8 @@ static long calculate_audio_volume()
     maxv -= minv;
     return 100 * vol / maxv;
 }
-long get_audio_volume()
+
+void update_volume()
 {
     if (snd_mixer_wait(handle, 0) == 0) {
         if (snd_mixer_handle_events(handle) < 0)
@@ -77,5 +78,8 @@ long get_audio_volume()
 
         volume = calculate_audio_volume();
     }
+}
+long get_audio_volume()
+{
     return volume;
 }
