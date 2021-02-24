@@ -29,6 +29,9 @@ static const char * const path = "/sys/class/power_supply/";
 
 static const char *format;
 
+static uint32_t cycle_cnt;
+static uint32_t interval;
+
 /**
  * If battery not found, battery_device is left unchanged, which by default is NULL
  *
@@ -42,7 +45,8 @@ static char *buffer;
 static size_t buffer_sz;
 
 extern "C" {
-int add_battery(int path_fd, const char *device)
+static void read_battery_uevent();
+static int add_battery(int path_fd, const char *device)
 {
     battery_device = strdup_checked(device);
 
@@ -70,12 +74,14 @@ int add_battery(int path_fd, const char *device)
 
     memcpy(relative_path + device_name_len + 1, "uevent", sizeof("uevent"));
     uevent_fd = openat_checked(path, path_fd, relative_path, O_RDONLY);
+    read_battery_uevent();
 
     return 1;
 }
-void init_battery_monitor(const char *format_str)
+void init_battery_monitor(const char *format_str, uint32_t interval_arg)
 {
     format = format_str;
+    interval = interval_arg;
 
     DIR *dir = opendir(path);
     if (!dir)
@@ -147,7 +153,10 @@ static auto get_conditional_lazy(std::string_view name, std::string_view val) no
 
 void print_battery()
 {
-    read_battery_uevent();
+    if (++cycle_cnt == interval) {
+        cycle_cnt = 0;
+        read_battery_uevent();
+    }
 
     swaystatus::print(
         format,

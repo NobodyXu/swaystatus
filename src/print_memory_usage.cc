@@ -30,13 +30,18 @@ static size_t memtotal;
 
 static const char *format;
 
+static uint32_t cycle_cnt;
+static uint32_t interval;
+
 extern "C" {
 static void read_meminfo();
 static size_t get_memusage(std::string_view element);
 
-void init_memory_usage_collection(const char *format_str)
+void init_memory_usage_collection(const char *format_str, uint32_t interval_arg)
 {
     format = format_str;
+    interval = interval_arg;
+
     meminfo_fd = openat_checked("", AT_FDCWD, "/proc/meminfo", O_RDONLY);
 
     read_meminfo();
@@ -93,7 +98,10 @@ static auto get_memusage_lazy(std::string_view element)
 
 void print_memory_usage()
 {
-    read_meminfo();
+    if (++cycle_cnt == interval) {
+        cycle_cnt = 0;
+        read_meminfo();
+    }
 
     swaystatus::print(
         format,

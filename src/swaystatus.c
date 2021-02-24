@@ -77,12 +77,16 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     if (features->time)
         init_time(get_format(config, "time", "%Y-%m-%d %T"));
     if (features->battery)
-        init_battery_monitor(get_format(config, "battery", "{status} {capacity}%"));
+        init_battery_monitor(
+            get_format         (config, "battery", "{status} {capacity}%"),
+            get_update_interval(config, "battery", 3)
+        );
     if (features->volume)
         init_volume_monitor(
-            get_format(config, "volume", "vol {volume}%"),
-            get_property(config, "volume", "mix_name", "Master"),
-            get_property(config, "volume", "card",     "default")
+            get_format         (config, "volume", "vol {volume}%"),
+            get_update_interval(config, "volume", 1),
+            get_property       (config, "volume", "mix_name", "Master"),
+            get_property       (config, "volume", "card",     "default")
         );
     if (features->network_interface)
         init_network_interfaces_scanning(
@@ -94,19 +98,22 @@ static uintmax_t parse_cmdline_arg_and_initialize(
                     "{ipv4_addrs:1} {ipv6_addrs:1}"
                 "}}"
             ),
-            60 * 10
+            get_update_interval(config, "network_interface", 60 * 2)
         );
     if (features->brightness)
         init_brightness_detection(
-            get_format(config, "brightness", "{backlight_device}: {brightness}")
+            get_format         (config, "brightness", "{backlight_device}: {brightness}"),
+            get_update_interval(config, "brightness", 1)
         );
     if (features->memory_usage)
         init_memory_usage_collection(
-            get_format(config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}")
+            get_format         (config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}"),
+            get_update_interval(config, "memory_usage", 10)
         );
     if (features->load)
         init_load(
-            get_format(config, "load", "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}")
+            get_format(config, "load", "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}"),
+            get_update_interval(config, "load", 10)
         );
 
     config2json_elements_strs(config, elements);
