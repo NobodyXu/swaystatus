@@ -40,7 +40,8 @@ To install, run `sudo make install`, which by default will install a single bina
 swaystatus: Usage: swaystatus [options] configuration_filename
 
   --help                    Show help message and exit
-  --interval=unsigned_msec  Specify update interval in milliseconds, must be an unsignerinteger.
+  --interval=unsigned_msec  Specify update interval in milliseconds, must be an unsigner integer.
+                            By default, the interval is set to 1000 ms.
 ```
 
 ### Config file format
@@ -48,6 +49,7 @@ swaystatus: Usage: swaystatus [options] configuration_filename
     {
         "name": {
             "format": "Hello, {variable_name}",
+            "update_interval": 20,
             "color": "##RRGGBBA",
             "background: "##RRGGBBA",
             "border": "##RRGGBBA",
@@ -61,6 +63,7 @@ swaystatus: Usage: swaystatus [options] configuration_filename
             "separator_block_width": 9,
             "markup": "none"
         },
+        "_comment": "Any variable starts with '_' is a comment"
     }
 
 All property present for "name" above are optional.
@@ -82,6 +85,13 @@ then add the following to your configuration:
     {
         "brightness": false,
     }
+
+##### `update_interval`
+
+If specified, then the block will update at `update_interval * main_loop_interval ms`,
+where `main_loop_interval` is the value passed by cmdline arg `--interval=` or `1000 ms`
+by default.
+
 
 #### Battery format variables:
 
