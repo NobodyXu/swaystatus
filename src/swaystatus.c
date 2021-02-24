@@ -98,7 +98,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
                     "{ipv4_addrs:1} {ipv6_addrs:1}"
                 "}}"
             ),
-            60 * 10
+            60 * 2
         );
     if (features->brightness)
         init_brightness_detection(
