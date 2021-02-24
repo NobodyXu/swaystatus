@@ -98,7 +98,7 @@ static auto get_memusage_lazy(std::string_view element)
 
 void print_memory_usage()
 {
-    if (cycle_cnt++ == interval) {
+    if (++cycle_cnt == interval) {
         cycle_cnt = 0;
         read_meminfo();
     }

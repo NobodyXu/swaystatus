@@ -21,7 +21,7 @@ void init_volume_monitor(
 
 void print_volume()
 {
-    if (cycle_cnt++ == interval) {
+    if (++cycle_cnt == interval) {
         cycle_cnt = 0;
         update_volume();
     }

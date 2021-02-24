@@ -76,7 +76,7 @@ void init_network_interfaces_scanning(const char *format_str, uint32_t interval_
 
 void print_network_interfaces()
 {
-    if (cycle_cnt++ == interval) {
+    if (++cycle_cnt == interval) {
         cycle_cnt = 0;
         getifaddrs_checked();
     }

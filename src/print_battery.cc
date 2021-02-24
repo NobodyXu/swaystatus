@@ -153,7 +153,7 @@ static auto get_conditional_lazy(std::string_view name, std::string_view val) no
 
 void print_battery()
 {
-    if (cycle_cnt++ == interval) {
+    if (++cycle_cnt == interval) {
         cycle_cnt = 0;
         read_battery_uevent();
     }
