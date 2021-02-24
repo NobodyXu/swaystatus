@@ -17,6 +17,7 @@
             "1m {loadavg_1m} kthreads:{running_kthreads_cnt}/{total_kthreads_cnt} {last_created_process_pid}"
     },
     "network_interface": {
-        "format": "{is_connected:{per_interface_fmt_str:{name} {ipv4_addrs:1} {ipv6_addrs:1}}}"
+        "format": "{is_connected:{per_interface_fmt_str:{name} {ipv4_addrs:1} {ipv6_addrs:1}}}",
+        "update_interval": 20
     }
 }
