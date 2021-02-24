@@ -77,7 +77,10 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     if (features->time)
         init_time(get_format(config, "time", "%Y-%m-%d %T"));
     if (features->battery)
-        init_battery_monitor(get_format(config, "battery", "{status} {capacity}%"));
+        init_battery_monitor(
+            get_format(config, "battery", "{status} {capacity}%"),
+            3
+        );
     if (features->volume)
         init_volume_monitor(
             get_format(config, "volume", "vol {volume}%"),
