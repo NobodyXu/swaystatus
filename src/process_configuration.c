@@ -58,6 +58,10 @@ static void verify_entry(const char *filename, const char *name, struct json_obj
             }
         }
 
+        /* Ignore JSON comments */
+        if (property[0] == '_')
+            continue;
+
         size_t i = 0;
         for (; i != valid_property_sz; ++i) {
             if (strcmp(property, valid_properties[i].name) == 0) {
@@ -73,6 +77,10 @@ static void verify_entry(const char *filename, const char *name, struct json_obj
 static void verify_config(const char *filename, struct json_object *config)
 {
     json_object_object_foreach(config, name, properties) {
+        /* Ignore JSON comments */
+        if (name[0] == '_')
+            continue;
+
         size_t i = 0;
         for (; i != valid_name_sz; ++i) {
             if (strcmp(name, valid_names[i]) == 0)
