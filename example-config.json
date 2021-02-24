@@ -1,4 +1,6 @@
 {
+    "_comment": "Any variable starts with '_' is a comment",
+
     "battery": {
         "format":
             "{is_full:Battery is Full}{is_charging:charging {capacity}%}{is_discharging:discharging {capacity}%}"
@@ -18,6 +20,10 @@
     },
     "network_interface": {
         "format": "{is_connected:{per_interface_fmt_str:{name} {ipv4_addrs:1} {ipv6_addrs:1}}}",
-        "update_interval": 20
+        "update_interval": 20,
+        "__update_interval__": [
+            "Setting update_interval to 20 means it will be updated per 20sec by default",
+            "if cmdline arg \"--interval\" is not specified"
+        ]
     }
 }
