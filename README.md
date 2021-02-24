@@ -214,7 +214,7 @@ information on format specification.Conditional Variable:
 
 #### Conditional Variables
 
-Conditional variables are used to selectively print strings.
+Conditional variables are used to conditionally evaulate part of the format string.
 
 For example, setting "format" in "battery" to "{is_charging:Charging}" will print "Charging" only
 when the battery is charging.
