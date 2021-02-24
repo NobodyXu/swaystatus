@@ -14,13 +14,26 @@
 static const char * const loadavg_path = "/proc/loadavg";
 
 static int load_fd;
+/*
+ * 100-long buffer should be enough for /proc/loadavg
+ */
+static char buffer[100];
+static const char* statistics[6];
+
 static const char *format;
 
+static uint32_t cycle_cnt;
+static uint32_t interval;
+
 extern "C" {
-void init_load(const char *format_str)
+static void update_load();
+void init_load(const char *format_str, uint32_t interval_arg)
 {
     format = format_str;
+    interval = interval_arg;
+
     load_fd = openat_checked("", AT_FDCWD, loadavg_path, O_RDONLY);
+    update_load();
 }
 
 /**
@@ -50,13 +63,8 @@ static void parse_loadavg(char *str, const char *statistics[6])
     *delimiter = '\0';
 }
 
-void print_load()
+static void update_load()
 {
-    /*
-     * 100-long buffer should be enough for /proc/loadavg
-     */
-    char buffer[100];
-
     ssize_t cnt = readall(load_fd, buffer, sizeof(buffer) - 1);
     if (cnt == -1)
         err(1, "%s on %s failed", "readall", loadavg_path);
@@ -67,8 +75,15 @@ void print_load()
     if (lseek(load_fd, 0, SEEK_SET) == (off_t) -1)
         err(1, "%s on %s failed", "lseek", loadavg_path);
 
-    const char* statistics[6];
     parse_loadavg(buffer, statistics);
+}
+
+void print_load()
+{
+    if (++cycle_cnt == interval) {
+        cycle_cnt = 0;
+        update_load();
+    }
 
     swaystatus::print(
         format,
