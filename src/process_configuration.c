@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <err.h>
+#include <errno.h>
 
 #include <json.h>
 #include <json_object.h>
@@ -30,6 +31,7 @@ struct Property {
 };
 static const struct Property valid_properties[] = {
     {"format", json_type_string},
+    {"update_interval", json_type_int},
     {"color", json_type_string},
     {"background", json_type_string},
     {"border", json_type_string},
@@ -121,6 +123,33 @@ const char* get_property(void *config, const char *name, const char *property,
 const char* get_format(void *config, const char *name, const char *default_val)
 {
     return get_property(config, name, "format", default_val);
+}
+uint32_t get_update_interval(void *config, const char *name, uint32_t default_val)
+{
+    if (!config)
+        return default_val;
+
+    struct json_object *properties;
+    if (!json_object_object_get_ex(config, name, &properties))
+        return default_val;
+
+    if (json_object_get_type(properties) == json_type_boolean)
+        return default_val;
+    
+    struct json_object *value;
+    if (!json_object_object_get_ex(properties, "update_interval", &value))
+        return default_val;
+
+    errno = 0;
+    int64_t interval = json_object_get_int64(value);
+    if (errno != 0)
+        err(1, "%s on %s.%s%s", "json_object_get_uint64", name, "update_interval", " failed");
+    if (interval > UINT32_MAX)
+        errx(1, "%s on %s.%s%s", "Value too large", name, "update_interval", "");
+    if (interval < 0)
+        errx(1, "%s on %s.%s%s", "Negative number is not accepted", name, "update_interval", "");
+
+    return interval;
 }
 
 static bool get_feature(void *config, const char *name)

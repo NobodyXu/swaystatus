@@ -6,6 +6,7 @@ extern "C" {
 # endif
 
 # include <stdbool.h>
+# include <stdint.h>
 
 /**
  * load and verify the configuration.
@@ -16,6 +17,7 @@ void free_config(void *config);
 const char* get_property(void *config, const char *name, const char *property,
                          const char *default_val);
 const char* get_format(void *config, const char *name, const char *default_val);
+uint32_t get_update_interval(void *config, const char *name, uint32_t default_val);
 
 struct Features {
     bool brightness;
