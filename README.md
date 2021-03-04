@@ -106,6 +106,7 @@ When all sensors are shown, `swaystatus` will then update the sensors reading fr
 
 #### Battery format variables:
 
+ - `has_battery`: check whether battery device exists
  - `name`
  - `present`
  - `technology`
