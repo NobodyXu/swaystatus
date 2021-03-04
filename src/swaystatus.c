@@ -91,17 +91,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     if (features->volume)
         init_volume_monitor(config);
     if (features->network_interface)
-        init_network_interfaces_scanning(
-            get_format(
-                config,
-                "network_interface",
-                "{is_connected:{per_interface_fmt_str:"
-                    "{name} {is_dhcp:DHCP }in: {rx_bytes} out: {tx_bytes} "
-                    "{ipv4_addrs:1} {ipv6_addrs:1}"
-                "}}"
-            ),
-            get_update_interval(config, "network_interface", 60 * 2)
-        );
+        init_network_interfaces_scanning(config);
     if (features->brightness)
         init_brightness_detection(
             get_format         (config, "brightness", "{backlight_device}: {brightness}"),

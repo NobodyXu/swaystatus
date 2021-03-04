@@ -4,6 +4,7 @@
 #include <net/if.h>
 #include <ifaddrs.h>
 
+#include "process_configuration.h"
 #include "printer.hpp"
 #include "Conditional.hpp"
 #include "networking.hpp"
@@ -66,10 +67,17 @@ static void getifaddrs_checked()
 
     freeifaddrs(ifaddr);
 }
-void init_network_interfaces_scanning(const char *format_str, uint32_t interval_arg)
+void init_network_interfaces_scanning(const void *config)
 {
-    format = format_str;
-    interval = interval_arg;
+    format = get_format(
+        config,
+        "network_interface",
+        "{is_connected:{per_interface_fmt_str:"
+            "{name} {is_dhcp:DHCP }in: {rx_bytes} out: {tx_bytes} "
+            "{ipv4_addrs:1} {ipv6_addrs:1}"
+        "}}"
+    );
+    interval = get_update_interval(config, "network_interface", 60 * 2);
 
     getifaddrs_checked();
 }
