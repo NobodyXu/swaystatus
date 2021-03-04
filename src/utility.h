@@ -28,6 +28,10 @@ char* strdup_checked(const char *s);
  */
 void msleep(uintmax_t msec);
 
+void sigaction_checked_impl(int sig, const char *signame, void (*sighandler)(int signum));
+
+# define sigaction_checked(sig, sighandler) sigaction_checked_impl((sig), # sig, (sighandler))
+
 /**
  * close all fd except for 0, 1 and 2.
  */

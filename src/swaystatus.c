@@ -1,6 +1,5 @@
 #define _GNU_SOURCE     /* For RTLD_DEFAULT */
 #define _DEFAULT_SOURCE /* For nice */
-#define _POSIX_C_SOURCE /* For sigaction */
 
 #include <stdio.h>
 #include <inttypes.h>
@@ -39,6 +38,12 @@ static void sigabort_handler(int sig)
 {
     int sz = backtrace(buffer, sizeof(buffer) / sizeof(void*));
     backtrace_symbols_fd(buffer, sz, 2);
+}
+
+static bool reload_requested;
+static void handle_reload_request(int sig)
+{
+    reload_requested = true;
 }
 
 static uintmax_t parse_cmdline_arg_and_initialize(
@@ -148,17 +153,20 @@ static void print_delimiter()
 
 int main(int argc, char* argv[])
 {
+    close_all();
+
     /* Force dynamic linker to load function backtrace */
     if (dlsym(RTLD_DEFAULT, "backtrace") == NULL)
         err(1, "%s on %s failed", "dlsym", "backtrace");
 
     nice(19);
 
-    struct sigaction act;
-    memset(&act, 0, sizeof(act));
-    act.sa_handler = sigabort_handler;
-    if (sigaction(SIGABRT, &act, NULL) == -1)
-        err(1, "%s on %s failed", "sigaction", "SIGABRT");
+    sigaction_checked(SIGABRT, sigabort_handler);
+    sigaction_checked(SIGUSR1, handle_reload_request);
+
+    const char * const exe = realpath(argv[0], NULL);
+    if (exe == NULL)
+        err(1, "%s on %s failed", "realpath", argv[0]);
 
     struct Features features;
     struct JSON_elements_strs elements;
@@ -172,7 +180,7 @@ int main(int argc, char* argv[])
     print_literal_str("[\n");
     flush();
 
-    for (size_t sec = 0; ; msleep(interval), ++sec) {
+    for (size_t sec = 0; !reload_requested; msleep(interval), ++sec) {
         perform_polling(0);
 
         print_literal_str("[");
@@ -225,6 +233,11 @@ int main(int argc, char* argv[])
             malloc_trim(4096 * 3);
             sec = 0;
         }
+    }
+
+    if (reload_requested) {
+        execv(exe, argv);
+        err(1, "%s on %s failed", "execv", exe);
     }
 
     return 0;

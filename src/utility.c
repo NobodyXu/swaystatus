@@ -1,9 +1,11 @@
 #define _DEFAULT_SOURCE /* For reallocarray */
-#define _POSIX_C_SOURCE 200809L /* For openat, fstatat */
+#define _POSIX_C_SOURCE 200809L /* For openat, fstatat, sigaction */
 
 #include <limits.h> /* For SSIZE_MAX */
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
+
 #include <err.h>
 #include <errno.h>
 
@@ -47,6 +49,15 @@ void msleep(uintmax_t msec)
 {
     if (usleep(msec * 1000) && errno == EINVAL)
         err(1, "%s failed", "usleep");
+}
+
+void sigaction_checked_impl(int sig, const char *signame, void (*sighandler)(int signum))
+{
+    struct sigaction act;
+    memset(&act, 0, sizeof(act));
+    act.sa_handler = sighandler;
+    if (sigaction(sig, &act, NULL) == -1)
+        err(1, "%s on %s failed", "sigaction", signame);
 }
 
 void close_all()
