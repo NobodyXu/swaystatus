@@ -87,8 +87,10 @@ static int add_battery(int path_fd, const char *device)
 }
 void init_battery_monitor(const void *config)
 {
-    format   = get_format         (config, "battery", "{status} {capacity}%");
+    format   = get_format         (config, "battery", "{has_battery:{status} {capacity}%}");
     interval = get_update_interval(config, "battery", 3);
+
+    uevent_fd = -1;
 
     DIR *dir = opendir(path);
     if (!dir)
@@ -124,6 +126,9 @@ done:
 
 static void read_battery_uevent()
 {
+    if (uevent_fd == -1)
+        return;
+
     ssize_t cnt = asreadall(uevent_fd, &buffer, &buffer_sz);
     if (cnt < 0)
         err(1, "%s on %s%s/%s failed", "read", path, battery_device, "uevent");
@@ -134,6 +139,9 @@ static void read_battery_uevent()
 
 static auto get_property(std::string_view name) -> std::string_view
 {
+    if (uevent_fd == -1)
+        return {};
+
     char *substr = strcasestr(buffer, name.data());
     if (!substr)
         return "nullptr";
@@ -167,6 +175,9 @@ void print_battery()
 
     swaystatus::print(
         format,
+
+        fmt::arg("has_battery", Conditional{uevent_fd != -1}),
+
         fmt::arg("type", "battery"),
 
 #define ARG(literal) fmt::arg((literal), get_property_lazy(literal))
