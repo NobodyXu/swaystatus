@@ -69,6 +69,7 @@ void Sensor::update()
         sensors_subfeature const *subf;
         int s = 0;
 
+        std::uint8_t cnt = 0;
         while ((subf = sensors_get_all_subfeatures(&cn, feat, &s)) != 0) {
             if ((subf->flags & SENSORS_MODE_R) == 0)
                 continue;
@@ -84,7 +85,17 @@ void Sensor::update()
             }
 
             *result = sensor_get_int8_val(cn, subf);
+            ++cnt;
         }
+
+        /**
+         * Check if the reading contains any valid data
+         *
+         * On my computer, BAT0 always return subfeatures that have no TEMP_INPUT,
+         * so this is necessary.
+         */
+        if (cnt == 0)
+            --reading_cnt;
     }
 }
 

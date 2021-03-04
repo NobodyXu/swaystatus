@@ -31,7 +31,10 @@ void print_sensors()
         ++reading_index;
         if (reading_index == sensor_it->reading_cnt) {
             reading_index = 0;
-            ++sensor_it;
+            do {
+                ++sensor_it;
+            } while (sensor_it != sensors.end() && sensor_it->reading_cnt == 0);
+
             if (sensor_it == sensors.end()) {
                 sensors.update();
                 sensor_it = sensors.begin();
