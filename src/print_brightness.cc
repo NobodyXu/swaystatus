@@ -13,6 +13,7 @@
 #include <unistd.h>    /* For close and lseek */
 
 #include "utility.h"
+#include "process_configuration.h"
 #include "printer.hpp"
 #include "Conditional.hpp"
 #include "print_brightness.h"
@@ -80,10 +81,10 @@ static void addBacklight(int path_fd, const char *filename)
     update_brightness(backlight);
 }
 
-void init_brightness_detection(const char *format_str, uint32_t interval_arg)
+void init_brightness_detection(const void *config)
 {
-    format = format_str;
-    interval = interval_arg;
+    format   = get_format         (config, "brightness", "{backlight_device}: {brightness}");
+    interval = get_update_interval(config, "brightness", 1);
 
     DIR *dir = opendir(path);
     if (!dir)

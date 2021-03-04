@@ -93,10 +93,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     if (features->network_interface)
         init_network_interfaces_scanning(config);
     if (features->brightness)
-        init_brightness_detection(
-            get_format         (config, "brightness", "{backlight_device}: {brightness}"),
-            get_update_interval(config, "brightness", 1)
-        );
+        init_brightness_detection(config);
     if (features->memory_usage)
         init_memory_usage_collection(
             get_format         (config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}"),

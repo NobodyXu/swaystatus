@@ -7,7 +7,7 @@
 extern "C" {
 # endif
 
-void init_brightness_detection(const char *format_str, uint32_t interval);
+void init_brightness_detection(const void *config);
 void print_brightness();
 
 # ifdef __cplusplus
