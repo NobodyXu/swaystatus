@@ -17,6 +17,7 @@
 #include <string_view>
 
 #include "utility.h"
+#include "process_configuration.h"
 #include "printer.hpp"
 #include "Conditional.hpp"
 #include "LazyEval.hpp"
@@ -84,10 +85,10 @@ static int add_battery(int path_fd, const char *device)
 
     return 1;
 }
-void init_battery_monitor(const char *format_str, uint32_t interval_arg)
+void init_battery_monitor(const void *config)
 {
-    format = format_str;
-    interval = interval_arg;
+    format   = get_format         (config, "battery", "{status} {capacity}%");
+    interval = get_update_interval(config, "battery", 3);
 
     DIR *dir = opendir(path);
     if (!dir)

@@ -7,7 +7,7 @@
 extern "C" {
 # endif
 
-void init_network_interfaces_scanning(const char *format_str, uint32_t interval);
+void init_network_interfaces_scanning(const void *config);
 void print_network_interfaces();
 
 # ifdef __cplusplus

@@ -5,14 +5,15 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "process_configuration.h"
 #include "printer.hpp"
 #include "print_time.h"
 
 static const char *format;
 
-void init_time(const char * const format_arg)
+void init_time(const void *config)
 {
-    format = format_arg;
+    format = get_format(config, "time", "%Y-%m-%d %T");
 }
 void print_time()
 {

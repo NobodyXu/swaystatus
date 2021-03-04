@@ -112,7 +112,7 @@ void free_config(void *config)
     json_object_put(config);
 }
 
-const char* get_property(void *config, const char *name, const char *property,
+const char* get_property(const void *config, const char *name, const char *property,
                          const char *default_val)
 {
     if (!config)
@@ -131,11 +131,11 @@ const char* get_property(void *config, const char *name, const char *property,
 
     return strdup_checked(json_object_get_string(value));
 }
-const char* get_format(void *config, const char *name, const char *default_val)
+const char* get_format(const void *config, const char *name, const char *default_val)
 {
     return get_property(config, name, "format", default_val);
 }
-uint32_t get_update_interval(void *config, const char *name, uint32_t default_val)
+uint32_t get_update_interval(const void *config, const char *name, uint32_t default_val)
 {
     if (!config)
         return default_val;

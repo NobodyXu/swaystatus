@@ -85,55 +85,21 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     init_poller();
 
     if (features->time)
-        init_time(get_format(config, "time", "%Y-%m-%d %T"));
+        init_time(config);
     if (features->battery)
-        init_battery_monitor(
-            get_format         (config, "battery", "{status} {capacity}%"),
-            get_update_interval(config, "battery", 3)
-        );
+        init_battery_monitor(config);
     if (features->volume)
-        init_volume_monitor(
-            get_format         (config, "volume", "vol {volume}%"),
-            get_update_interval(config, "volume", 1),
-            get_property       (config, "volume", "mix_name", "Master"),
-            get_property       (config, "volume", "card",     "default")
-        );
+        init_volume_monitor(config);
     if (features->network_interface)
-        init_network_interfaces_scanning(
-            get_format(
-                config,
-                "network_interface",
-                "{is_connected:{per_interface_fmt_str:"
-                    "{name} {is_dhcp:DHCP }in: {rx_bytes} out: {tx_bytes} "
-                    "{ipv4_addrs:1} {ipv6_addrs:1}"
-                "}}"
-            ),
-            get_update_interval(config, "network_interface", 60 * 2)
-        );
+        init_network_interfaces_scanning(config);
     if (features->brightness)
-        init_brightness_detection(
-            get_format         (config, "brightness", "{backlight_device}: {brightness}"),
-            get_update_interval(config, "brightness", 1)
-        );
+        init_brightness_detection(config);
     if (features->memory_usage)
-        init_memory_usage_collection(
-            get_format         (config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}"),
-            get_update_interval(config, "memory_usage", 10)
-        );
+        init_memory_usage_collection(config);
     if (features->load)
-        init_load(
-            get_format(config, "load", "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}"),
-            get_update_interval(config, "load", 60)
-        );
+        init_load(config);
     if (features->sensors)
-        init_sensors(
-            get_format(
-                config,
-                "sensors",
-                "{prefix} {reading_number}th sensor: {reading_temp}°C"
-            ),
-            get_update_interval(config, "sensors", 5)
-        );
+        init_sensors(config);
 
     config2json_elements_strs(config, elements);
 

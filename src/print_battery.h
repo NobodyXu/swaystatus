@@ -7,7 +7,7 @@
 extern "C" {
 # endif
 
-void init_battery_monitor(const char *format_str, uint32_t interval);
+void init_battery_monitor(const void *config);
 void print_battery();
 
 # ifdef __cplusplus

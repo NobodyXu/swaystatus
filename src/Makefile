@@ -38,7 +38,7 @@ swaystatus: $(OBJS)
 ## Dependencies
 swaystatus.o: help.h utility.h printer.hpp process_configuration.h $(wildcard *.h)
 
-$(filter print_%.o,$(OBJS)): printer.hpp
+$(filter print_%.o,$(OBJS)): printer.hpp process_configuration.h
 
 print_volume.o: alsa.h
 

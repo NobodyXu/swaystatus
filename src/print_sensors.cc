@@ -1,4 +1,5 @@
 #include "sensors.hpp"
+#include "process_configuration.h"
 #include "printer.hpp"
 #include "print_sensors.h"
 
@@ -13,10 +14,14 @@ static Sensors sensors;
 static typename Sensors::const_iterator reading_it;
 
 extern "C" {
-void init_sensors(const char *format_arg, uint32_t interval_arg)
+void init_sensors(const void *config)
 {
-    format = format_arg;
-    interval = interval_arg;
+    format = get_format(
+        config,
+        "sensors",
+        "{prefix} {reading_number}th sensor: {reading_temp}°C"
+    );
+    interval = get_update_interval(config, "sensors", 5);
 
     sensors.init();
     reading_it = sensors.begin();
