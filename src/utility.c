@@ -1,7 +1,8 @@
-#define _DEFAULT_SOURCE /* For reallocarray */
+#define _DEFAULT_SOURCE /* For reallocarray and realpath */
 #define _POSIX_C_SOURCE 200809L /* For openat, fstatat, sigaction */
+#define _XOPEN_SOURCE 500 /* For realpath */
 
-#include <limits.h> /* For SSIZE_MAX */
+#include <limits.h> /* For SSIZE_MAX and realpath */
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
@@ -42,6 +43,14 @@ char* strdup_checked(const char *s)
     char *ret = strdup(s);
     if (!ret)
         err(1, "%s failed", "strdup");
+    return ret;
+}
+
+char* realpath_checked(const char *path)
+{
+    char *ret = realpath(path, NULL);
+    if (ret == NULL)
+        err(1, "%s on %s failed", "realpath", path);
     return ret;
 }
 

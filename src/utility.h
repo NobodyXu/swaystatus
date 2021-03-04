@@ -23,6 +23,8 @@ void reallocarray_checked(void **ptr, size_t nmemb, size_t size);
 
 char* strdup_checked(const char *s);
 
+char* realpath_checked(const char *path);
+
 /**
  * NOTE that msleep does not restart on interruption.
  */
