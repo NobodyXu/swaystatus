@@ -7,7 +7,7 @@
 extern "C" {
 # endif
 
-void init_sensors(const char *format, uint32_t interval);
+void init_sensors(const void *config);
 void print_sensors();
 
 # ifdef __cplusplus

@@ -99,14 +99,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     if (features->load)
         init_load(config);
     if (features->sensors)
-        init_sensors(
-            get_format(
-                config,
-                "sensors",
-                "{prefix} {reading_number}th sensor: {reading_temp}°C"
-            ),
-            get_update_interval(config, "sensors", 5)
-        );
+        init_sensors(config);
 
     config2json_elements_strs(config, elements);
 
