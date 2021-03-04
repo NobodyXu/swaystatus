@@ -34,10 +34,21 @@
 #define starts_with(str, prefix) (strncmp((str), (prefix), sizeof(prefix) - 1) == 0)
 
 static void *bt_buffer[20];
-static void sigabort_handler(int sig)
+static void stack_bt()
 {
+    fputs("\n\n", stderr);
+
     int sz = backtrace(bt_buffer, sizeof(bt_buffer) / sizeof(void*));
     backtrace_symbols_fd(bt_buffer, sz, 2);
+}
+static void terminate_handler()
+{
+    stack_bt();
+    _exit(1);
+}
+static void sigabort_handler(int sig)
+{
+    stack_bt();
 }
 
 static bool reload_requested;
@@ -133,6 +144,7 @@ int main(int argc, char* argv[])
 
     nice(19);
 
+    set_terminate_handler(terminate_handler);
     sigaction_checked(SIGABRT, sigabort_handler);
     sigaction_checked(SIGUSR1, handle_reload_request);
 

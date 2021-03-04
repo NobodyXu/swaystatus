@@ -28,6 +28,8 @@ char* strdup_checked(const char *s);
  */
 void msleep(uintmax_t msec);
 
+void set_terminate_handler(void (*handler)());
+
 void sigaction_checked_impl(int sig, const char *signame, void (*sighandler)(int signum));
 
 # define sigaction_checked(sig, sighandler) sigaction_checked_impl((sig), # sig, (sighandler))
