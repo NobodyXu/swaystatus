@@ -22,6 +22,7 @@ static const char * const valid_names[] = {
     "load",
     "memory_usage",
     "time",
+    "sensors"
 };
 static const size_t valid_name_sz = sizeof(valid_names) / sizeof(const char*);
 
@@ -181,6 +182,7 @@ void config2features(void *config, struct Features *features)
     features->load              = get_feature(config, "load");
     features->memory_usage      = get_feature(config, "memory_usage");
     features->time              = get_feature(config, "time");
+    features->sensors           = get_feature(config, "sensors");
 }
 
 static int has_seperator(struct json_object *properties)
@@ -242,4 +244,5 @@ void config2json_elements_strs(void *config, struct JSON_elements_strs *elements
     elements->load              = get_elements_str(config, "load");
     elements->memory_usage      = get_elements_str(config, "memory_usage");
     elements->time              = get_elements_str(config, "time");
+    elements->sensors           = get_elements_str(config, "sensors");
 }
