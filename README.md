@@ -14,8 +14,9 @@ For battery, backlight, load, and meminfo, it reads directly from `/sys/class/po
 On my x86-64 computer, it compiles to a single binary that less than `60K` using `clang-11`.
 
 ## Runtime Dependency
- - libasound.so.2
- - libjson-c.so.5 (the same json library as sway and swaybar)
+ - `libasound.so.2`
+ - `libjson-c.so.5` (the same json library as sway and swaybar)
+ - `libsensors.so.5`
 
 The only dependency that are not portable among system is libnm, which requires NetworkManager
 to be installed, thus it might be removed in the future.
@@ -221,6 +222,16 @@ NOTE that these variables are evaluated per backlight_device.
      - `is_echo_device`
 
 To limit number of ip addresses in output, please use `{ipv4_config:1}`.
+
+#### Sensors variables;
+
+ - `prefix`: the name of the device
+ - `path`: the path to the device in `/sys`
+ - `addr`: the internal address of the device in `libsensors`
+ - `bus_type`: the type of device
+ - `bus_nr`: unclear
+ - `reading_number`: the internal index for the specific sensor reading
+ - `reading_temp`: the temperature reading from the sensor
 
 #### Format string for time:
 
