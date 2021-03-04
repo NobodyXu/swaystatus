@@ -207,13 +207,13 @@ int main(int argc, char* argv[])
             print_delimiter();
         }
 
-        if (features.time) {
-            print_block(print_time, elements.time);
+        if (features.sensors) {
+            print_block(print_sensors, elements.sensors);
             print_delimiter();
         }
 
-        if (features.sensors) {
-            print_block(print_sensors, elements.sensors);
+        if (features.time) {
+            print_block(print_time, elements.time);
             print_delimiter();
         }
 
