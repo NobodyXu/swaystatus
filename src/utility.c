@@ -66,15 +66,22 @@ void close_all()
     if (fds == NULL)
         err(1, "%s on %s failed", "opendir", "/proc/self/fd");
 
+    const int dir_fd = dirfd(fds);
+    if (dir_fd == -1)
+        err(1, "%s on %s failed", "dirfd", "dir opened on /proc/self/fd");
+
     errno = 0;
     for (struct dirent *ent; (ent = readdir(fds)); errno = 0) {
+        if (ent->d_name[0] == '.')
+            continue;
+
         errno = 0;
         char *endptr;
         unsigned long fd = strtoul(ent->d_name, &endptr, 10);
         if (errno != 0 || *endptr != '\0')
             err(1, "%s on %s failed", "Assumption", "/proc/self/fd");
 
-        if (fd > 2)
+        if (fd > 2 && fd != dir_fd)
             close(fd);
     }
     if (errno != 0)
