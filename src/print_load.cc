@@ -8,6 +8,7 @@
 #include <fcntl.h>  /* For AT_FDCWD and O_RDONLY */
 
 #include "utility.h"
+#include "process_configuration.h"
 #include "printer.hpp"
 #include "print_load.h"
 
@@ -27,10 +28,10 @@ static uint32_t interval;
 
 extern "C" {
 static void update_load();
-void init_load(const char *format_str, uint32_t interval_arg)
+void init_load(const void *config)
 {
-    format = format_str;
-    interval = interval_arg;
+    format = get_format(config, "load", "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}");
+    interval = get_update_interval(config, "load", 60);
 
     load_fd = openat_checked("", AT_FDCWD, loadavg_path, O_RDONLY);
     update_load();

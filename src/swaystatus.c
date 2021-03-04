@@ -97,10 +97,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     if (features->memory_usage)
         init_memory_usage_collection(config);
     if (features->load)
-        init_load(
-            get_format(config, "load", "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}"),
-            get_update_interval(config, "load", 60)
-        );
+        init_load(config);
     if (features->sensors)
         init_sensors(
             get_format(

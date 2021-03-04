@@ -7,7 +7,7 @@
 extern "C" {
 # endif
 
-void init_load(const char *format_str, uint32_t interval);
+void init_load(const void *config);
 void print_load();
 
 # ifdef __cplusplus
