@@ -95,10 +95,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     if (features->brightness)
         init_brightness_detection(config);
     if (features->memory_usage)
-        init_memory_usage_collection(
-            get_format         (config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}"),
-            get_update_interval(config, "memory_usage", 10)
-        );
+        init_memory_usage_collection(config);
     if (features->load)
         init_load(
             get_format(config, "load", "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}"),

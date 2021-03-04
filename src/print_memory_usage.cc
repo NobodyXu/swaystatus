@@ -13,6 +13,7 @@
 #include <string_view>
 
 #include "utility.h"
+#include "process_configuration.h"
 #include "printer.hpp"
 #include "mem_size_t.hpp"
 #include "LazyEval.hpp"
@@ -37,10 +38,10 @@ extern "C" {
 static void read_meminfo();
 static size_t get_memusage(std::string_view element);
 
-void init_memory_usage_collection(const char *format_str, uint32_t interval_arg)
+void init_memory_usage_collection(const void *config)
 {
-    format = format_str;
-    interval = interval_arg;
+    format   = get_format         (config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}");
+    interval = get_update_interval(config, "memory_usage", 10);
 
     meminfo_fd = openat_checked("", AT_FDCWD, "/proc/meminfo", O_RDONLY);
 
