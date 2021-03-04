@@ -164,10 +164,6 @@ int main(int argc, char* argv[])
     sigaction_checked(SIGABRT, sigabort_handler);
     sigaction_checked(SIGUSR1, handle_reload_request);
 
-    const char * const exe = realpath(argv[0], NULL);
-    if (exe == NULL)
-        err(1, "%s on %s failed", "realpath", argv[0]);
-
     struct Features features;
     struct JSON_elements_strs elements;
     const uintmax_t interval = parse_cmdline_arg_and_initialize(argc, argv, &features, &elements);
@@ -236,8 +232,8 @@ int main(int argc, char* argv[])
     }
 
     if (reload_requested) {
-        execv(exe, argv);
-        err(1, "%s on %s failed", "execv", exe);
+        execv("/proc/self/exe", argv);
+        err(1, "%s on %s failed", "execv", "/proc/self/exe");
     }
 
     return 0;
