@@ -1,0 +1,3 @@
+ - To implement new function for printing system information, please create `print_<feature_name>.h` and `print_<feature_name>.cc`.
+ - Write code as simple as possible
+ - Do not `#include` external library unless absolutely necessary
