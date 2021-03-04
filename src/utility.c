@@ -74,6 +74,8 @@ void close_all()
 
 int openat_checked(const char *dir, int dirfd, const char *path, int flags)
 {
+    flags |= O_CLOEXEC;
+
     int fd;
     do {
         fd = openat(dirfd, path, flags);

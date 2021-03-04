@@ -36,6 +36,7 @@ void close_all();
 /**
  * @param dir should end with '/' or ""
  * @param dirfd if dir == "", then dirfd got to be AT_FDCWD.
+ * @param flags all fd will be opend with O_CLOEXEC.
  */
 int openat_checked(const char *dir, int dirfd, const char *path, int flags);
 
