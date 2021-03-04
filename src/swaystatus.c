@@ -158,6 +158,8 @@ static void print_delimiter()
 int main(int argc, char* argv[])
 {
     close_all();
+    if (chdir("/") < 0)
+        err(1, "%s failed", "chdir(\"/\")");
 
     /* Force dynamic linker to load function backtrace */
     if (dlsym(RTLD_DEFAULT, "backtrace") == NULL)
