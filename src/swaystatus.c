@@ -33,11 +33,11 @@
 
 #define starts_with(str, prefix) (strncmp((str), (prefix), sizeof(prefix) - 1) == 0)
 
-static void *buffer[20];
+static void *bt_buffer[20];
 static void sigabort_handler(int sig)
 {
-    int sz = backtrace(buffer, sizeof(buffer) / sizeof(void*));
-    backtrace_symbols_fd(buffer, sz, 2);
+    int sz = backtrace(bt_buffer, sizeof(bt_buffer) / sizeof(void*));
+    backtrace_symbols_fd(bt_buffer, sz, 2);
 }
 
 static bool reload_requested;
@@ -48,6 +48,7 @@ static void handle_reload_request(int sig)
 
 static uintmax_t parse_cmdline_arg_and_initialize(
     int argc, char* argv[],
+    bool *is_reload, const char **config_filename,
     struct Features *features,
     struct JSON_elements_strs *elements
 )
@@ -69,9 +70,12 @@ static uintmax_t parse_cmdline_arg_and_initialize(
                 err(1, "Invalid argument %s%s", argv[i], "");
             else if (*endptr != '\0')
                 errx(1, "Invalid argument %s%s", argv[i], ": Contains non-digit character");
+        } else if (strcmp(argv[i], "--reload") == 0) {
+            *is_reload = true;
         } else {
             if (config)
                 errx(1, "Error: configuration file is specified twice");
+            *config_filename = argv[i];
             config = load_config(argv[i]);
         }
     }
@@ -166,15 +170,25 @@ int main(int argc, char* argv[])
 
     struct Features features;
     struct JSON_elements_strs elements;
-    const uintmax_t interval = parse_cmdline_arg_and_initialize(argc, argv, &features, &elements);
 
-    /* Print header */
-    print_literal_str("{\"version\":1}\n");
-    flush();
+    bool is_reload = false;
+    const char *config_filename;
 
-    /* Begin an infinite array */
-    print_literal_str("[\n");
-    flush();
+    const uintmax_t interval = parse_cmdline_arg_and_initialize(
+        argc, argv,
+        &is_reload, &config_filename,
+        &features, &elements
+    );
+
+    if (!is_reload) {
+        /* Print header */
+        print_literal_str("{\"version\":1}\n");
+        flush();
+
+        /* Begin an infinite array */
+        print_literal_str("[\n");
+        flush();
+    }
 
     for (size_t sec = 0; !reload_requested; msleep(interval), ++sec) {
         perform_polling(0);
@@ -232,7 +246,11 @@ int main(int argc, char* argv[])
     }
 
     if (reload_requested) {
-        execv("/proc/self/exe", argv);
+        char buffer[4096];
+        if (snprintf(buffer, sizeof(buffer), "--interval=%" PRIuMAX, interval) < 0)
+            err(1, "%s on %s failed", "snprintf", "char buffer[4096]");
+
+        execl("/proc/self/exe", "/proc/self/exe", buffer, "--reload", config_filename, NULL);
         err(1, "%s on %s failed", "execv", "/proc/self/exe");
     }
 
