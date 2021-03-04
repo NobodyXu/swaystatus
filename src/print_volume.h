@@ -7,10 +7,13 @@
 extern "C" {
 # endif
 
-void init_volume_monitor(
+/*
+ *
     const char *format_str, uint32_t interval,
     const char *mix_name, const char *card
-);
+ */
+
+void init_volume_monitor(const void *config);
 void print_volume();
 
 # ifdef __cplusplus

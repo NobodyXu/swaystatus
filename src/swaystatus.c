@@ -89,12 +89,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     if (features->battery)
         init_battery_monitor(config);
     if (features->volume)
-        init_volume_monitor(
-            get_format         (config, "volume", "vol {volume}%"),
-            get_update_interval(config, "volume", 1),
-            get_property       (config, "volume", "mix_name", "Master"),
-            get_property       (config, "volume", "card",     "default")
-        );
+        init_volume_monitor(config);
     if (features->network_interface)
         init_network_interfaces_scanning(
             get_format(
