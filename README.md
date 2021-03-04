@@ -45,6 +45,8 @@ swaystatus: Usage: swaystatus [options] configuration_filename
                             By default, the interval is set to 1000 ms.
 ```
 
+To reload `swaystatus`, send `SIGUSR1` to `swaystatus` process.
+
 ### Config file format
 
     {
