@@ -29,6 +29,11 @@ char* strdup_checked(const char *s);
 void msleep(uintmax_t msec);
 
 /**
+ * close all fd except for 0, 1 and 2.
+ */
+void close_all();
+
+/**
  * @param dir should end with '/' or ""
  * @param dirfd if dir == "", then dirfd got to be AT_FDCWD.
  */

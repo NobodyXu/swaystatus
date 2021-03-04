@@ -9,6 +9,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -46,6 +47,29 @@ void msleep(uintmax_t msec)
 {
     if (usleep(msec * 1000) && errno == EINVAL)
         err(1, "%s failed", "usleep");
+}
+
+void close_all()
+{
+    DIR *fds = opendir("/proc/self/fd");
+    if (fds == NULL)
+        err(1, "%s on %s failed", "opendir", "/proc/self/fd");
+
+    errno = 0;
+    for (struct dirent *ent; (ent = readdir(fds)); errno = 0) {
+        errno = 0;
+        char *endptr;
+        unsigned long fd = strtoul(ent->d_name, &endptr, 10);
+        if (errno != 0 || *endptr != '\0')
+            err(1, "%s on %s failed", "Assumption", "/proc/self/fd");
+
+        if (fd > 2)
+            close(fd);
+    }
+    if (errno != 0)
+        err(1, "%s on %s failed", "readdir", "/proc/self/fd");
+
+    closedir(fds);
 }
 
 int openat_checked(const char *dir, int dirfd, const char *path, int flags)
