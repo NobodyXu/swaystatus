@@ -30,6 +30,7 @@
 #include "print_brightness.h"
 #include "print_memory_usage.h"
 #include "print_load.h"
+#include "print_sensors.h"
 
 #define starts_with(str, prefix) (strncmp((str), (prefix), sizeof(prefix) - 1) == 0)
 
@@ -115,6 +116,15 @@ static uintmax_t parse_cmdline_arg_and_initialize(
             get_format(config, "load", "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}"),
             get_update_interval(config, "load", 60)
         );
+    if (features->sensors)
+        init_sensors(
+            get_format(
+                config,
+                "sensors",
+                "{prefix} {reading_number}th sensor: {reading_temp}°C"
+            ),
+            get_update_interval(config, "sensors", 5)
+        );
 
     config2json_elements_strs(config, elements);
 
@@ -199,6 +209,11 @@ int main(int argc, char* argv[])
 
         if (features.time) {
             print_block(print_time, elements.time);
+            print_delimiter();
+        }
+
+        if (features.sensors) {
+            print_block(print_sensors, elements.sensors);
             print_delimiter();
         }
 

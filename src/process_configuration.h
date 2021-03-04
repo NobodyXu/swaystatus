@@ -27,6 +27,7 @@ struct Features {
     bool load;
     bool memory_usage;
     bool time;
+    bool sensors;
 };
 
 void config2features(void *config, struct Features *features);
@@ -43,6 +44,7 @@ struct JSON_elements_strs {
     const char *load;
     const char *memory_usage;
     const char *time;
+    const char *sensors;
 };
 
 /**

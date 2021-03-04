@@ -10,7 +10,7 @@ CXXFLAGS := -fno-exceptions -fno-rtti
 
 LDFLAGS := -s -flto -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3,--as-needed
 
-LIBS := $(shell pkg-config --libs alsa json-c) -ldl
+LIBS := $(shell pkg-config --libs alsa json-c) -ldl -lsensors
 
 TARGET_DIR := /usr/local
 
@@ -59,6 +59,8 @@ Conditional.hpp: dep/fmt/include/fmt/format.h fmt_utility.hpp
 networking.hpp: dep/fmt/include/fmt/format.h fmt_config.h
 	touch $@
 networking.o: utility.h fmt_utility.hpp Conditional.hpp mem_size_t.hpp dep/fmt/include/fmt/core.h
+
+sensors.hpp: dep/fmt/include/fmt/format.h fmt_config.h
 
 print_brightness.o: Conditional.hpp
 print_battery.o: Conditional.hpp

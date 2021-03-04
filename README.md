@@ -78,6 +78,7 @@ The following values are valid name:
  - load
  - memory_usage
  - time
+ - sensors
 
 If you want to disable a certain feature, say brightness,
 then add the following to your configuration:
@@ -92,6 +93,13 @@ If specified, then the block will update at `update_interval * main_loop_interva
 where `main_loop_interval` is the value passed by cmdline arg `--interval=` or `1000 ms`
 by default.
 
+##### `update_interval` for `sensors`
+
+The sensors on computer are so many that they cannot be fitted into one line, so `swaystatus`
+instead, print one sensor each time and once `update_interval` is reached, next sensor is shown
+at the `swaybar`.
+
+When all sensors are shown, `swaystatus` will then update the sensors reading from the computer.
 
 #### Battery format variables:
 
