@@ -86,7 +86,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
         } else {
             if (config)
                 errx(1, "Error: configuration file is specified twice");
-            *config_filename = argv[i];
+            *config_filename = realpath_checked(argv[i]);
             config = load_config(argv[i]);
         }
     }
@@ -135,8 +135,6 @@ static void print_delimiter()
 int main(int argc, char* argv[])
 {
     close_all();
-    if (chdir("/") < 0)
-        err(1, "%s failed", "chdir(\"/\")");
 
     /* Force dynamic linker to load function backtrace */
     if (dlsym(RTLD_DEFAULT, "backtrace") == NULL)
@@ -152,13 +150,16 @@ int main(int argc, char* argv[])
     struct JSON_elements_strs elements;
 
     bool is_reload = false;
-    const char *config_filename;
+    const char *config_filename = NULL;
 
     const uintmax_t interval = parse_cmdline_arg_and_initialize(
         argc, argv,
         &is_reload, &config_filename,
         &features, &elements
     );
+
+    if (chdir("/") < 0)
+        err(1, "%s failed", "chdir(\"/\")");
 
     if (!is_reload) {
         /* Print header */
