@@ -13,8 +13,34 @@
 # include "dep/fmt/include/fmt/format.h"
 
 namespace swaystatus {
+struct sensor_bus_type {
+    short val;
+};
+struct sensor_bus_id {
+    sensor_bus_type type;
+    short nr;
+};
+
+class Sensors;
+struct Sensor {
+    std::string prefix;
+    std::string path;
+    int addr;
+
+    sensor_bus_id bus;
+
+    Sensor(const char *prefix, const char *path, int addr, short type, short nr) noexcept;
+
+    void update(Sensors &sensors);
+    auto get_adapter_name() const noexcept -> std::string_view;
+};
+
 struct sensor_reading {
+    Sensor *sensor;
+
     int number;
+
+    sensor_reading(Sensor *sensor, int number) noexcept;
 
     /**
      * It is unlikely that a compuer can run under temperature outside of range
@@ -28,35 +54,11 @@ struct sensor_reading {
     std::int8_t temp = std::numeric_limits<std::int8_t>::min();
 };
 
-struct sensor_bus_type {
-    short val;
-};
-struct sensor_bus_id {
-    sensor_bus_type type;
-    short nr;
-};
-
-struct Sensor {
-    std::string prefix;
-    std::string path;
-    int addr;
-
-    sensor_bus_id bus;
-
-    /**
-     * Accept at most 32 sensor readings, IMHO should be enough for most hardwares.
-     */
-    std::uint8_t reading_cnt = 0;
-    std::array<sensor_reading, 32> readings;
-
-    Sensor(const char *prefix, const char *path, int addr, short type, short nr) noexcept;
-
-    void update();
-    auto get_adapter_name() const noexcept -> std::string_view;
-};
-
 class Sensors {
     std::vector<Sensor> sensors;
+    std::vector<sensor_reading> readings;
+
+    friend Sensor;
 
 public:
     Sensors() = default;
@@ -68,7 +70,7 @@ public:
 
     void update();
 
-    using const_iterator = std::vector<Sensor>::const_iterator;
+    using const_iterator = std::vector<sensor_reading>::const_iterator;
 
     auto begin() const noexcept -> const_iterator;
     auto end() const noexcept -> const_iterator;

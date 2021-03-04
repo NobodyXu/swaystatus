@@ -10,7 +10,7 @@
 #include "sensors.hpp"
 
 namespace swaystatus {
-static std::int8_t sensor_get_int8_val(const sensors_chip_name &cn, const sensors_subfeature *subf)
+static auto sensor_get_int8_val(const sensors_chip_name &cn, const sensors_subfeature *subf)
 {
     double val;
     if (sensors_get_value(&cn, subf->number, &val) < 0)
@@ -35,10 +35,8 @@ auto Sensor::get_adapter_name() const noexcept -> std::string_view
     else
         return {};
 }
-void Sensor::update()
+void Sensor::update(Sensors &sensors)
 {
-    reading_cnt = 0;
-
     /*
      * The const_cast is used only to maintain compatibility with the sensors_bus_id defined in
      * sensors/sensors.h
@@ -56,21 +54,17 @@ void Sensor::update()
     sensors_feature const *feat;
     int f = 0;
 
-    while ((feat = sensors_get_features(&cn, &f)) != 0) {
+    while ((feat = sensors_get_features(&cn, &f)) != nullptr) {
         if (feat->type != SENSORS_FEATURE_TEMP)
             continue;
 
-        if (reading_cnt == readings.size())
-            break;
-        auto &reading = readings[reading_cnt];
-        reading.number = feat->number;
-        ++reading_cnt;
+        auto &reading = sensors.readings.emplace_back(this, feat->number);
 
         sensors_subfeature const *subf;
         int s = 0;
 
         std::uint8_t cnt = 0;
-        while ((subf = sensors_get_all_subfeatures(&cn, feat, &s)) != 0) {
+        while ((subf = sensors_get_all_subfeatures(&cn, feat, &s)) != nullptr) {
             if ((subf->flags & SENSORS_MODE_R) == 0)
                 continue;
 
@@ -95,9 +89,13 @@ void Sensor::update()
          * so this is necessary.
          */
         if (cnt == 0)
-            --reading_cnt;
+            sensors.readings.pop_back();
     }
 }
+
+sensor_reading::sensor_reading(Sensor *sensor, int number) noexcept:
+    sensor{sensor}, number{number}
+{}
 
 void Sensors::init()
 {
@@ -118,26 +116,30 @@ void Sensors::init()
 
 void Sensors::update()
 {
+    readings.clear();
+
     for (auto &sensor: sensors)
-        sensor.update();
+        sensor.update(*this);
+
+    readings.shrink_to_fit();
 }
 
 auto Sensors::begin() const noexcept -> const_iterator
 {
-    return sensors.begin();
+    return readings.begin();
 }
 auto Sensors::end() const noexcept -> const_iterator
 {
-    return sensors.end();
+    return readings.end();
 }
 
 auto Sensors::cbegin() const noexcept -> const_iterator
 {
-    return sensors.begin();
+    return readings.begin();
 }
 auto Sensors::cend() const noexcept -> const_iterator
 {
-    return sensors.end();
+    return readings.end();
 }
 } /* namespace swaystatus */
 

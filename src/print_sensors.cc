@@ -10,8 +10,7 @@ static uint32_t cycle_cnt;
 static uint32_t interval;
 
 static Sensors sensors;
-static typename Sensors::const_iterator sensor_it;
-static std::uint8_t reading_index = 0;
+static typename Sensors::const_iterator reading_it;
 
 extern "C" {
 void init_sensors(const char *format_arg, uint32_t interval_arg)
@@ -20,7 +19,7 @@ void init_sensors(const char *format_arg, uint32_t interval_arg)
     interval = interval_arg;
 
     sensors.init();
-    sensor_it = sensors.begin();
+    reading_it = sensors.begin();
 }
 
 void print_sensors()
@@ -28,23 +27,16 @@ void print_sensors()
     if (++cycle_cnt == interval) {
         cycle_cnt = 0;
 
-        ++reading_index;
-        if (reading_index == sensor_it->reading_cnt) {
-            reading_index = 0;
-            do {
-                ++sensor_it;
-            } while (sensor_it != sensors.end() && sensor_it->reading_cnt == 0);
-
-            if (sensor_it == sensors.end()) {
-                sensors.update();
-                sensor_it = sensors.begin();
-            }
+        ++reading_it;
+        if (reading_it == sensors.end()) {
+            sensors.update();
+            reading_it = sensors.begin();
         }
     }
 
-    auto &sensor = *sensor_it;
+    auto &sensor = *reading_it->sensor;
     auto &bus = sensor.bus;
-    auto &reading = sensor.readings[reading_index];
+    auto &reading = *reading_it;
 
     swaystatus::print(
         format,
