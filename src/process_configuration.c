@@ -310,6 +310,7 @@ static const char* get_elements_str(const void *config, const char *name)
         return DEFAULT_PROPERTY;
 
     json_object_object_del(properties, "format");
+    json_object_object_del(properties, "update_interval");
     if (strcmp(name, "volume") == 0) {
         json_object_object_del(properties, "mix_name");
         json_object_object_del(properties, "card");
