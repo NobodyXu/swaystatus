@@ -1,6 +1,10 @@
 {
     "_comment": "Any variable starts with '_' is a comment",
 
+    "order": [
+        "battery", "brightness", "volume", "memory_usage", "network_interface", "load", "time"
+    ],
+
     "battery": {
         "format":
             "{has_battery:{is_full:Battery is Full}{is_charging:charging {capacity}%}{is_discharging:discharging {capacity}%}}"

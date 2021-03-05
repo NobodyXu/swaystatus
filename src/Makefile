@@ -36,7 +36,9 @@ swaystatus: $(OBJS)
 	$(CXX) -std=c++17 -c $(CXXFLAGS) $(CFLAGS) -o $@ $<
 
 ## Dependencies
-swaystatus.o: help.h utility.h printer.hpp process_configuration.h $(wildcard *.h)
+swaystatus.o: help.h utility.h printer.hpp process_configuration.h poller.h
+
+process_configuration.o: utility.h $(wildcard print_*.h)
 
 $(filter print_%.o,$(OBJS)): printer.hpp process_configuration.h
 

@@ -10,10 +10,21 @@
 #include <json_util.h>
 
 #include "utility.h"
+#include "print_battery.h"
+#include "print_time.h"
+#include "print_volume.h"
+#include "print_network_interfaces.h"
+#include "print_brightness.h"
+#include "print_memory_usage.h"
+#include "print_load.h"
+#include "print_sensors.h"
 #include "process_configuration.h"
 
 static const int json2str_flag = JSON_C_TO_STRING_PLAIN | JSON_C_TO_STRING_NOZERO;
 
+/**
+ * This array also defines the default order of blocks.
+ */
 static const char * const valid_names[] = {
     "brightness",
     "volume",
@@ -21,10 +32,42 @@ static const char * const valid_names[] = {
     "network_interface",
     "load",
     "memory_usage",
+    "sensors",
     "time",
-    "sensors"
 };
 static const size_t valid_name_sz = sizeof(valid_names) / sizeof(const char*);
+
+static const Init_t default_inits[] = {
+    init_brightness_detection,
+    init_volume_monitor,
+    init_battery_monitor,
+    init_network_interfaces_scanning,
+    init_load,
+    init_memory_usage_collection,
+    init_sensors,
+    init_time,
+};
+_Static_assert(sizeof(default_inits) < (offsetof(struct Inits, order)), "");
+_Static_assert(
+    sizeof(default_inits) / sizeof(Init_t) == sizeof(valid_names) / sizeof(const char*),
+    ""
+);
+
+static const Printer_t default_full_text_printers[] = {
+    print_brightness,
+    print_volume,
+    print_battery,
+    print_network_interfaces,
+    print_load,
+    print_memory_usage,
+    print_sensors,
+    print_time,
+};
+_Static_assert(
+    sizeof(default_full_text_printers) / sizeof(Printer_t) == 
+        sizeof(valid_names) / sizeof(const char*),
+    ""
+);
 
 struct Property {
     const char *name;
@@ -48,6 +91,41 @@ static const struct Property valid_properties[] = {
 };
 static const size_t valid_property_sz = sizeof(valid_properties) / sizeof(struct Property);
 
+static size_t find_valid_name(const char *name)
+{
+    size_t i = 0;
+    for (; i != valid_name_sz; ++i) {
+        if (strcmp(name, valid_names[i]) == 0)
+            break;
+    }
+    return i;
+}
+static bool is_valid_name(const char *name)
+{
+    if (find_valid_name(name) != valid_name_sz)
+        return true;
+    else
+        return false;
+}
+static void verify_order(const char *filename, struct json_object *entry)
+{
+    if (json_object_get_type(entry) != json_type_array)
+        errx(1, "Invalid type of value for %s.%s in %s", "", "order", filename);
+
+    const size_t n = json_object_array_length(entry);
+    if (n > valid_name_sz)
+        errx(1, "Invalid order in %s: Cannot have more elements than %zu", filename, valid_name_sz);
+
+    for (size_t i = 0; i != n; i++) {
+        struct json_object *object = json_object_array_get_idx(entry, i);
+        if (json_object_get_type(object) != json_type_string)
+            errx(1, "Invalid type of value for %s[%zu] in %s", "order", i, filename);
+
+        const char *name = json_object_get_string(object);
+        if (!is_valid_name(name))
+            errx(1, "Invalid name %s found in %s[%zu], %s", name, "order", i, filename);
+    }
+}
 static void verify_entry(const char *filename, const char *name, struct json_object *entry)
 {
     json_object_object_foreach(entry, property, val) {
@@ -83,14 +161,14 @@ static void verify_config(const char *filename, struct json_object *config)
         /* Ignore JSON comments */
         if (name[0] == '_')
             continue;
-
-        size_t i = 0;
-        for (; i != valid_name_sz; ++i) {
-            if (strcmp(name, valid_names[i]) == 0)
-                break;
+        if (strcmp(name, "order") == 0) {
+            verify_order(filename, properties);
+            continue;
         }
-        if (i == valid_name_sz)
+
+        if (!is_valid_name(name))
             errx(1, "Invalid name %s found in %s", name, filename);
+
         json_type properties_type = json_object_get_type(properties);
         if (properties_type != json_type_object && properties_type != json_type_boolean)
             errx(1, "Invalid value for name %s found in %s", name, filename);
@@ -163,8 +241,11 @@ uint32_t get_update_interval(const void *config, const char *name, uint32_t defa
     return interval;
 }
 
-static bool get_feature(void *config, const char *name)
+static bool is_block_printer_enabled(const void *config, const char *name)
 {
+    if (config == NULL)
+        return true;
+
     struct json_object *val;
     if (!json_object_object_get_ex(config, name, &val))
         return true;
@@ -173,24 +254,51 @@ static bool get_feature(void *config, const char *name)
 
     return json_object_get_boolean(val);
 }
-void config2features(void *config, struct Features *features)
+
+static void get_default_order(const void *config, struct Inits *inits)
 {
-    features->brightness        = get_feature(config, "brightness");
-    features->volume            = get_feature(config, "volume");
-    features->battery           = get_feature(config, "battery");
-    features->network_interface = get_feature(config, "network_interface");
-    features->load              = get_feature(config, "load");
-    features->memory_usage      = get_feature(config, "memory_usage");
-    features->time              = get_feature(config, "time");
-    features->sensors           = get_feature(config, "sensors");
+    size_t out = 0;
+    for (size_t i = 0; i != valid_name_sz; ++i) {
+        if (is_block_printer_enabled(config, valid_names[i])) {
+            inits->inits[out] = default_inits[i];
+            inits->order[out++] = valid_names[i];
+        }
+    }
+    inits->inits[out] = NULL;
+    inits->order[out] = NULL;
+}
+void parse_inits_config(void *config, struct Inits *inits)
+{
+    if (config == NULL)
+        return get_default_order(config, inits);
+
+    struct json_object *order;
+    if (!json_object_object_get_ex(config, "order", &order))
+        return get_default_order(config, inits);
+
+    size_t out = 0;
+    const size_t n = json_object_array_length(order);
+    for (size_t i = 0; i != n; i++) {
+        const char *name = json_object_get_string(json_object_array_get_idx(order, i));
+
+        if (is_block_printer_enabled(config, name)) {
+            size_t name_index = find_valid_name(name);
+            inits->inits[out] = default_inits[name_index];
+            inits->order[out++] = valid_names[name_index];
+        }
+    }
+    inits->inits[out] = NULL;
+    inits->order[out] = NULL;
+
+    json_object_object_del(config, "order");
 }
 
-static int has_seperator(struct json_object *properties)
+static int has_seperator(const struct json_object *properties)
 {
     struct json_object *separator;
     return json_object_object_get_ex(properties, "separator", &separator);
 }
-static const char* get_elements_str(void *config, const char *name)
+static const char* get_elements_str(const void *config, const char *name)
 {
 #define DEFAULT_PROPERTY "\"separator\":true"
 
@@ -235,14 +343,19 @@ static const char* get_elements_str(void *config, const char *name)
 
     return ret;
 }
-void config2json_elements_strs(void *config, struct JSON_elements_strs *elements)
+
+void parse_block_printers_config(
+    void *config,
+    const char * const order[9],
+    struct Blocks *blocks
+)
 {
-    elements->brightness        = get_elements_str(config, "brightness");
-    elements->volume            = get_elements_str(config, "volume");
-    elements->battery           = get_elements_str(config, "battery");
-    elements->network_interface = get_elements_str(config, "network_interface");
-    elements->load              = get_elements_str(config, "load");
-    elements->memory_usage      = get_elements_str(config, "memory_usage");
-    elements->time              = get_elements_str(config, "time");
-    elements->sensors           = get_elements_str(config, "sensors");
+    size_t out = 0;
+    for (size_t i = 0; order[i]; ++i) {
+        size_t name_index = find_valid_name(order[i]);
+        blocks->full_text_printers[out] = default_full_text_printers[name_index];
+        blocks->JSON_elements_strs[out++] = get_elements_str(config, order[i]);
+    }
+    blocks->full_text_printers[out] = NULL;
+    blocks->JSON_elements_strs[out] = NULL;
 }

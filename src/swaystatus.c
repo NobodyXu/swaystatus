@@ -20,16 +20,7 @@
 #include "utility.h"
 #include "printer.hpp"
 #include "process_configuration.h"
-
 #include "poller.h"
-#include "print_battery.h"
-#include "print_time.h"
-#include "print_volume.h"
-#include "print_network_interfaces.h"
-#include "print_brightness.h"
-#include "print_memory_usage.h"
-#include "print_load.h"
-#include "print_sensors.h"
 
 #define starts_with(str, prefix) (strncmp((str), (prefix), sizeof(prefix) - 1) == 0)
 
@@ -60,8 +51,7 @@ static void handle_reload_request(int sig)
 static uintmax_t parse_cmdline_arg_and_initialize(
     int argc, char* argv[],
     bool *is_reload, const char **config_filename,
-    struct Features *features,
-    struct JSON_elements_strs *elements
+    struct Blocks *blocks
 )
 {
     /* Default interval is 1 second */
@@ -91,28 +81,15 @@ static uintmax_t parse_cmdline_arg_and_initialize(
         }
     }
 
-    config2features(config, features);
-
     init_poller();
 
-    if (features->time)
-        init_time(config);
-    if (features->battery)
-        init_battery_monitor(config);
-    if (features->volume)
-        init_volume_monitor(config);
-    if (features->network_interface)
-        init_network_interfaces_scanning(config);
-    if (features->brightness)
-        init_brightness_detection(config);
-    if (features->memory_usage)
-        init_memory_usage_collection(config);
-    if (features->load)
-        init_load(config);
-    if (features->sensors)
-        init_sensors(config);
+    struct Inits inits;
+    parse_inits_config(config, &inits);
 
-    config2json_elements_strs(config, elements);
+    for (size_t i = 0; inits.inits[i]; ++i)
+        inits.inits[i](config);
+
+    parse_block_printers_config(config, inits.order, blocks);
 
     free_config(config);
 
@@ -146,8 +123,7 @@ int main(int argc, char* argv[])
     sigaction_checked(SIGABRT, sigabort_handler);
     sigaction_checked(SIGUSR1, handle_reload_request);
 
-    struct Features features;
-    struct JSON_elements_strs elements;
+    struct Blocks blocks;
 
     bool is_reload = false;
     const char *config_filename = NULL;
@@ -155,7 +131,7 @@ int main(int argc, char* argv[])
     const uintmax_t interval = parse_cmdline_arg_and_initialize(
         argc, argv,
         &is_reload, &config_filename,
-        &features, &elements
+        &blocks
     );
 
     if (chdir("/") < 0)
@@ -176,43 +152,8 @@ int main(int argc, char* argv[])
 
         print_literal_str("[");
 
-        if (features.brightness) {
-            print_block(print_brightness, elements.brightness);
-            print_delimiter();
-        }
-
-        if (features.volume) {
-            print_block(print_volume, elements.volume);
-            print_delimiter();
-        }
-
-        if (features.battery) {
-            print_block(print_battery, elements.battery);
-            print_delimiter();
-        }
-
-        if (features.network_interface) {
-            print_block(print_network_interfaces, elements.network_interface);
-            print_delimiter();
-        }
-
-        if (features.load) {
-            print_block(print_load, elements.load);
-            print_delimiter();
-        }
-
-        if (features.memory_usage) {
-            print_block(print_memory_usage, elements.memory_usage);
-            print_delimiter();
-        }
-
-        if (features.sensors) {
-            print_block(print_sensors, elements.sensors);
-            print_delimiter();
-        }
-
-        if (features.time) {
-            print_block(print_time, elements.time);
+        for (size_t i = 0; blocks.full_text_printers[i]; ++i) {
+            print_block(blocks.full_text_printers[i], blocks.JSON_elements_strs[i]);
             print_delimiter();
         }
 
