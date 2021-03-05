@@ -51,4 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-swaystatus
+*/swaystatus
+
+*_build/
