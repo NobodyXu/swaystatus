@@ -14,39 +14,57 @@ extern "C" {
 void* load_config(const char *filename);
 void free_config(void *config);
 
+/**
+ * The 3 getters below are used in 'print_*.cc' only
+ */
+
+/**
+ * @return heap-allocated string
+ */
 const char* get_property(const void *config, const char *name, const char *property,
                          const char *default_val);
+/**
+ * @return heap-allocated string
+ */
 const char* get_format(const void *config, const char *name, const char *default_val);
 uint32_t get_update_interval(const void *config, const char *name, uint32_t default_val);
 
-struct Features {
-    bool brightness;
-    bool volume;
-    bool battery;
-    bool network_interface;
-    bool load;
-    bool memory_usage;
-    bool time;
-    bool sensors;
-};
+/**
+ * The 2 getters below are only used in swaystatus.c
+ */
 
-void config2features(void *config, struct Features *features);
-
-struct JSON_elements_strs {
+/**
+ */
+typedef void (*Init_t)(const void *config);
+/**
+ * All members are variable length arrays
+ * The last entry will always be set to NULL.
+ */
+struct Inits {
+    Init_t inits[9];
     /**
-     * Contains JSON elements for brightness;
+     * Elements in here points to .rodata section.
+     */
+    const char *order[9];
+};
+/**
+ * @param config after this function is invoked, element 'order' is removed.
+ */
+void parse_inits_config(void *config, struct Inits *inits);
+
+typedef void (*Printer_t)();
+/**
+ * All members are variable length arrays
+ * The last entry will always be set to NULL.
+ */
+struct Blocks {
+    Printer_t full_text_printers[9];
+    /**
+     * Each element contains JSON elements for brightness;
      * Eg: "\"border_top\":2,\"borer_left\":3"
      */
-    const char *brightness;
-    const char *volume;
-    const char *battery;
-    const char *network_interface;
-    const char *load;
-    const char *memory_usage;
-    const char *time;
-    const char *sensors;
+    const char *JSON_elements_strs[9];
 };
-
 /**
  * @param config after this function is invoked, all "*.format", "*.mix_name", "*.card" and all
  *               other properties that is not specified by swaybar-protocol will be removed,
@@ -57,7 +75,11 @@ struct JSON_elements_strs {
  *  - separator
  * if not specified by user.
  */
-void config2json_elements_strs(void *config, struct JSON_elements_strs *elements);
+void parse_block_printers_config(
+    void *config,
+    const char * const order[9],
+    struct Blocks *blocks
+);
 
 # ifdef __cplusplus
 }
