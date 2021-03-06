@@ -3,6 +3,7 @@ BUILD_DIR ?= .
 TARGET_DIR := /usr/local
 
 # Features
+PYTHON ?= true
 DEBUG ?= false
 
 # compiler and flags
@@ -22,6 +23,11 @@ endif
 
 CFLAGS += $(shell pkg-config --cflags alsa json-c)
 LIBS := $(shell pkg-config --libs alsa json-c) -ldl -lsensors
+
+ifeq ($(PYTHON), true)
+	CFLAGS += $(shell python3-config --cflags)
+	LIBS += $(shell python3-config --ldflags --embed)
+endif
 
 ## Objects to build
 C_SRCS := $(wildcard *.c)
