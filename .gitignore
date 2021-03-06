@@ -54,3 +54,6 @@ dkms.conf
 */swaystatus
 
 *_build/
+
+src/compile_flags.txt
+src/compile_commands.json

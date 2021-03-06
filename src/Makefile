@@ -44,6 +44,15 @@ $(BUILD_DIR)/%.o: %.c $$(wildcard %.h) Makefile
 $(BUILD_DIR)/%.o: %.cc $$(wildcard %.h) $$(wildcard %.hpp) Makefile
 	$(CXX) -std=c++17 -c $(CXXFLAGS) $(CFLAGS) -o $@ $<
 
+compile_flags.txt: Makefile
+	echo '-xc++' $(CXXFLAGS) $(CFLAGS) | sed 's/-I/-I /g' | xargs -n1 echo | tee $@
+
+compile_commands.json: Makefile
+	rm -rf /tmp/swaystatus_build_dir/
+	mkdir -p /tmp/swaystatus_build_dir/
+	BUILD_DIR=/tmp/swaystatus_build_dir/ PYTHON=true DEBUG=true compiledb make -j $(shell nproc)
+	rm -rf /tmp/swaystatus_build_dir/
+
 ## Dependencies
 $(BUILD_DIR)/swaystatus.o: help.h utility.h printer.hpp process_configuration.h poller.h
 
