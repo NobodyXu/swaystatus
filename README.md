@@ -50,6 +50,10 @@ To reload `swaystatus`, send `SIGUSR1` to `swaystatus` process.
 ### Config file format
 
     {
+        "order": ["network_interface", "time"],
+        "_comment": "element order specify the order of which blocks will appear.",
+        "_comment2": "If a block is not specified in order, it will not appear.",
+
         "name": {
             "format": "Hello, {variable_name}",
             "update_interval": 20,
@@ -89,6 +93,13 @@ then add the following to your configuration:
     {
         "brightness": false,
     }
+
+Or if you are using element "order" for specifing block order, then you can simply
+remove the name from "order".
+
+Note that `{"brightness": false}` overrides "order":
+<br>If block specified in "order" is disabled by setting it to `false`, then the block
+will not appear.
 
 ##### `update_interval`
 
