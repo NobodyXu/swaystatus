@@ -54,6 +54,12 @@ char* realpath_checked(const char *path)
     return ret;
 }
 
+void setenv_checked(const char *name, const char *value, int overwrite)
+{
+    if (setenv(name, value, overwrite) < 0)
+        err(1, "%s failed", "setenv");
+}
+
 void msleep(uintmax_t msec)
 {
     if (usleep(msec * 1000) && errno == EINVAL)

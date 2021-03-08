@@ -25,7 +25,7 @@ CFLAGS += $(shell pkg-config --cflags alsa json-c)
 LIBS := $(shell pkg-config --libs alsa json-c) -ldl -lsensors
 
 ifeq ($(PYTHON), true)
-	CFLAGS += $(shell python3-config --cflags)
+	CFLAGS += $(shell python3-config --cflags) -DUSE_PYTHON
 	LIBS += $(shell python3-config --ldflags --embed)
 endif
 
