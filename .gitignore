@@ -55,5 +55,11 @@ dkms.conf
 
 *_build/
 
-src/compile_flags.txt
-src/compile_commands.json
+compile_flags.txt
+compile_commands.json
+
+test/unit_test/build_dir
+test/unit_test/test_python3.plist
+
+# Ignore python
+__pycache__

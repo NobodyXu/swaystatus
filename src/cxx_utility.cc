@@ -1,5 +1,7 @@
 #include <exception>
 
+#include <cstring>
+
 #include <unistd.h>
 #include <err.h>
 #include <errno.h>
@@ -25,6 +27,8 @@ std::string getcwd_checked()
 
     if (result == nullptr)
         err(1, "%s failed", "getcwd");
+
+    cwd.resize(std::strlen(cwd.data()));
 
     return cwd;
 }

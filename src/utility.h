@@ -84,9 +84,9 @@ int isdir(const char *dir, int dirfd, const char *path);
 # ifdef __cplusplus
 }
 
-# include <string>
-# include <initializer_list>
-# include <type_traits>
+#  include <string>
+#  include <initializer_list>
+#  include <type_traits>
 
 namespace swaystatus {
 std::string getcwd_checked();
