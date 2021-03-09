@@ -2,14 +2,7 @@ CXX := clang++
 
 CFLAGS := -Og -g -Wall
 
-#CFLAGS += $(shell pkg-config --cflags alsa json-c)
 LIBS := $(shell pkg-config --libs alsa json-c) -ldl -lsensors
-
-#ifneq ($(shell python3 -c 'import sys; print(sys.version_info >= (3, 7))'), True)
-#	$(error Minimum python3 version is 3.7)
-#endif
-#
-#CFLAGS += $(shell python3-config --cflags)
 LIBS += $(shell python3-config --ldflags --embed)
 
 ## Objects to build
