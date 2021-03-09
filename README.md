@@ -32,10 +32,10 @@ make -j $(nproc)
 ```
 
 You can customize ou build via environment variable:
- - `BUILD_DIR`: affects where the built object will be put.
- - `TARGET_DIR`: where the executable will be installed when `make install` is executed.
- - `PYTHON`: whether to include embeded python interpreter support in `swaystatus`, can be `true` or `false`.
- - `DEBUG`: whether to have a debug build or release build. `true` for debug build and `false`for release build.
+ - `BUILD_DIR`: affects where the built object will be put. Default is `.`.
+ - `TARGET_DIR`: where the executable will be installed when `make install` is executed. Default is `/usr/local/bin`
+ - `PYTHON`: whether to include embeded python interpreter support in `swaystatus`, can be `true` or `false`. Default is `true`.
+ - `DEBUG`: whether to have a debug build or release build. `true` for debug build and `false`for release build. Default is `false`.
 
 To install, run `sudo make install`, which by default will install a single binary `swaystatus` to `/usr/local/bin`.
 
