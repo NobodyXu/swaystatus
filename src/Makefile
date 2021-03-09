@@ -64,6 +64,22 @@ compile_commands.json: Makefile
 	BUILD_DIR=/tmp/swaystatus_build_dir/ PYTHON=true DEBUG=true compiledb make -j $(shell nproc)
 	rm -rf /tmp/swaystatus_build_dir/
 
+### Convenient target for automatically running debug/release builds
+### Move from run_all_builds.sh to further parallel the builds
+all_builds: debug_build release_build release_no_py_build
+
+debug_build:
+	mkdir -p $@
+	$(MAKE) BUILD_DIR=$@ DEBUG=true  PYTHON=true
+
+release_build:
+	mkdir -p $@
+	$(MAKE) BUILD_DIR=$@ DEBUG=false PYTHON=true
+
+release_no_py_build:
+	mkdir -p $@
+	$(MAKE) BUILD_DIR=$@ DEBUG=false PYTHON=false
+
 ## Dependencies
 $(BUILD_DIR)/swaystatus.o: help.h utility.h printer.hpp process_configuration.h poller.h
 
@@ -102,6 +118,6 @@ install: $(BUILD_DIR)/swaystatus
 	cp -f $(BUILD_DIR)/swaystatus $(TARGET_DIR)/bin/
 
 clean:
-	rm -f $(OBJS) $(BUILD_DIR)/swaystatus
+	rm -rf $(OBJS) $(BUILD_DIR)/swaystatus *_build/
 
-.PHONY: install clean
+.PHONY: all_builds debug_build release_build release_no_py_build install clean
