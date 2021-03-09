@@ -30,7 +30,7 @@ ifneq ($(shell python3 -c 'import sys; print(sys.version_info >= (3, 7))'), True
 	$(error Minimum python3 version is 3.7)
 endif
 
-	CFLAGS += $(shell python3-config --cflags) -DUSE_PYTHON
+	CFLAGS += $(shell python3-config --includes) -DUSE_PYTHON
 	LIBS += $(shell python3-config --ldflags --embed)
 endif
 
