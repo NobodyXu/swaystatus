@@ -25,6 +25,8 @@ char* strdup_checked(const char *s);
 
 char* realpath_checked(const char *path);
 
+void setenv_checked(const char *name, const char *value, int overwrite);
+
 /**
  * NOTE that msleep does not restart on interruption.
  */
@@ -81,6 +83,26 @@ int isdir(const char *dir, int dirfd, const char *path);
 
 # ifdef __cplusplus
 }
+
+#  include <string>
+#  include <initializer_list>
+#  include <type_traits>
+
+namespace swaystatus {
+std::string getcwd_checked();
+
+constexpr bool is_all_true(std::initializer_list<bool> list)
+{
+    for (bool each: list) {
+        if (!each)
+            return false;
+    }
+    return true;
+}
+
+template <class T>
+using rm_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
+} /* namespace swaystatus */
 # endif
 
 #endif

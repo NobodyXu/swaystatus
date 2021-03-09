@@ -51,4 +51,15 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-swaystatus
+*/swaystatus
+
+*_build/
+
+compile_flags.txt
+compile_commands.json
+
+test/unit_test/build_dir
+test/unit_test/test_python3.plist
+
+# Ignore python
+__pycache__
