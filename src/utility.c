@@ -46,6 +46,31 @@ char* strdup_checked(const char *s)
     return ret;
 }
 
+char* escape_quotation_marks(const char *fmt)
+{
+    size_t fmt_len = strlen(fmt);
+
+    /**
+     * In the worst case scenario, every character is '"', thus the space required
+     * is fmt_len * 2.
+     */
+    char *santilized = malloc(fmt_len * 2 * sizeof(char) + 1);
+
+    size_t out = 0;
+    for (size_t i = 0; i != fmt_len; ++i) {
+        if (fmt[i] == '\"') {
+            santilized[out++] = '\\';
+            santilized[out++] = '\"';
+        } else {
+            santilized[out++] = fmt[i];
+        }
+    }
+    santilized[out++] = '\0';
+    reallocate(santilized, out);
+
+    return santilized;
+}
+
 char* realpath_checked(const char *path)
 {
     char *ret = realpath(path, NULL);

@@ -191,32 +191,42 @@ void free_config(void *config)
     json_object_put(config);
 }
 
-const char* get_property(const void *config, const char *name, const char *property,
-                         const char *default_val)
+const char* get_property_impl(const void *config, const char *name, const char *property)
 {
     if (!config)
-        return default_val;
+        return NULL;
 
     struct json_object *properties;
     if (!json_object_object_get_ex(config, name, &properties))
-        return default_val;
+        return NULL;
 
     if (json_object_get_type(properties) == json_type_boolean)
-        return default_val;
+        return NULL;
     
     struct json_object *value;
     if (!json_object_object_get_ex(properties, property, &value))
-        return default_val;
+        return NULL;
 
-    return strdup_checked(json_object_get_string(value));
+    return json_object_get_string(value);
+}
+const char* get_property(const void *config, const char *name, const char *property,
+                         const char *default_val)
+{
+    const char *result = get_property_impl(config, name, property);
+    if (result == NULL)
+        return default_val;
+    else
+        return strdup_checked(result);
 }
 const char* get_format(const void *config, const char *name, const char *default_val)
 {
-    return get_property(config, name, "format", default_val);
+    const char *fmt = get_property_impl(config, name, "format");
+    return fmt ? escape_quotation_marks(fmt) : default_val;
 }
 const char* get_short_format(const void *config, const char *name, const char *default_val)
 {
-    return get_property(config, name, "short_format", default_val);
+    const char *fmt = get_property_impl(config, name, "short_format");
+    return fmt ? escape_quotation_marks(fmt) : default_val;
 }
 uint32_t get_update_interval(const void *config, const char *name, uint32_t default_val)
 {
