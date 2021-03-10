@@ -98,9 +98,17 @@ static uintmax_t parse_cmdline_arg_and_initialize(
 
 static void print_block(void (*print)(), const char *json_element_str)
 {
-    print_literal_str("{\"full_text\":\"");
+    print_literal_str("{");
+    /**
+     * print() would print:
+     *
+     *     "full_text": "...","short_text": "...",
+     */
     print();
-    print_literal_str("\",");
+
+    /**
+     * Print the rest elements
+     */
     print_str(json_element_str);
     print_literal_str("}");
 }

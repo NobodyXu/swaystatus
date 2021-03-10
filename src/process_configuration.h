@@ -27,6 +27,7 @@ const char* get_property(const void *config, const char *name, const char *prope
  * @return heap-allocated string
  */
 const char* get_format(const void *config, const char *name, const char *default_val);
+const char* get_short_format(const void *config, const char *name, const char *default_val);
 uint32_t get_update_interval(const void *config, const char *name, uint32_t default_val);
 
 /**

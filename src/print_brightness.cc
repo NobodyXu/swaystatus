@@ -19,6 +19,7 @@
 #include "print_brightness.h"
 
 using swaystatus::Conditional;
+using swaystatus::print;
 
 static const char * const path = "/sys/class/backlight/";
 
@@ -41,7 +42,8 @@ struct Backlight {
 static struct Backlight *backlights;
 static size_t backlight_sz;
 
-static const char *format;
+static const char *full_text_format;
+static const char *short_text_format;
 
 static uint32_t cycle_cnt;
 static uint32_t interval;
@@ -83,7 +85,9 @@ static void addBacklight(int path_fd, const char *filename)
 
 void init_brightness_detection(const void *config)
 {
-    format   = get_format         (config, "brightness", "{backlight_device}: {brightness}");
+    full_text_format = get_format(config, "brightness", "{backlight_device}: {brightness}");
+    short_text_format = get_short_format(config, "brightness", NULL);
+
     interval = get_update_interval(config, "brightness", 1);
 
     DIR *dir = opendir(path);
@@ -135,18 +139,15 @@ static void update_brightness(struct Backlight *backlight)
     backlight->brightness = calculate_brightness(backlight);
 }
 
-void print_brightness()
+static void print_fmt(const char *name, const char *fmt)
 {
-    ++cycle_cnt;
+    print("\"{}\":\"", name);
 
     for (size_t i = 0; i != backlight_sz; ++i) {
         struct Backlight * const backlight = &backlights[i];
 
-        if (cycle_cnt == interval)
-            update_brightness(backlight);
-
-        swaystatus::print(
-            format,
+        print(
+            fmt,
             fmt::arg("backlight_device", backlight->filename),
             fmt::arg("brightness",       backlight->brightness),
             fmt::arg("has_multiple_backlight_devices", Conditional{backlight_sz != 1})
@@ -156,7 +157,19 @@ void print_brightness()
             print_literal_str(" ");
     }
 
-    if (cycle_cnt == interval)
+    print_literal_str("\",");
+}
+void print_brightness()
+{
+    ++cycle_cnt;
+    if (cycle_cnt == interval) {
+        for (size_t i = 0; i != backlight_sz; ++i)
+            update_brightness(&backlights[i]);
         cycle_cnt = 0;
+    }
+
+    print_fmt("full_text", full_text_format);
+    if (short_text_format)
+        print_fmt("short_text", short_text_format);
 }
-}
+} /* extern "C" */

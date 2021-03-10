@@ -13,8 +13,10 @@
 using swaystatus::Conditional;
 using swaystatus::interface_stats;
 using swaystatus::Interfaces;
+using swaystatus::print;
 
-static const char *format;
+static const char *full_text_format;
+static const char *short_text_format;
 
 static uint32_t cycle_cnt;
 static uint32_t interval;
@@ -69,7 +71,7 @@ static void getifaddrs_checked()
 }
 void init_network_interfaces_scanning(const void *config)
 {
-    format = get_format(
+    full_text_format = get_format(
         config,
         "network_interface",
         "{is_connected:{per_interface_fmt_str:"
@@ -77,11 +79,31 @@ void init_network_interfaces_scanning(const void *config)
             "{ipv4_addrs:1} {ipv6_addrs:1}"
         "}}"
     );
+    short_text_format = get_short_format(
+        config,
+        "network_interface",
+        "{is_connected:{per_interface_fmt_str:"
+            "{name}"
+        "}}"
+    );
     interval = get_update_interval(config, "network_interface", 60 * 2);
 
     getifaddrs_checked();
 }
 
+static void print_fmt(const char *name, const char *format)
+{
+    print("\"{}\":\"", name);
+
+    print(
+        format,
+        fmt::arg("is_not_connected",      Conditional{interfaces.is_empty()}),
+        fmt::arg("is_connected",          Conditional{!interfaces.is_empty()}),
+        fmt::arg("per_interface_fmt_str", interfaces)
+    );
+
+    print_literal_str("\",");
+}
 void print_network_interfaces()
 {
     if (++cycle_cnt == interval) {
@@ -89,11 +111,8 @@ void print_network_interfaces()
         getifaddrs_checked();
     }
 
-    swaystatus::print(
-        format,
-        fmt::arg("is_not_connected",      Conditional{interfaces.is_empty()}),
-        fmt::arg("is_connected",          Conditional{!interfaces.is_empty()}),
-        fmt::arg("per_interface_fmt_str", interfaces)
-    );
+    print_fmt("full_text", full_text_format);
+    if (short_text_format)
+        print_fmt("short_text", short_text_format);
 }
-}
+} /* extern "C" */

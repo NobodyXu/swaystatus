@@ -21,6 +21,7 @@
 
 using namespace std::literals;
 using swaystatus::mem_size_t;
+using swaystatus::print;
 
 static int meminfo_fd;
 
@@ -29,7 +30,8 @@ static size_t buffer_sz;
 
 static size_t memtotal;
 
-static const char *format;
+static const char *full_text_format;
+static const char *short_text_format;
 
 static uint32_t cycle_cnt;
 static uint32_t interval;
@@ -40,7 +42,9 @@ static size_t get_memusage(std::string_view element);
 
 void init_memory_usage_collection(const void *config)
 {
-    format   = get_format         (config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}");
+    full_text_format = get_format(config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}");
+    short_text_format = get_short_format(config, "memory_usage", NULL);
+
     interval = get_update_interval(config, "memory_usage", 10);
 
     meminfo_fd = openat_checked("", AT_FDCWD, "/proc/meminfo", O_RDONLY);
@@ -97,14 +101,11 @@ static auto get_memusage_lazy(std::string_view element)
     }};
 }
 
-void print_memory_usage()
+static void print_fmt(const char *name, const char *format)
 {
-    if (++cycle_cnt == interval) {
-        cycle_cnt = 0;
-        read_meminfo();
-    }
+    print("\"{}\":\"", name);
 
-    swaystatus::print(
+    print(
         format,
         fmt::arg("MemFree", get_memusage_lazy("MemFree")),
         fmt::arg("MemAvailable", get_memusage_lazy("MemAvailable")),
@@ -123,5 +124,18 @@ void print_memory_usage()
         fmt::arg("Shmem", get_memusage_lazy("Shmem")),
         fmt::arg("MemTotal", mem_size_t{memtotal})
     );
+
+    print_literal_str("\",");
+}
+void print_memory_usage()
+{
+    if (++cycle_cnt == interval) {
+        cycle_cnt = 0;
+        read_meminfo();
+    }
+
+    print_fmt("full_text", full_text_format);
+    if (short_text_format)
+        print_fmt("short_text", short_text_format);
 }
 }
