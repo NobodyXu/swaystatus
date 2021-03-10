@@ -12,6 +12,8 @@
 #include "printer.hpp"
 #include "print_load.h"
 
+using swaystatus::print;
+
 static const char * const loadavg_path = "/proc/loadavg";
 
 static int load_fd;
@@ -21,7 +23,8 @@ static int load_fd;
 static char buffer[100];
 static const char* statistics[6];
 
-static const char *format;
+static const char *full_text_format;
+static const char *short_text_format;
 
 static uint32_t cycle_cnt;
 static uint32_t interval;
@@ -30,7 +33,12 @@ extern "C" {
 static void update_load();
 void init_load(const void *config)
 {
-    format = get_format(config, "load", "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}");
+    full_text_format = get_format(
+        config,
+        "load",
+        "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}"
+    );
+    short_text_format = get_short_format(config, "load", NULL);
     interval = get_update_interval(config, "load", 60);
 
     load_fd = openat_checked("", AT_FDCWD, loadavg_path, O_RDONLY);
@@ -79,14 +87,11 @@ static void update_load()
     parse_loadavg(buffer, statistics);
 }
 
-void print_load()
+static void print_fmt(const char *name, const char *format)
 {
-    if (++cycle_cnt == interval) {
-        cycle_cnt = 0;
-        update_load();
-    }
+    print("\"{}\":\"", name);
 
-    swaystatus::print(
+    print(
         format,
         fmt::arg("loadavg_1m", statistics[0]),
         fmt::arg("loadavg_5m", statistics[1]),
@@ -95,5 +100,18 @@ void print_load()
         fmt::arg("total_kthreads_cnt", statistics[4]),
         fmt::arg("last_created_process_pid", statistics[5])
     );
+
+    print_literal_str("\",");
 }
+void print_load()
+{
+    if (++cycle_cnt == interval) {
+        cycle_cnt = 0;
+        update_load();
+    }
+
+    print_fmt("full_text", full_text_format);
+    if (short_text_format)
+        print_fmt("short_text", short_text_format);
 }
+} /* extern "C" */

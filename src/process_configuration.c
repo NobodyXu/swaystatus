@@ -75,6 +75,7 @@ struct Property {
 };
 static const struct Property valid_properties[] = {
     {"format", json_type_string},
+    {"short_format", json_type_string},
     {"update_interval", json_type_int},
     {"color", json_type_string},
     {"background", json_type_string},
@@ -212,6 +213,10 @@ const char* get_property(const void *config, const char *name, const char *prope
 const char* get_format(const void *config, const char *name, const char *default_val)
 {
     return get_property(config, name, "format", default_val);
+}
+const char* get_short_format(const void *config, const char *name, const char *default_val)
+{
+    return get_property(config, name, "short_format", default_val);
 }
 uint32_t get_update_interval(const void *config, const char *name, uint32_t default_val)
 {

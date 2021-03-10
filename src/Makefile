@@ -117,6 +117,9 @@ $(BUILD_DIR)/print_network_interfaces.o: Conditional.hpp networking.hpp
 install: $(BUILD_DIR)/swaystatus
 	cp -f $(BUILD_DIR)/swaystatus $(TARGET_DIR)/bin/
 
+install_release_build: release_build
+	$(MAKE) BUILD_DIR=release_build DEBUG=false PYTHON=true install
+
 clean:
 	rm -rf $(OBJS) $(BUILD_DIR)/swaystatus *_build/
 

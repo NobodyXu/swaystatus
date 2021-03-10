@@ -25,10 +25,12 @@
 
 using swaystatus::Conditional;
 using swaystatus::LazyEval;
+using swaystatus::print;
 
 static const char * const path = "/sys/class/power_supply/";
 
-static const char *format;
+static const char *full_text_format;
+static const char *short_text_format;
 
 static uint32_t cycle_cnt;
 static uint32_t interval;
@@ -87,7 +89,9 @@ static int add_battery(int path_fd, const char *device)
 }
 void init_battery_monitor(const void *config)
 {
-    format   = get_format         (config, "battery", "{has_battery:{status} {capacity}%}");
+    full_text_format = get_format(config, "battery", "{has_battery:{status} {capacity}%}");
+    short_text_format = get_short_format(config, "battery", NULL);
+
     interval = get_update_interval(config, "battery", 3);
 
     uevent_fd = -1;
@@ -166,14 +170,11 @@ static auto get_conditional_lazy(std::string_view name, std::string_view val) no
     }};
 }
 
-void print_battery()
+static void print_fmt(const char *name, const char *format)
 {
-    if (++cycle_cnt == interval) {
-        cycle_cnt = 0;
-        read_battery_uevent();
-    }
+    print("\"{}\":\"", name);
 
-    swaystatus::print(
+    print(
         format,
 
         fmt::arg("has_battery", Conditional{uevent_fd != -1}),
@@ -209,5 +210,18 @@ void print_battery()
         fmt::arg("is_not_charging", get_conditional_lazy("status", "Not charging")),
         fmt::arg("is_full", get_conditional_lazy("status", "Full"))
     );
+
+    print_literal_str("\",");
 }
+void print_battery()
+{
+    if (++cycle_cnt == interval) {
+        cycle_cnt = 0;
+        read_battery_uevent();
+    }
+
+    print_fmt("full_text", full_text_format);
+    if (short_text_format)
+        print_fmt("short_text", short_text_format);
 }
+} /* extern "C" */
