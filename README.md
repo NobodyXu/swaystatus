@@ -62,6 +62,7 @@ To reload `swaystatus`, send `SIGUSR1` to `swaystatus` process.
 
         "name": {
             "format": "Hello, {variable_name}",
+            "short_format": "hello", 
             "update_interval": 20,
             "color": "##RRGGBBA",
             "background: "##RRGGBBA",
@@ -93,6 +94,23 @@ The following values are valid name:
  - time
  - sensors
 
+#### "format"
+
+It is used internally to generate the "full_text" that will be passed to swaybar.
+
+Formatting for blocks other than time is done using [fmt - Format String Syntax].
+<br>Formatting for block time is parsed by [`strftime`].
+
+In the format string, user is capable of taking advantage of 
+[format variables](/#Format_Variables) to customize the output.
+
+#### "short_format"
+
+It is used to generate "short_text", which is used by `swaybar` when it decided that the 
+"full_text" is too long.
+
+#### Disable block
+
 If you want to disable a certain feature, say brightness,
 then add the following to your configuration:
 
@@ -107,7 +125,7 @@ Note that `{"brightness": false}` overrides "order":
 <br>If block specified in "order" is disabled by setting it to `false`, then the block
 will not appear.
 
-##### `update_interval`
+#### `update_interval`
 
 If specified, then the block will update at `update_interval * main_loop_interval ms`,
 where `main_loop_interval` is the value passed by cmdline arg `--interval=` or `1000 ms`
@@ -120,6 +138,8 @@ instead, print one sensor each time and once `update_interval` is reached, next 
 at the `swaybar`.
 
 When all sensors are shown, `swaystatus` will then update the sensors reading from the computer.
+
+### Format_Variables
 
 #### Battery format variables:
 
@@ -254,12 +274,6 @@ To limit number of ip addresses in output, please use `{ipv4_config:1}`.
  - `reading_temp`: the temperature reading from the sensor
 
 #### Format string for time:
-
-Format string for time is parsed by strftime instead of fmtlib, so the format is
-specified in [`strftime`] instead.
-
-For format string other than time, check [fmt - Format String Syntax] for more
-information on format specification.Conditional Variable:
 
 #### Conditional Variables
 
