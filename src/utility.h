@@ -23,6 +23,11 @@ void reallocarray_checked(void **ptr, size_t nmemb, size_t size);
 
 char* strdup_checked(const char *s);
 
+/**
+ * @return heap allocated string
+ */
+char* escape_quotation_marks(const char *fmt);
+
 char* realpath_checked(const char *path);
 
 void setenv_checked(const char *name, const char *value, int overwrite);
