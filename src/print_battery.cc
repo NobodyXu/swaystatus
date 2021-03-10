@@ -141,7 +141,7 @@ static void read_battery_uevent()
         err(1, "%s on %s failed", "lseek", path);
 }
 
-static auto get_property(std::string_view name) -> std::string_view
+static auto get_bat_property(std::string_view name) -> std::string_view
 {
     if (uevent_fd == -1)
         return {};
@@ -155,18 +155,18 @@ static auto get_property(std::string_view name) -> std::string_view
 
     return {value, static_cast<std::size_t>(end - value)};
 }
-static auto get_property_lazy(std::string_view name) noexcept
+static auto get_bat_property_lazy(std::string_view name) noexcept
 {
     return LazyEval{[=]() noexcept
     {
-        return get_property(name);
+        return get_bat_property(name);
     }};
 }
 static auto get_conditional_lazy(std::string_view name, std::string_view val) noexcept
 {
     return LazyEval{[=]() noexcept
     {
-        return Conditional{get_property(name) == val};
+        return Conditional{get_bat_property(name) == val};
     }};
 }
 
@@ -181,7 +181,7 @@ static void print_fmt(const char *name, const char *format)
 
         fmt::arg("type", "battery"),
 
-#define ARG(literal) fmt::arg((literal), get_property_lazy(literal))
+#define ARG(literal) fmt::arg((literal), get_bat_property_lazy(literal))
         ARG("name"),
         ARG("present"),
         ARG("technology"),
