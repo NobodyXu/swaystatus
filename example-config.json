@@ -24,6 +24,7 @@
     },
     "network_interface": {
         "format": "{is_connected:{per_interface_fmt_str:{name} {ipv4_addrs:1} {ipv6_addrs:1}}}",
+        "short_format": "{is_connected:{per_interface_fmt_str:{name}}}",
         "update_interval": 20,
         "__update_interval__": [
             "Setting update_interval to 20 means it will be updated per 20sec by default",
