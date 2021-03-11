@@ -8,12 +8,11 @@ extern "C" {
 #  endif
 
 /**
- * @param path if not NULL, it will be appended to PYTHONPATH along with cwd.
- *             Set this to NULL if swaystatus is reloaded
+ * @param path can be NULL
  *
- * load_libpython3 should be called before chdir is called.
+ * setup_pythonpath should be called before chdir is called.
  */
-void load_libpython3(const char *path);
+void setup_pythonpath(const char *path);
 
 #  ifdef __cplusplus
 }
@@ -58,7 +57,12 @@ class MainInterpreter: public Interpreter {
     using Interpreter::Interpreter;
 
 public:
-    static void load_libpython3(const char *path);
+    /**
+     * @pre setup_pythonpath has been invoked
+     *
+     * load_libpython3() will only initialize libpython on the first call.
+     */
+    static void load_libpython3();
 
     static bool has_initialized() noexcept;
 
