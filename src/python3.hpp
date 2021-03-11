@@ -275,11 +275,15 @@ public:
      * @param unpackable can be std::tuple, std::pair, std::array, or any type
      *                   that support std::get and std::tuple_size
      */
-    template <class Unpackable>
+    template <
+        class Unpackable,
+        class = std::void_t<decltype(std::get<0>(std::declval<Unpackable>()))>,
+        class = std::void_t<decltype(std::tuple_size<rm_cvref_t<Unpackable>>::value)>
+    >
     tuple(Unpackable &&unpackable):
         tuple{
             std::forward<Unpackable>(unpackable),
-            std::make_index_sequence<std::tuple_size<Unpackable>::value>{}
+            std::make_index_sequence<std::tuple_size<rm_cvref_t<Unpackable>>::value>{}
         }
     {}
 
