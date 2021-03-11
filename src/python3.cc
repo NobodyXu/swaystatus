@@ -455,7 +455,7 @@ auto tuple::size() const noexcept -> std::size_t
 {
     return static_cast<std::size_t>(PyTuple_GET_SIZE(getPyObject(*this)));
 }
-auto tuple::get(std::size_t i) -> Object
+auto tuple::get_element(std::size_t i) -> Object
 {
     auto *result = PyTuple_GetItem(getPyObject(*this), i);
     if (result == nullptr)

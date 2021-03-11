@@ -302,7 +302,7 @@ public:
      * @pre has_value() == true
      * @param i if i > size(), call Py_Err.
      */
-    auto get(std::size_t i) -> Object;
+    auto get_element(std::size_t i) -> Object;
     /**
      * @pre has_value() == true
      * @param i argument isn't checked, it is UB if i > size().
