@@ -206,6 +206,23 @@ public:
      */
     bool to_ssize_t(ssize_t *val) const noexcept;
     bool to_size_t(std::size_t *val) const noexcept;
+
+    /**
+     * WARNING: implicit conversion does not check for overflow
+     */
+    template <class T, class = std::enable_if_t< std::is_integral_v<T> >>
+    operator T () const noexcept
+    {
+        if constexpr(std::is_signed_v<T>) {
+            ssize_t val;
+            to_ssize_t(&val);
+            return val;
+        } else {
+            std::size_t val;
+            to_size_t(&val);
+            return val;
+        }
+    }
 };
 
 template <class T>
