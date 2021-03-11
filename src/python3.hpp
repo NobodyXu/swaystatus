@@ -158,20 +158,6 @@ struct Conversion<T, std::enable_if_t<std::is_base_of_v< Object, rm_cvref_t<T> >
 template <class T>
 using conversion_result_t = typename Conversion<T>::result_type;
 
-template <class T>
-auto convert(T &&val) -> conversion_result_t<T&&>
-{
-    return static_cast<conversion_result_t<T&&>>(std::forward<T>(val));
-}
-/**
- * Fundamental type cannot be right-referenced
- */
-template <class T, class = std::enable_if_t<std::is_fundamental_v< rm_cvref_t<T> >>>
-auto convert(T val) -> conversion_result_t<T>
-{
-    return static_cast<conversion_result_t<T>>(val);
-}
-
 class Compiled: public Object {
 public:
     /**
@@ -262,7 +248,10 @@ protected:
     static void* create_tuple_checked(Args &&...args)
     {
         auto *creator = get_creator();
-        auto *ret = creator(sizeof ...(args), convert<Args>(args).get()...);
+        auto *ret = creator(
+            sizeof ...(args),
+            conversion_result_t<Args>(std::forward<Args>(args)).get()...
+        );
         if (ret == nullptr)
             handle_error("Failed to create tuple");
 
@@ -400,11 +389,11 @@ public:
         Callable_base{std::move(o)}
     {}
 
-    Ret operator () (Args &&...args)
+    Ret operator () (Args ...args)
     {
         auto &base = static_cast<Callable_base&>(*this);
 
-        return Ret{base(convert<Args>(args)...)};
+        return Ret{base(static_cast<conversion_result_t<Args>>(std::forward<Args>(args))...)};
     }
 };
 } /* namespace swaystatus */
