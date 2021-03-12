@@ -6,8 +6,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <malloc.h>
+#include <malloc.h> /* For malloc_trim */
 
+#include <libgen.h>
 #include <unistd.h>
 #include <signal.h>
 #include <dlfcn.h>
@@ -19,6 +20,7 @@
 #include "help.h"
 #include "utility.h"
 #include "printer.hpp"
+#include "python3.hpp"
 #include "process_configuration.h"
 #include "poller.h"
 
@@ -50,7 +52,7 @@ static void handle_reload_request(int sig)
 
 static uintmax_t parse_cmdline_arg_and_initialize(
     int argc, char* argv[],
-    bool *is_reload, const char **config_filename,
+    bool *is_reload, bool *is_click_event_enabled, const char **config_filename,
     struct Blocks *blocks
 )
 {
@@ -83,11 +85,27 @@ static uintmax_t parse_cmdline_arg_and_initialize(
 
     init_poller();
 
+#ifdef USE_PYTHON
+    if (!(*is_reload)) {
+        if (*config_filename) {
+            char *file = strdup_checked(*config_filename);
+            char *path = dirname(file);
+
+            setup_pythonpath(path);
+
+            free(file);
+        } else
+            setup_pythonpath(NULL);
+    }
+#endif
+
     struct Inits inits;
     parse_inits_config(config, &inits);
 
     for (size_t i = 0; inits.inits[i]; ++i)
         inits.inits[i](config);
+
+    *is_click_event_enabled = init_click_event_handlers(config, inits.order, *is_reload);
 
     parse_block_printers_config(config, inits.order, blocks);
 
@@ -96,9 +114,12 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     return interval;
 }
 
-static void print_block(void (*print)(), const char *json_element_str)
+static void print_block(const char *name, void (*print)(), const char *json_element_str)
 {
-    print_literal_str("{");
+    print_literal_str("{\"name\":\"");
+    print_str(name);
+    print_literal_str("\",\"instance\":\"0\",");
+
     /**
      * print() would print:
      *
@@ -134,11 +155,12 @@ int main(int argc, char* argv[])
     struct Blocks blocks;
 
     bool is_reload = false;
+    bool is_click_event_enabled;
     const char *config_filename = NULL;
 
     const uintmax_t interval = parse_cmdline_arg_and_initialize(
         argc, argv,
-        &is_reload, &config_filename,
+        &is_reload, &is_click_event_enabled, &config_filename,
         &blocks
     );
 
@@ -147,7 +169,13 @@ int main(int argc, char* argv[])
 
     if (!is_reload) {
         /* Print header */
-        print_literal_str("{\"version\":1}\n");
+        print_literal_str("{\"version\":1");
+
+        if (is_click_event_enabled)
+            print_literal_str(",\"click_events\":true");
+
+        print_literal_str("}\n");
+
         flush();
 
         /* Begin an infinite array */
@@ -161,7 +189,11 @@ int main(int argc, char* argv[])
         print_literal_str("[");
 
         for (size_t i = 0; blocks.full_text_printers[i]; ++i) {
-            print_block(blocks.full_text_printers[i], blocks.JSON_elements_strs[i]);
+            print_block(
+                blocks.names[i],
+                blocks.full_text_printers[i],
+                blocks.JSON_elements_strs[i]
+            );
             print_delimiter();
         }
 
