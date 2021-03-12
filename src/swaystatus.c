@@ -138,6 +138,40 @@ static void print_delimiter()
     print_literal_str(",");
 }
 
+static void print_blocks(int fd, enum Event events, void *data)
+{
+    static const uintmax_t trim_interval = 3660;
+    /**
+     * trim heap right after first loop is done to give back memory
+     * used during initialization time.
+     */
+    static uintmax_t cycle_cnt = trim_interval - 1;
+
+    struct Blocks *blocks = data;
+
+    print_literal_str("[");
+
+    for (size_t i = 0; blocks->full_text_printers[i]; ++i) {
+        print_block(
+            blocks->names[i],
+            blocks->full_text_printers[i],
+            blocks->JSON_elements_strs[i]
+        );
+        print_delimiter();
+    }
+
+    /* Print dummy */
+    print_literal_str("{}],\n");
+    flush();
+
+    read_timer(fd);
+
+    if (++cycle_cnt == trim_interval) {
+        malloc_trim(4096 * 3);
+        cycle_cnt = 0;
+    }
+}
+
 int main(int argc, char* argv[])
 {
     close_all();
@@ -183,29 +217,12 @@ int main(int argc, char* argv[])
         flush();
     }
 
-    for (size_t sec = 0; !reload_requested; msleep(interval), ++sec) {
-        perform_polling(0);
+    int timerfd = create_pollable_monotonic_timer(interval);
+    request_polling(timerfd, read_ready, print_blocks, &blocks);
 
-        print_literal_str("[");
-
-        for (size_t i = 0; blocks.full_text_printers[i]; ++i) {
-            print_block(
-                blocks.names[i],
-                blocks.full_text_printers[i],
-                blocks.JSON_elements_strs[i]
-            );
-            print_delimiter();
-        }
-
-        /* Print dummy */
-        print_literal_str("{}],\n");
-        flush();
-
-        if (sec == 3660) {
-            malloc_trim(4096 * 3);
-            sec = 0;
-        }
-    }
+    do {
+        perform_polling(-1);
+    } while (!reload_requested);
 
     if (reload_requested) {
         char buffer[4096];
