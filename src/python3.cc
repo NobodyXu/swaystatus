@@ -26,9 +26,22 @@
  */
 
 extern "C" {
-void load_libpython3(const char *path)
+void setup_pythonpath(const char *path)
 {
-    swaystatus::python::MainInterpreter::load_libpython3(path);
+    auto pythonpath = swaystatus::getcwd_checked();
+
+    if (path) {
+        pythonpath += ':';
+        pythonpath += path;
+    }
+
+    auto *old_pythonpath = getenv("PYTHONPATH");
+    if (old_pythonpath) {
+        pythonpath += ':';
+        pythonpath += old_pythonpath;
+    }
+
+    setenv_checked("PYTHONPATH", pythonpath.c_str(), 1);
 }
 } /* extern "C" */
 
@@ -123,25 +136,10 @@ static void initialize_interpreter()
     sys.setattr("__stdin__", Object::get_none());
     sys.setattr("__stdout__", Object::get_none());
 }
-void MainInterpreter::load_libpython3(const char *path)
+void MainInterpreter::load_libpython3()
 {
     if (Py_IsInitialized())
         return;
-
-    if (path) {
-        auto pythonpath = swaystatus::getcwd_checked();
-
-        pythonpath += ':';
-        pythonpath += path;
-
-        auto *old_pythonpath = getenv("PYTHONPATH");
-        if (old_pythonpath) {
-            pythonpath += ':';
-            pythonpath += old_pythonpath;
-        }
-
-        setenv_checked("PYTHONPATH", pythonpath.c_str(), 1);
-    }
 
     auto wstr = Py_DecodeLocale_Checked("python3");
     Py_SetProgramName(wstr.str.get());
@@ -455,7 +453,7 @@ auto tuple::size() const noexcept -> std::size_t
 {
     return static_cast<std::size_t>(PyTuple_GET_SIZE(getPyObject(*this)));
 }
-auto tuple::get(std::size_t i) -> Object
+auto tuple::get_element(std::size_t i) -> Object
 {
     auto *result = PyTuple_GetItem(getPyObject(*this), i);
     if (result == nullptr)

@@ -12,6 +12,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/timerfd.h> /* For timefd_create and timefd_settime */
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -91,6 +92,40 @@ void msleep(uintmax_t msec)
         err(1, "%s failed", "usleep");
 }
 
+int create_pollable_monotonic_timer(uintmax_t msec)
+{
+    int timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+    if (timerfd == -1)
+        err(1, "%s failed", "timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC)");
+
+       int timerfd_settime(int fd, int flags,
+                           const struct itimerspec *new_value,
+                           struct itimerspec *old_value);
+
+    struct itimerspec spec = {
+        .it_interval = {
+            .tv_sec = msec / 1000,
+            .tv_nsec = (msec % 1000) * 1000 * 1000
+        }
+    };
+    spec.it_value = spec.it_interval;
+    int result = timerfd_settime(timerfd, 0, &spec, NULL);
+    if (result == -1)
+        err(1, "%s failed", "timerfd_settime");
+
+    return timerfd;
+}
+uint64_t read_timer(int timerfd)
+{
+    uint64_t ret;
+
+    ssize_t bytes = read_autorestart(timerfd, (char*) &ret, sizeof(ret));
+    if (bytes == -1)
+        err(1, "%s on %s failed", "read_autorestart", "timerfd");
+
+    return ret;
+}
+
 void sigaction_checked_impl(int sig, const char *signame, void (*sighandler)(int signum))
 {
     struct sigaction act;
@@ -145,6 +180,18 @@ int openat_checked(const char *dir, int dirfd, const char *path, int flags)
     return fd;
 }
 
+void set_fd_non_blocking(int fd)
+{
+    int flags = fcntl(fd, F_GETFL);
+    if (flags < 0)
+        err(1, "%s on %d failed", "fcntl(F_GETFL)", fd);
+
+    flags |= O_NONBLOCK;
+
+    if (fcntl(fd, F_SETFL, flags) < 0)
+        err(1, "%s on %d failed", "Using fcntl to add O_NONBLOCK", fd);
+}
+
 ssize_t read_autorestart(int fd, void *buf, size_t count)
 {
     ssize_t ret;
@@ -171,8 +218,12 @@ ssize_t readall(int fd, void *buffer, size_t len)
         ret = read_autorestart(fd, (char*) buffer + bytes, min_unsigned(len - bytes, SSIZE_MAX));
         if (ret == 0)
             break;
-        if (ret == -1)
-            return -1;
+        if (ret == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                break;
+            else
+                return -1;
+        }
     }
 
     return bytes;

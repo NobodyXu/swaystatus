@@ -2,6 +2,7 @@
 # define __swaystatus_utility_H__
 
 # include <stddef.h>
+# include <stdint.h>
 # include <inttypes.h>
 # include <sys/types.h>
 
@@ -33,9 +34,24 @@ char* realpath_checked(const char *path);
 void setenv_checked(const char *name, const char *value, int overwrite);
 
 /**
+ * @param msec milliseconds
  * NOTE that msleep does not restart on interruption.
  */
 void msleep(uintmax_t msec);
+
+/**
+ * @param msec milliseconds
+ * @return a pollable fd. 
+ *
+ * Check man page of timefd_create for how to use the return value of this API.
+ */
+int create_pollable_monotonic_timer(uintmax_t msec);
+/**
+ * @param timerfd must be ret val of create_pollable_monotonic_timer and
+ *                in poller.h:Event::read_ready state.
+ * @return number of time the timer has fired.
+ */
+uint64_t read_timer(int timerfd);
 
 void set_terminate_handler(void (*handler)());
 
@@ -55,12 +71,18 @@ void close_all();
  */
 int openat_checked(const char *dir, int dirfd, const char *path, int flags);
 
+void set_fd_non_blocking(int fd);
+
 ssize_t read_autorestart(int fd, void *buf, size_t count);
 ssize_t write_autorestart(int fd, const void *buf, size_t count);
 
 /**
  * @return If equal to len, then the file is bigger than expected.
- *         -1 if read failed, error code is stored in errno.
+ *         -1 if read failed, error code is stored in errno
+ *         0 if EOF or EAGAIN/EWOULDBLOCK
+ *
+ * readall read all data from fd until EOF or EAGAIN/EWOULDBLOCK returned or
+ * the buffer is full.
  */
 ssize_t readall(int fd, void *buffer, size_t len);
 /**

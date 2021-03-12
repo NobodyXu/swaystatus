@@ -53,6 +53,12 @@ struct Inits {
  */
 void parse_inits_config(void *config, struct Inits *inits);
 
+/**
+ * @param config after this function, elements '*.click_event_handler' is removed.
+ * @return whether click events handling is enabled.
+ */
+int init_click_event_handlers(void *config, const char *names[9], int force_enabled);
+
 typedef void (*Printer_t)();
 /**
  * All members are variable length arrays
@@ -65,6 +71,10 @@ struct Blocks {
      * Eg: "\"border_top\":2,\"borer_left\":3"
      */
     const char *JSON_elements_strs[9];
+    /**
+     * Elements in here points to .rodata section.
+     */
+    const char *names[9];
 };
 /**
  * @param config after this function is invoked, all "*.format", "*.mix_name", "*.card" and all

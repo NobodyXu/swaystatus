@@ -8,12 +8,11 @@ extern "C" {
 #  endif
 
 /**
- * @param path if not NULL, it will be appended to PYTHONPATH along with cwd.
- *             Set this to NULL if swaystatus is reloaded
+ * @param path can be NULL
  *
- * load_libpython3 should be called before chdir is called.
+ * setup_pythonpath should be called before chdir is called.
  */
-void load_libpython3(const char *path);
+void setup_pythonpath(const char *path);
 
 #  ifdef __cplusplus
 }
@@ -58,7 +57,12 @@ class MainInterpreter: public Interpreter {
     using Interpreter::Interpreter;
 
 public:
-    static void load_libpython3(const char *path);
+    /**
+     * @pre setup_pythonpath has been invoked
+     *
+     * load_libpython3() will only initialize libpython on the first call.
+     */
+    static void load_libpython3();
 
     static bool has_initialized() noexcept;
 
@@ -158,20 +162,6 @@ struct Conversion<T, std::enable_if_t<std::is_base_of_v< Object, rm_cvref_t<T> >
 template <class T>
 using conversion_result_t = typename Conversion<T>::result_type;
 
-template <class T>
-auto convert(T &&val) -> conversion_result_t<T&&>
-{
-    return static_cast<conversion_result_t<T&&>>(std::forward<T>(val));
-}
-/**
- * Fundamental type cannot be right-referenced
- */
-template <class T, class = std::enable_if_t<std::is_fundamental_v< rm_cvref_t<T> >>>
-auto convert(T val) -> conversion_result_t<T>
-{
-    return static_cast<conversion_result_t<T>>(val);
-}
-
 class Compiled: public Object {
 public:
     /**
@@ -206,6 +196,23 @@ public:
      */
     bool to_ssize_t(ssize_t *val) const noexcept;
     bool to_size_t(std::size_t *val) const noexcept;
+
+    /**
+     * WARNING: implicit conversion does not check for overflow
+     */
+    template <class T, class = std::enable_if_t< std::is_integral_v<T> >>
+    operator T () const noexcept
+    {
+        if constexpr(std::is_signed_v<T>) {
+            ssize_t val;
+            to_ssize_t(&val);
+            return val;
+        } else {
+            std::size_t val;
+            to_size_t(&val);
+            return val;
+        }
+    }
 };
 
 template <class T>
@@ -245,7 +252,10 @@ protected:
     static void* create_tuple_checked(Args &&...args)
     {
         auto *creator = get_creator();
-        auto *ret = creator(sizeof ...(args), convert<Args>(args).get()...);
+        auto *ret = creator(
+            sizeof ...(args),
+            conversion_result_t<Args>(std::forward<Args>(args)).get()...
+        );
         if (ret == nullptr)
             handle_error("Failed to create tuple");
 
@@ -269,11 +279,15 @@ public:
      * @param unpackable can be std::tuple, std::pair, std::array, or any type
      *                   that support std::get and std::tuple_size
      */
-    template <class Unpackable>
+    template <
+        class Unpackable,
+        class = std::void_t<decltype(std::get<0>(std::declval<Unpackable>()))>,
+        class = std::void_t<decltype(std::tuple_size<rm_cvref_t<Unpackable>>::value)>
+    >
     tuple(Unpackable &&unpackable):
         tuple{
             std::forward<Unpackable>(unpackable),
-            std::make_index_sequence<std::tuple_size<Unpackable>::value>{}
+            std::make_index_sequence<std::tuple_size<rm_cvref_t<Unpackable>>::value>{}
         }
     {}
 
@@ -292,7 +306,7 @@ public:
      * @pre has_value() == true
      * @param i if i > size(), call Py_Err.
      */
-    auto get(std::size_t i) -> Object;
+    auto get_element(std::size_t i) -> Object;
     /**
      * @pre has_value() == true
      * @param i argument isn't checked, it is UB if i > size().
@@ -383,11 +397,11 @@ public:
         Callable_base{std::move(o)}
     {}
 
-    Ret operator () (Args &&...args)
+    Ret operator () (Args ...args)
     {
         auto &base = static_cast<Callable_base&>(*this);
 
-        return Ret{base(convert<Args>(args)...)};
+        return Ret{base(static_cast<conversion_result_t<Args>>(std::forward<Args>(args))...)};
     }
 };
 } /* namespace swaystatus */

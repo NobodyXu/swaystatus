@@ -13,7 +13,9 @@ int main()
     // Initialize libpython
     {
         char *path = realpath_checked("python3_test_dir");
-        load_libpython3(path);
+        setup_pythonpath(path);
+
+        MainInterpreter::load_libpython3();
         std::free(path);
     }
 
