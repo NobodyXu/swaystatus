@@ -12,6 +12,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/timerfd.h> /* For timefd_create and timefd_settime */
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -89,6 +90,40 @@ void msleep(uintmax_t msec)
 {
     if (usleep(msec * 1000) && errno == EINVAL)
         err(1, "%s failed", "usleep");
+}
+
+int create_pollable_monotonic_timer(uintmax_t msec)
+{
+    int timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+    if (timerfd == -1)
+        err(1, "%s failed", "timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC)");
+
+       int timerfd_settime(int fd, int flags,
+                           const struct itimerspec *new_value,
+                           struct itimerspec *old_value);
+
+    struct itimerspec spec = {
+        .it_interval = {
+            .tv_sec = msec / 1000,
+            .tv_nsec = (msec % 1000) * 1000 * 1000
+        }
+    };
+    spec.it_value = spec.it_interval;
+    int result = timerfd_settime(timerfd, 0, &spec, NULL);
+    if (result == -1)
+        err(1, "%s failed", "timerfd_settime");
+
+    return timerfd;
+}
+uint64_t read_timer(int timerfd)
+{
+    uint64_t ret;
+
+    ssize_t bytes = read_autorestart(timerfd, (char*) &ret, sizeof(ret));
+    if (bytes == -1)
+        err(1, "%s on %s failed", "read_autorestart", "timerfd");
+
+    return ret;
 }
 
 void sigaction_checked_impl(int sig, const char *signame, void (*sighandler)(int signum))

@@ -2,6 +2,7 @@
 # define __swaystatus_utility_H__
 
 # include <stddef.h>
+# include <stdint.h>
 # include <inttypes.h>
 # include <sys/types.h>
 
@@ -33,9 +34,24 @@ char* realpath_checked(const char *path);
 void setenv_checked(const char *name, const char *value, int overwrite);
 
 /**
+ * @param msec milliseconds
  * NOTE that msleep does not restart on interruption.
  */
 void msleep(uintmax_t msec);
+
+/**
+ * @param msec milliseconds
+ * @return a pollable fd. 
+ *
+ * Check man page of timefd_create for how to use the return value of this API.
+ */
+int create_pollable_monotonic_timer(uintmax_t msec);
+/**
+ * @param timerfd must be ret val of create_pollable_monotonic_timer and
+ *                in poller.h:Event::read_ready state.
+ * @return number of time the timer has fired.
+ */
+uint64_t read_timer(int timerfd);
 
 void set_terminate_handler(void (*handler)());
 
