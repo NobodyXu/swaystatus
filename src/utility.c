@@ -183,8 +183,12 @@ ssize_t readall(int fd, void *buffer, size_t len)
         ret = read_autorestart(fd, (char*) buffer + bytes, min_unsigned(len - bytes, SSIZE_MAX));
         if (ret == 0)
             break;
-        if (ret == -1)
-            return -1;
+        if (ret == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                break;
+            else
+                return -1;
+        }
     }
 
     return bytes;
