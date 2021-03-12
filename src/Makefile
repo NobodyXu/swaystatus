@@ -109,6 +109,8 @@ $(BUILD_DIR)/networking.o: utility.h fmt_utility.hpp Conditional.hpp mem_size_t.
 
 sensors.hpp: dep/fmt/include/fmt/format.h fmt_config.h
 
+$(BUILD_DIR)/handle_click_events.o: poller.h utility.h python3.hpp
+
 $(BUILD_DIR)/print_brightness.o: Conditional.hpp
 $(BUILD_DIR)/print_battery.o: Conditional.hpp
 $(BUILD_DIR)/print_memory_usage.o: mem_size_t.hpp LazyEval.hpp
