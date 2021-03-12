@@ -75,7 +75,13 @@ To reload `swaystatus`, send `SIGUSR1` to `swaystatus` process.
             "align": "center",
             "separator": true,
             "separator_block_width": 9,
-            "markup": "none"
+            "markup": "none",
+
+            "click_event_handler": {
+                "type": "python",
+                "module_name": "hello",
+                "function_name": "handler"
+            }
         },
         "_comment": "Any variable starts with '_' is a comment"
     }
@@ -108,6 +114,23 @@ In the format string, user is capable of taking advantage of
 
 It is used to generate "short_text", which is used by `swaybar` when it decided that the 
 "full_text" is too long.
+
+#### Click Event Handling Support
+
+TO enable click event handling for a block, add json object "click_event_handler" 
+to the block that block.
+
+Currently, the handler has to be written in python, but in the future, C library will be supported.
+
+For loading python handler, add `"type": "python"` to your "click_event_handler", then specify 
+the "module_name" and "function_name" of the handler.
+
+`swaystatus` will attempt to load the module from the same directory of your configuration file, 
+your current working dir, any path you specified with environment variable `PYTHONPATH` and your 
+system module paths.
+
+If instead you want to embed the python code into your configuration file, add "code" to your 
+"click_event_handler" and assign your code as value to it.
 
 #### Disable block
 
