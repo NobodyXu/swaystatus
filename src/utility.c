@@ -145,6 +145,18 @@ int openat_checked(const char *dir, int dirfd, const char *path, int flags)
     return fd;
 }
 
+void set_fd_non_blocking(int fd)
+{
+    int flags = fcntl(fd, F_GETFL);
+    if (flags < 0)
+        err(1, "%s on %d failed", "fcntl(F_GETFL)", fd);
+
+    flags |= O_NONBLOCK;
+
+    if (fcntl(fd, F_SETFL, flags) < 0)
+        err(1, "%s on %d failed", "Using fcntl to add O_NONBLOCK", fd);
+}
+
 ssize_t read_autorestart(int fd, void *buf, size_t count)
 {
     ssize_t ret;

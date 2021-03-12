@@ -55,12 +55,14 @@ void close_all();
  */
 int openat_checked(const char *dir, int dirfd, const char *path, int flags);
 
+void set_fd_non_blocking(int fd);
+
 ssize_t read_autorestart(int fd, void *buf, size_t count);
 ssize_t write_autorestart(int fd, const void *buf, size_t count);
 
 /**
  * @return If equal to len, then the file is bigger than expected.
- *         -1 if read failed, error code is stored in errno.
+ *         -1 if read failed, error code is stored in errno
  */
 ssize_t readall(int fd, void *buffer, size_t len);
 /**
