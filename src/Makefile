@@ -11,7 +11,7 @@ CC := clang
 CXX := clang++
 
 ifeq ($(DEBUG), false)
-	CFLAGS := -march=native -mtune=native -Oz -Wall -flto
+	CFLAGS := -Wall -march=native -mtune=native -Oz -Wall -flto
 	CFLAGS += -fno-asynchronous-unwind-tables -fno-unwind-tables
 
 	CXXFLAGS := -fno-exceptions -fno-rtti
