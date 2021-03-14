@@ -132,6 +132,15 @@ system module paths.
 If instead you want to embed the python code into your configuration file, add "code" to your 
 "click_event_handler" and assign your code as value to it.
 
+The python function is expected to have signature (Check [here](https://www.mankier.com/7/swaybar-protocol#Click_Events) for more information):
+
+```
+(instance: str, click_pos: Tuple[int, int], button: int, event: int, relative_click_pos: Tuple[int, int], blocksize: Tuple[int, int]) -> int
+```
+
+Your function is expected to return 0 and any exception thrown in your function must be handled, 
+otherwise `swaystatus` will print that error and exit.
+
 #### Disable block
 
 If you want to disable a certain feature, say brightness,
