@@ -155,7 +155,7 @@ struct Conversion {
 };
 
 template <class T>
-struct Conversion<T, std::enable_if_t<std::is_base_of_v< Object, rm_cvref_t<T> >>> {
+struct Conversion<T, std::enable_if_t< is_object_v<T> >> {
     using result_type = T;
 };
 
@@ -216,7 +216,7 @@ public:
 };
 
 template <class T>
-struct Conversion<T, std::enable_if_t<std::is_constructible_v< Int, T >>> {
+struct Conversion<T, std::enable_if_t< std::is_constructible_v< Int, T > && !is_object_v<T> >> {
     using result_type = Int;
 };
 
@@ -226,7 +226,10 @@ public:
 };
 
 template <class T>
-struct Conversion<T, std::enable_if_t<std::is_constructible_v< MemoryView, T >> > {
+struct Conversion<
+    T,
+    std::enable_if_t< std::is_constructible_v< MemoryView, T > && !is_object_v<T> >
+> {
     using result_type = MemoryView;
 };
 
