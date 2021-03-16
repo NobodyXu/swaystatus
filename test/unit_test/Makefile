@@ -6,10 +6,10 @@ LIBS := $(shell pkg-config --libs alsa json-c) -ldl -lsensors
 LIBS += $(shell python3-config --ldflags --embed)
 
 ## Objects to build
-C_SRCS := $(wildcard *.c)
+C_SRCS := $(shell find -name 'test_*.c')
 C_OBJS := $(C_SRCS:.c=.out)
 
-CXX_SRCS := $(wildcard *.cc)
+CXX_SRCS := $(shell find -name 'test_*.cc')
 CXX_OBJS := $(CXX_SRCS:.cc=.out)
 
 OBJS := $(C_OBJS) $(CXX_OBJS)
@@ -21,12 +21,14 @@ all:
 	mkdir -p build_dir
 	BUILD_DIR=${PWD}/build_dir PYTHON=true DEBUG=true $(MAKE) -C ../../src/
 	$(MAKE) build
-	../run_tests.sh $(OBJS)
+	./run_tests.sh $(OBJS)
 
 build: $(OBJS)
 
-test_%.out: test_%.cc $(DEPS) Makefile
+%.out: %.cc $(DEPS) Makefile
 	$(CXX) -std=c++17 $(CXXFLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) -o $@ $< $(DEPS)
+	# Allow subdir to have their own Makefile for building like library.
+	([ -f "$$(dirname $<)/Makefile" ] && $(MAKE) -C $$(dirname $<)) || echo
 
 compile_commands.json: Makefile
 	compiledb make build -j $(shell nproc)
