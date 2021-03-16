@@ -12,17 +12,8 @@
 
 #include "poller.h"
 #include "utility.h"
-#include "python3.hpp"
+#include "Callable.hpp"
 #include "handle_click_events.h"
-
-#ifdef USE_PYTHON
-using swaystatus::python::Interpreter;
-using swaystatus::python::MainInterpreter;
-using swaystatus::python::Compiled;
-using swaystatus::python::Module;
-using swaystatus::python::Int;
-using swaystatus::python::Callable;
-#endif
 
 extern "C" {
 struct Pos {
@@ -32,32 +23,23 @@ struct Pos {
 typedef struct Pos ClickPos;
 typedef struct Pos BlockSize;
 } /* extern "C" */
+
 std::tuple<std::uint64_t, std::uint64_t> to_unpackable(const struct Pos &pos)
 {
     return {pos.x, pos.y};
 }
 
-#ifdef USE_PYTHON
-using py_callback = Callable</* Ret type */ Int,
-    /* Args types */
-    const char*,
-    const ClickPos &,
-    std::uint64_t,
-    std::uint64_t,
-    const ClickPos &,
-    const BlockSize &
->;
-#endif
-
 struct Callback {
     const char *name;
-    std::variant<
-        /* instance, click_pos, button, event, relative_click_pos, BlockSize */
-        std::monostate
-#ifdef USE_PYTHON
-        , py_callback
-#endif
-    > v;
+    swaystatus::Callable</* Ret type */ std::uint8_t,
+        /* Args types */
+        const char*,
+        const ClickPos &,
+        std::uint64_t,
+        std::uint64_t,
+        const ClickPos &,
+        const BlockSize &
+    > callable;
 
     auto operator () (
         const char *instance,
@@ -66,32 +48,9 @@ struct Callback {
         std::uint64_t event,
         const ClickPos &relative_pos,
         const BlockSize &size
-    ) -> std::uint8_t
+    )
     {
-        switch (v.index()) {
-            case std::variant_npos:
-            case 0:
-                errx(1, "Internal bug: Visiting uninitialized callback in %s", __FILE__);
-
-            default:
-                break;
-        }
-
-#ifdef USE_PYTHON
-        auto scope = std::holds_alternative<py_callback>(v) ? 
-            MainInterpreter::get().acquire() :
-            Interpreter::GIL_scoped(nullptr);
-#endif
-
-        return std::visit([&](auto &&f)
-        {
-            if constexpr(std::is_same_v<swaystatus::rm_cvref_t<decltype(f)>, std::monostate>)
-                return std::uint8_t{0};
-            else
-                return static_cast<std::uint8_t>(
-                    f(instance, pos, button, event, relative_pos, size)
-                );
-        }, v);
+        return callable(instance, pos, button, event, relative_pos, size);
     }
 };
 
@@ -102,52 +61,27 @@ static std::size_t callback_cnt;
 static void click_events_handler(int fd, enum Event events, void *data);
 
 extern "C" {
-void init_click_events_handling(const struct ClickEventHandlerConfig *handlers, std::size_t cnt)
+void init_click_events_handling()
 {
-    callback_cnt = cnt;
-
-    for (size_t i = 0; i != cnt; ++i) {
-        callbacks[i].name = handlers[i].name;
-
-        switch (handlers[i].type) {
-            case handle_type_python:
-#ifdef USE_PYTHON
-                MainInterpreter::load_libpython3();
-
-                {
-                    auto scope = MainInterpreter::get().acquire();
-
-                    const char *module_name = handlers[i].python.module_name;
-                    const char *code        = handlers[i].python.code;
-                    const char *function_name = handlers[i].python.function_name;
-
-                    auto module = [&]{
-                        if (handlers[i].python.code) {
-                            Compiled compiled{module_name, code};
-                            return Module{module_name, compiled};
-                        } else
-                            return Module{module_name};
-                    }();
-                    callbacks[i].v.emplace<py_callback>(module.getattr(function_name));
-                }
-#else
-                errx(1, "Click events specified using python callback, but feature python is not "
-                        "support.");
-#endif
-        }
-    }
-
     set_fd_non_blocking(0);
 
-    if (cnt != 0) {
+    request_polling(0, read_ready, click_events_handler, NULL);
+}
+
+void add_click_event_handler(const char *name, const void *click_event_handler_config)
+{
+    auto &callback = callbacks[callback_cnt++];
+
+    callback.name = name;
+    callback.callable = swaystatus::Callable_base(name, click_event_handler_config);
+
+    if (parser == nullptr) {
         parser = json_tokener_new();
         if (parser == NULL)
             errx(1, "%s failed", "json_tokener_new");
 
         json_tokener_set_flags(parser, JSON_TOKENER_ALLOW_TRAILING_CHARS);
     }
-
-    request_polling(0, read_ready, click_events_handler, NULL);
 }
 } /* extern "C" */
 

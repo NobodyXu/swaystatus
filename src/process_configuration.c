@@ -314,28 +314,12 @@ void parse_inits_config(void *config, struct Inits *inits)
     json_object_object_del(config, "order");
 }
 
-static const char *get_click_event_str(
-    const char *name,
-    const struct json_object *click_event_handler,
-    const char *attr
-)
-{
-    struct json_object *val;
-    if (!json_object_object_get_ex(click_event_handler, attr, &val))
-        errx(1, "Attr %s.click_event_handler.%s %s", name, attr, "is missing");
-
-    if (json_object_get_type(val) != json_type_string)
-        errx(1, "Attr %s.click_event_handler.%s %s", name, attr, "contains invalid value");
-
-    return json_object_get_string(val);
-}
 int init_click_event_handlers(void *config, const char *names[9], int force_enabled)
 {
-    struct ClickEventHandlerConfig handler_configs[9];
-    size_t out = 0;
+    init_click_events_handling();
 
     if (!config)
-        goto check_for_force_enabled;
+        return 1;
 
     for (size_t i = 0; names[i]; ++i) {
         const char *name = names[i];
@@ -348,41 +332,10 @@ int init_click_event_handlers(void *config, const char *names[9], int force_enab
         if (!json_object_object_get_ex(block, "click_event_handler", &click_event_handler))
             continue;
 
-        struct ClickEventHandlerConfig *handler_config = &handler_configs[out++];
-        handler_config->name = name;
-
-#define get_str(attr) get_click_event_str(name, click_event_handler, (attr))
-
-        const char *type = get_click_event_str(name, click_event_handler, "type");
-        if (strcmp(type, "python") == 0) {
-            handler_config->type = handle_type_python;
-            handler_config->python.module_name = get_str("module_name");
-            handler_config->python.function_name = get_str("function_name");
-
-            struct json_object *code;
-            if (json_object_object_get_ex(click_event_handler, "code", &code)) {
-                handler_config->python.code = get_str("code");
-            } else
-                handler_config->python.code = NULL;
-        } else
-            errx(1, "Attr %s.click_event_handler.%s %s", name, "type", "contains invalid value");
-
-#undef  get_str
-
+        add_click_event_handler(name, click_event_handler);
     }
 
-    if (out) {
-        init_click_events_handling(handler_configs, out);
-        return 1;
-    }
-
-check_for_force_enabled:
-    if (force_enabled) {
-        init_click_events_handling(NULL, 0);
-        return 1;
-    }
-
-    return 0;
+    return 1;
 }
 
 static int has_seperator(const struct json_object *properties)
