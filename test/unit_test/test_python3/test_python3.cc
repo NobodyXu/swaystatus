@@ -45,11 +45,13 @@ int main()
 
         Module test{"test"};
         Callable<Int, std::size_t> identity{test.getattr("identity")};
+        Callable<ssize_t, std::size_t> identity2{test.getattr("identity")};
 
         ssize_t val;
         assert(identity(2021).to_ssize_t(&val));
-
         assert(val == 2021);
+
+        assert(identity2(2021) == 2021);
     }
 
     ;

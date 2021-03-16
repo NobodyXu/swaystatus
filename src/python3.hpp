@@ -388,6 +388,10 @@ public:
     }
 };
 
+/**
+ * @param Ret  can be python object or C++ type
+ * @param Args can be python object or C++ type
+ */
 template <class Ret, class ...Args>
 class Callable: public Callable_base {
 public:
@@ -408,7 +412,11 @@ public:
     {
         auto &base = static_cast<Callable_base&>(*this);
 
-        return Ret{base(static_cast<conversion_result_t<Args>>(std::forward<Args>(args))...)};
+        return Ret{
+            static_cast<conversion_result_t<Ret>>(
+                base(static_cast<conversion_result_t<Args>>(std::forward<Args>(args))...)
+            )
+        };
     }
 };
 } /* namespace swaystatus */
