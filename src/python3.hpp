@@ -184,7 +184,21 @@ public:
 };
 
 class Int: public Object {
+    template <class T>
+    static Int from_integer(T val)
+    {
+        if constexpr(std::is_signed_v<T>)
+            return Int{ssize_t{val}};
+        else
+            return Int{std::size_t{val}};
+    }
+
 public:
+    template <class T, class = std::enable_if_t< std::is_integral_v<T> >>
+    Int(T val):
+        Int(from_integer(val))
+    {}
+
     Int(ssize_t);
     Int(std::size_t);
 
