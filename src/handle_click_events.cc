@@ -38,8 +38,8 @@ std::tuple<std::uint64_t, std::uint64_t> to_unpackable(const struct Pos &pos)
 }
 
 #ifdef USE_PYTHON
-using py_callback = Callable<
-    Int,
+using py_callback = Callable</* Ret type */ Int,
+    /* Args types */
     const char*,
     const ClickPos &,
     std::uint64_t,
