@@ -397,6 +397,10 @@ public:
         Callable_base{std::move(o)}
     {}
 
+    Callable(Callable_base &&o):
+        Callable_base{std::move(o)}
+    {}
+
     Ret operator () (Args ...args)
     {
         auto &base = static_cast<Callable_base&>(*this);
