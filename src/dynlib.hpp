@@ -72,6 +72,10 @@ public:
         ptr{reinterpret_cast<Fp>(dload_symbol(filename, symbol_name))}
     {}
 
+    CFunction(void *symbol):
+        ptr{reinterpret_cast<Fp>(symbol)}
+    {}
+
     CFunction(const CFunction&) = default;
     CFunction& operator = (const CFunction&) = default;
 
