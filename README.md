@@ -120,7 +120,9 @@ It is used to generate "short_text", which is used by `swaybar` when it decided 
 TO enable click event handling for a block, add json object "click_event_handler" 
 to the block that block.
 
-Currently, the handler has to be written in python, but in the future, C library will be supported.
+Currently, the handler can be written in python or C/C++.
+
+##### Loading python handler
 
 For loading python handler, add `"type": "python"` to your "click_event_handler", then specify 
 the "module_name" and "function_name" of the handler.
@@ -140,6 +142,46 @@ The python function is expected to have signature (Check [here](https://www.mank
 
 Your function is expected to return 0 and any exception thrown in your function must be handled, 
 otherwise `swaystatus` will print that error and exit.
+
+##### Loading C/C++ handler
+
+You C/C++ code has to be compiled with `-fPIC -shared`.
+
+For loading python handler, add `"type": "dynlib"` to your "click_event_handler", then specify 
+the "module_name" and "function_name" of the handler.
+
+Just like loading python, `swaystatus` will attemp to load the shared library from the same 
+directory of your configuration file, your current working dir.
+
+It is loaded using `dlopen`, so `LD_LIBRARY_PATH`, `/etc/ld.so.cache`, `/lib` and `/usr/lib` is 
+also searched.
+
+You can also specify the path instead of a name directly in the `module_name`, which is perfectly 
+valid.
+
+The C/C++ function is expected to be `export`ed in `"C"` and have signature:
+
+```c
+#include <stdint.h>
+
+struct Pos {
+    uint64_t x;
+    uint64_t y;
+};
+typedef struct Pos ClickPos;
+typedef struct Pos BlockSize;
+
+int f(
+    const char *instance, 
+    const ClickPos *pos,
+    uint64_t button,
+    uint64_t event,
+    const ClickPos *relative_pos,
+    const BlockSize *size
+)
+```
+
+Your function is expected to return 0.
 
 #### Disable block
 
