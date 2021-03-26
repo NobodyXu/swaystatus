@@ -66,7 +66,7 @@ compile_commands.json: Makefile
 
 ### Convenient target for automatically running debug/release builds
 ### Move from run_all_builds.sh to further parallel the builds
-all_builds: debug_build release_build release_no_py_build
+all_builds: release_build release_no_py_build
 
 debug_build:
 	mkdir -p $@
