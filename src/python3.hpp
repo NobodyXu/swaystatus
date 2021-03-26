@@ -155,7 +155,7 @@ struct Conversion {
 };
 
 template <class T>
-struct Conversion<T, std::enable_if_t<std::is_base_of_v< Object, rm_cvref_t<T> >>> {
+struct Conversion<T, std::enable_if_t< is_object_v<T> >> {
     using result_type = T;
 };
 
@@ -184,7 +184,21 @@ public:
 };
 
 class Int: public Object {
+    template <class T>
+    static Int from_integer(T val)
+    {
+        if constexpr(std::is_signed_v<T>)
+            return Int{ssize_t{val}};
+        else
+            return Int{std::size_t{val}};
+    }
+
 public:
+    template <class T, class = std::enable_if_t< std::is_integral_v<T> >>
+    Int(T val):
+        Int(from_integer(val))
+    {}
+
     Int(ssize_t);
     Int(std::size_t);
 
@@ -216,7 +230,7 @@ public:
 };
 
 template <class T>
-struct Conversion<T, std::enable_if_t<std::is_constructible_v< Int, T >>> {
+struct Conversion<T, std::enable_if_t< std::is_constructible_v< Int, T > && !is_object_v<T> >> {
     using result_type = Int;
 };
 
@@ -226,7 +240,10 @@ public:
 };
 
 template <class T>
-struct Conversion<T, std::enable_if_t<std::is_constructible_v< MemoryView, T >> > {
+struct Conversion<
+    T,
+    std::enable_if_t< std::is_constructible_v< MemoryView, T > && !is_object_v<T> >
+> {
     using result_type = MemoryView;
 };
 
@@ -385,6 +402,10 @@ public:
     }
 };
 
+/**
+ * @param Ret  can be python object or C++ type
+ * @param Args can be python object or C++ type
+ */
 template <class Ret, class ...Args>
 class Callable: public Callable_base {
 public:
@@ -397,11 +418,19 @@ public:
         Callable_base{std::move(o)}
     {}
 
+    Callable(Callable_base &&o):
+        Callable_base{std::move(o)}
+    {}
+
     Ret operator () (Args ...args)
     {
         auto &base = static_cast<Callable_base&>(*this);
 
-        return Ret{base(static_cast<conversion_result_t<Args>>(std::forward<Args>(args))...)};
+        return Ret{
+            static_cast<conversion_result_t<Ret>>(
+                base(static_cast<conversion_result_t<Args>>(std::forward<Args>(args))...)
+            )
+        };
     }
 };
 } /* namespace swaystatus */
