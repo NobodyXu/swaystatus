@@ -11,8 +11,6 @@ It uses libraries like `libasound` and glibc function `getifaddrs` to retrieve v
 For battery, backlight, load, and meminfo, it reads directly from `/sys/class/power_supply`,
 `/sys/class/backlight`, `/proc/loadavg` and `/proc/meminfo`.
 
-On my x86-64 computer, it compiles to a single binary that less than `80K` using `clang-11`.
-
 ## Runtime Dependency
  - `libasound.so.2`
  - `libjson-c.so.5` (also used by sway and swaybar)
