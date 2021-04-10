@@ -80,7 +80,7 @@ void add_click_event_handler(const char *name, const void *click_event_handler_c
         if (parser == NULL)
             errx(1, "%s failed", "json_tokener_new");
 
-        json_tokener_set_flags(parser, JSON_TOKENER_ALLOW_TRAILING_CHARS);
+        //json_tokener_set_flags(parser, JSON_TOKENER_ALLOW_TRAILING_CHARS);
     }
 }
 } /* extern "C" */
