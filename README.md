@@ -213,25 +213,28 @@ When all sensors are shown, `swaystatus` will then update the sensors reading fr
 #### Battery format variables:
 
  - `has_battery`: check whether battery device exists
- - `name`
- - `present`
- - `technology`
- - `model_name`
- - `manufacturer`
- - `serial_number`
- - `status`
- - `cycle_count`
- - `voltage_min_design`
- - `voltage_now`
- - `charge_full_design`
- - `charge_full`
- - `charge_now`
- - `capacity`
- - `capacity_level`
- - `is_charging`        (Check section "Conditional Variable" for usage)
- - `is_discharging`
- - `is_not_charging`
- - `is_full`
+ - `per_battery_fmt_str`, which is used to print every battery on this system.
+   
+   It contains the following variables:
+    - `name`
+    - `present`
+    - `technology`
+    - `model_name`
+    - `manufacturer`
+    - `serial_number`
+    - `status`
+    - `cycle_count`
+    - `voltage_min_design`
+    - `voltage_now`
+    - `charge_full_design`
+    - `charge_full`
+    - `charge_now`
+    - `capacity`
+    - `capacity_level`
+    - `is_charging`        (Check section "Conditional Variable" for usage)
+    - `is_discharging`
+    - `is_not_charging`
+    - `is_full`
 
 #### Memory Usage variables:
 
