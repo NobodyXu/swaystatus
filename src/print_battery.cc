@@ -47,7 +47,7 @@ void init_battery_monitor(const void *config)
 
     interval = get_update_interval(config, "battery", 3);
 
-    const char *excluded_devices = get_property(config, "battery", "excluded_devices", "");
+    const char *excluded_devices = get_property(config, "battery", "excluded_device", "");
 
     DIR *dir = opendir(Battery::power_supply_path);
     if (!dir)
