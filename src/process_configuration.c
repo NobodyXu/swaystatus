@@ -143,6 +143,13 @@ static void verify_entry(const char *filename, const char *name, struct json_obj
                 continue;
             }
         }
+        if (strcmp(name, "battery") == 0) {
+            if (strcmp(property, "excluded_devices") == 0) {
+                if (json_object_get_type(val) != json_type_string)
+                    errx(1, "Invalid type of value for %s.%s in %s", name, property, filename);
+                continue;
+            }
+        }
 
         /* Ignore JSON comments */
         if (property[0] == '_') {
