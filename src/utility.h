@@ -118,6 +118,14 @@ int isdir(const char *dir, int dirfd, const char *path);
 namespace swaystatus {
 std::string getcwd_checked();
 
+/**
+ * @param buffer it must point to an empty std::string
+ * @return -1 if read failed, error code is stored in errno.
+ *
+ * If buffer isn't large enough, then asreadall will resize it
+ */
+ssize_t asreadall(int fd, std::string &buffer);
+
 constexpr bool is_all_true(std::initializer_list<bool> list)
 {
     for (bool each: list) {
