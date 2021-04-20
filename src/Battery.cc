@@ -83,16 +83,24 @@ void Battery::read_battery_uevent()
         err(1, "%s on %s%s/%s failed", "lseek", power_supply_path, battery_device.c_str(), "uevent");
 }
 
-auto Battery::get_property(std::string_view name) const noexcept -> std::string_view
+auto Battery::get_property(const char *name) const noexcept -> std::string_view
 {
     if (uevent_fd == -1)
         return {};
 
-    char *substr = strcasestr(const_cast<char*>(buffer.c_str()), name.data());
-    if (!substr)
-        return "nullptr";
+    std::size_t name_len = std::strlen(name);
 
-    const char *value = substr + name.size() + 1;
+    char *substr = const_cast<char*>(buffer.c_str());
+    for (; ;) {
+        substr = strcasestr(substr, name);
+        if (!substr)
+            return "nullptr";
+        if (substr[name_len] == '=')
+            break;
+        substr += name_len;
+    }
+
+    const char *value = substr + name_len + 1;
     const char *end = strchrnul(substr, '\n');
 
     return {value, static_cast<std::size_t>(end - value)};
