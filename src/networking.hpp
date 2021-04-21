@@ -1,7 +1,7 @@
 #ifndef  __swaystatus_networking_H__
 # define __swaystatus_networking_H__
 
-# include "fmt_config.h"
+# include "fmt_config.hpp"
 
 # include <sys/types.h>
 # include <netinet/in.h>

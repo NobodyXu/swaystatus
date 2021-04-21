@@ -1,4 +1,4 @@
-#include "fmt_config.h"
+#include "fmt_config.hpp"
 
 #include <string.h>
 #include <err.h>

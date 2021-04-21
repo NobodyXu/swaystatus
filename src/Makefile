@@ -89,11 +89,11 @@ $(filter $(BUILD_DIR)/print_%.o,$(OBJS)): printer.hpp process_configuration.h
 
 $(BUILD_DIR)/print_volume.o: alsa.h
 
-printer.hpp: dep/fmt/include/fmt/core.h fmt_config.h
+printer.hpp: dep/fmt/include/fmt/core.h fmt_config.hpp
 	touch $@
-$(BUILD_DIR)/printer.o: dep/fmt/include/fmt/format.h dep/fmt/include/fmt/format-inl.h fmt_config.h
+$(BUILD_DIR)/printer.o: dep/fmt/include/fmt/format.h dep/fmt/include/fmt/format-inl.h fmt_config.hpp
 
-fmt_utility.hpp: dep/fmt/include/fmt/format.h fmt_config.h
+fmt_utility.hpp: dep/fmt/include/fmt/format.h fmt_config.hpp
 	touch $@
 
 mem_size_t.hpp: dep/fmt/include/fmt/format.h
@@ -103,11 +103,11 @@ LazyEval.hpp: dep/fmt/include/fmt/format.h
 Conditional.hpp: dep/fmt/include/fmt/format.h fmt_utility.hpp
 	touch $@
 
-networking.hpp: dep/fmt/include/fmt/format.h fmt_config.h
+networking.hpp: dep/fmt/include/fmt/format.h fmt_config.hpp
 	touch $@
 $(BUILD_DIR)/networking.o: utility.h fmt_utility.hpp Conditional.hpp mem_size_t.hpp dep/fmt/include/fmt/core.h
 
-sensors.hpp: dep/fmt/include/fmt/format.h fmt_config.h
+sensors.hpp: dep/fmt/include/fmt/format.h fmt_config.hpp
 
 $(BUILD_DIR)/handle_click_events.o: poller.h utility.h python3.hpp
 

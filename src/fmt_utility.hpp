@@ -1,7 +1,7 @@
 #ifndef  __swaystatus_fmt_utility_HPP__
 # define __swaystatus_fmt_utility_HPP__
 
-# include "fmt_config.h"
+# include "fmt_config.hpp"
 # include "dep/fmt/include/fmt/format.h"
 
 namespace swaystatus {

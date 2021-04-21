@@ -9,7 +9,7 @@
 #ifndef  __swaystatus_conditional_H__
 # define __swaystatus_conditional_H__
 
-# include "fmt_config.h"
+# include "fmt_config.hpp"
 
 # include <type_traits>
 # include <string_view>
