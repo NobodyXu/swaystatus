@@ -367,6 +367,8 @@ static const char* get_elements_str(const void *config, const char *name)
         json_object_object_del(properties, "mix_name");
         json_object_object_del(properties, "card");
     }
+    if (strcmp(name, "battery") == 0)
+        json_object_object_del(properties, "excluded_device");
 
     if (json_object_object_length(properties) == 0)
         return DEFAULT_PROPERTY;
