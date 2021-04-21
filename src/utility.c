@@ -2,10 +2,13 @@
 #define _POSIX_C_SOURCE 200809L /* For openat, fstatat, sigaction */
 #define _XOPEN_SOURCE 500 /* For realpath */
 
+#include <stdio.h>
 #include <limits.h> /* For SSIZE_MAX and realpath */
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+
+#include <execinfo.h>
 
 #include <err.h>
 #include <errno.h>
@@ -290,4 +293,13 @@ int isdir(const char *dir, int dirfd, const char *path)
         err(1, "%s failed on %s%s", "stat", dir, path);
 
     return S_ISDIR(dir_stat_v.st_mode);
+}
+
+static void *bt_buffer[20];
+void stack_bt()
+{
+    fputs("\n\n", stderr);
+
+    int sz = backtrace(bt_buffer, sizeof(bt_buffer) / sizeof(void*));
+    backtrace_symbols_fd(bt_buffer, sz, 2);
 }

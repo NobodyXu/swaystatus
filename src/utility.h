@@ -108,6 +108,8 @@ const char* readall_as_uintmax(int fd, uintmax_t *val);
  */
 int isdir(const char *dir, int dirfd, const char *path);
 
+void stack_bt();
+
 # ifdef __cplusplus
 }
 

@@ -13,7 +13,6 @@
 #include <signal.h>
 #include <dlfcn.h>
 
-#include <execinfo.h>
 #include <err.h>
 #include <errno.h>
 
@@ -26,14 +25,6 @@
 
 #define starts_with(str, prefix) (strncmp((str), (prefix), sizeof(prefix) - 1) == 0)
 
-static void *bt_buffer[20];
-static void stack_bt()
-{
-    fputs("\n\n", stderr);
-
-    int sz = backtrace(bt_buffer, sizeof(bt_buffer) / sizeof(void*));
-    backtrace_symbols_fd(bt_buffer, sz, 2);
-}
 static void terminate_handler()
 {
     stack_bt();
