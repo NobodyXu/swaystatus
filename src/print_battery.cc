@@ -47,7 +47,7 @@ void init_battery_monitor(const void *config)
 
     interval = get_update_interval(config, "battery", 3);
 
-    const char *excluded_devices = get_property(config, "battery", "excluded_device", "");
+    const char *excluded_model = get_property(config, "battery", "excluded_model", "");
 
     DIR *dir = opendir(Battery::power_supply_path);
     if (!dir)
@@ -64,10 +64,8 @@ void init_battery_monitor(const void *config)
                     break;
 
             case DT_DIR:
-                if (strcmp(ent->d_name, excluded_devices) == 0)
-                    break;
                 if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
-                    auto result = Battery::makeBattery(path_fd, ent->d_name);
+                    auto result = Battery::makeBattery(path_fd, ent->d_name, excluded_model);
                     if (result)
                         batteries.push_back(std::move(*result));
                 }

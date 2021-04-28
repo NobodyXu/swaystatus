@@ -144,7 +144,7 @@ static void verify_entry(const char *filename, const char *name, struct json_obj
             }
         }
         if (strcmp(name, "battery") == 0) {
-            if (strcmp(property, "excluded_device") == 0) {
+            if (strcmp(property, "excluded_model") == 0) {
                 if (json_object_get_type(val) != json_type_string)
                     errx(1, "Invalid type of value for %s.%s in %s", name, property, filename);
                 continue;
@@ -368,7 +368,7 @@ static const char* get_elements_str(const void *config, const char *name)
         json_object_object_del(properties, "card");
     }
     if (strcmp(name, "battery") == 0)
-        json_object_object_del(properties, "excluded_device");
+        json_object_object_del(properties, "excluded_model");
 
     if (json_object_object_length(properties) == 0)
         return DEFAULT_PROPERTY;

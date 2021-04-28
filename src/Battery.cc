@@ -19,7 +19,8 @@
 #include "Battery.hpp"
 
 namespace swaystatus {
-auto Battery::makeBattery(int path_fd, std::string_view device) -> std::optional<Battery>
+auto Battery::makeBattery(int path_fd, std::string_view device, std::string_view excluded_model) ->
+    std::optional<Battery>
 {
     size_t device_name_len = device.size();
 
@@ -45,7 +46,12 @@ auto Battery::makeBattery(int path_fd, std::string_view device) -> std::optional
 
     path.resize(device_name_len);
 
-    return Battery{path_fd, std::move(path)};
+    auto battery = Battery{path_fd, std::move(path)};
+
+    if (battery.get_property("model_name") == excluded_model)
+        return std::nullopt;
+
+    return battery;
 }
 
 Battery::Battery(int path_fd, std::string &&device):

@@ -24,7 +24,8 @@ protected:
 public:
     static constexpr const auto *power_supply_path = "/sys/class/power_supply/";
 
-    static auto makeBattery(int path_fd, std::string_view device) -> std::optional<Battery>;
+    static auto makeBattery(int path_fd, std::string_view device, std::string_view excluded_model)
+        -> std::optional<Battery>;
 
     Battery(Battery &&) noexcept;
 
