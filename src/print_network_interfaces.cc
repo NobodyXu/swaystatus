@@ -4,6 +4,8 @@
 #include <net/if.h>
 #include <ifaddrs.h>
 
+#include <exception>
+
 #include "process_configuration.h"
 #include "printer.hpp"
 #include "Conditional.hpp"
@@ -95,12 +97,17 @@ static void print_fmt(const char *name, const char *format)
 {
     print("\"{}\":\"", name);
 
-    print(
-        format,
-        fmt::arg("is_not_connected",      Conditional{interfaces.is_empty()}),
-        fmt::arg("is_connected",          Conditional{!interfaces.is_empty()}),
-        fmt::arg("per_interface_fmt_str", interfaces)
-    );
+    try {
+        print(
+            format,
+            fmt::arg("is_not_connected",      Conditional{interfaces.is_empty()}),
+            fmt::arg("is_connected",          Conditional{!interfaces.is_empty()}),
+            fmt::arg("per_interface_fmt_str", interfaces)
+        );
+    } catch (const std::exception &e) {
+        errx(1, "Failed to print %s format in print_%s.cc: %s",
+                name, "network_interfaces", e.what());
+    }
 
     print_literal_str("\",");
 }

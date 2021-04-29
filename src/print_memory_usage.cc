@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <exception>
 #include <string_view>
 
 #include "utility.h"
@@ -105,25 +106,29 @@ static void print_fmt(const char *name, const char *format)
 {
     print("\"{}\":\"", name);
 
-    print(
-        format,
-        fmt::arg("MemFree", get_memusage_lazy("MemFree")),
-        fmt::arg("MemAvailable", get_memusage_lazy("MemAvailable")),
-        fmt::arg("Buffers", get_memusage_lazy("Buffers")),
-        fmt::arg("Cached", get_memusage_lazy("Cached")),
-        fmt::arg("SwapCached", get_memusage_lazy("SwapCached")),
-        fmt::arg("Active", get_memusage_lazy("Active")),
-        fmt::arg("Inactive", get_memusage_lazy("Inactive")),
-        fmt::arg("Mlocked", get_memusage_lazy("Mlocked")),
-        fmt::arg("SwapTotal", get_memusage_lazy("SwapTotal")),
-        fmt::arg("SwapFree", get_memusage_lazy("SwapFree")),
-        fmt::arg("Dirty", get_memusage_lazy("Dirty")),
-        fmt::arg("Writeback", get_memusage_lazy("Writeback")),
-        fmt::arg("AnonPages", get_memusage_lazy("AnonPages")),
-        fmt::arg("Mapped", get_memusage_lazy("Mapped")),
-        fmt::arg("Shmem", get_memusage_lazy("Shmem")),
-        fmt::arg("MemTotal", mem_size_t{memtotal})
-    );
+    try {
+        print(
+            format,
+            fmt::arg("MemFree", get_memusage_lazy("MemFree")),
+            fmt::arg("MemAvailable", get_memusage_lazy("MemAvailable")),
+            fmt::arg("Buffers", get_memusage_lazy("Buffers")),
+            fmt::arg("Cached", get_memusage_lazy("Cached")),
+            fmt::arg("SwapCached", get_memusage_lazy("SwapCached")),
+            fmt::arg("Active", get_memusage_lazy("Active")),
+            fmt::arg("Inactive", get_memusage_lazy("Inactive")),
+            fmt::arg("Mlocked", get_memusage_lazy("Mlocked")),
+            fmt::arg("SwapTotal", get_memusage_lazy("SwapTotal")),
+            fmt::arg("SwapFree", get_memusage_lazy("SwapFree")),
+            fmt::arg("Dirty", get_memusage_lazy("Dirty")),
+            fmt::arg("Writeback", get_memusage_lazy("Writeback")),
+            fmt::arg("AnonPages", get_memusage_lazy("AnonPages")),
+            fmt::arg("Mapped", get_memusage_lazy("Mapped")),
+            fmt::arg("Shmem", get_memusage_lazy("Shmem")),
+            fmt::arg("MemTotal", mem_size_t{memtotal})
+        );
+    } catch (const std::exception &e) {
+        errx(1, "Failed to print %s format in print_%s.cc: %s", name, "memory_usage", e.what());
+    }
 
     print_literal_str("\",");
 }

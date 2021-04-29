@@ -12,6 +12,8 @@
 #include <fcntl.h>     /* For O_RDONLY */
 #include <unistd.h>    /* For close and lseek */
 
+#include <exception>
+
 #include "utility.h"
 #include "process_configuration.h"
 #include "printer.hpp"
@@ -146,12 +148,16 @@ static void print_fmt(const char *name, const char *fmt)
     for (size_t i = 0; i != backlight_sz; ++i) {
         struct Backlight * const backlight = &backlights[i];
 
-        print(
-            fmt,
-            fmt::arg("backlight_device", backlight->filename),
-            fmt::arg("brightness",       backlight->brightness),
-            fmt::arg("has_multiple_backlight_devices", Conditional{backlight_sz != 1})
-        );
+        try {
+            print(
+                fmt,
+                fmt::arg("backlight_device", backlight->filename),
+                fmt::arg("brightness",       backlight->brightness),
+                fmt::arg("has_multiple_backlight_devices", Conditional{backlight_sz != 1})
+            );
+        } catch (const std::exception &e) {
+            errx(1, "Failed to print %s format in print_%s.cc: %s", name, "brightness", e.what());
+        }
 
         if (i + 1 != backlight_sz)
             print_literal_str(" ");

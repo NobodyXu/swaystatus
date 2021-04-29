@@ -30,4 +30,4 @@ void fmt_throw_impl(const std::exception &e, const char *func, int line, const c
 
 #endif
 
-#define FMT_THROW(x) ::swaystatus::fmt_throw_impl((x), __PRETTY_FUNCTION__, __LINE__, __FILE__)
+//#define FMT_THROW(x) ::swaystatus::fmt_throw_impl((x), __PRETTY_FUNCTION__, __LINE__, __FILE__)
