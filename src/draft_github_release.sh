@@ -32,6 +32,8 @@ else
     changelogValue="$changelogFile"
 fi
 
+cd $(dirname $0)
+
 ./run_all_builds.sh
 
 cp release_build/swaystatus "/tmp/swaystatus-with-python-support-$label_postfix"
