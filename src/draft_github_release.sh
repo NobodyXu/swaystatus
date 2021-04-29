@@ -4,9 +4,11 @@ get_libc_name() {
     libc=$(ldd release_build/swaystatus | grep libc | cut -d '>' -f 2 | sed 's/(.*)$//')
     output=$($libc 2>&1)
     if echo "$output" | grep -q 'GNU C Library'; then
-        echo glibc
+        version="$(echo $output | grep -o 'release version [0-9]*\.[0-9]*' | sed -e 's/release version //')"
+        echo "glibc-$version"
     elif echo "$output" | grep -q 'musl libc'; then
-        echo musl
+        version="$(echo $output | grep -o 'Version [0-9]*\.[0-9]*\.[0-9]*' | sed -e 's/Version //')"
+        echo "musl-$version"
     else
         echo unknown libc! >&2
         exit 1
