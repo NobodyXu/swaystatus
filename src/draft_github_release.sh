@@ -15,13 +15,13 @@ get_libc_name() {
 
 label_postfix="$(arch)-$(uname)-$(get_libc_name)"
 
-tag=$1
-if [ -z "$tag" ]; then
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
     echo "Usage: $0 <tag> [Release notes]" >&2
     exit 1
 fi
 
-if [ -n "$2" ]; then
+tag=$1
+if [ $# -eq 2 ]; then
     changelogOption="-n"
     changelogValue="$2"
 else
