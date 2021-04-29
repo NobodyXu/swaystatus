@@ -90,7 +90,7 @@ The following values are valid name:
  - volume
  - battery
 
-   The configuration block of battery support `excluded_device` to exclude certain battery devices
+   The configuration block of battery support `excluded_model` to exclude certain battery devices
    from the output of `swaystatus`.
  - network_interface
  - load
