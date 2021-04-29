@@ -14,7 +14,7 @@ ifeq ($(DEBUG), false)
 	CFLAGS := -Wall -march=native -mtune=native -Oz -Wall -flto
 	CFLAGS += -fno-asynchronous-unwind-tables -fno-unwind-tables
 
-	CXXFLAGS := -fno-exceptions -fno-rtti
+	CXXFLAGS := -fno-rtti
 
 	LDFLAGS := -s -flto -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3,--as-needed
 else
