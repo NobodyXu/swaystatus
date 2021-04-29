@@ -1,3 +1,6 @@
+#include <err.h>
+#include <exception>
+
 #include "sensors.hpp"
 #include "process_configuration.h"
 #include "printer.hpp"
@@ -38,17 +41,21 @@ static void print_fmt(const char *name, const char *format)
     auto &bus = sensor.bus;
     auto &reading = *reading_it;
 
-    print(
-        format,
-        fmt::arg("prefix",   sensor.prefix),
-        fmt::arg("path",     sensor.path),
-        fmt::arg("addr",     sensor.addr),
-        fmt::arg("bus_type", bus.type),
-        fmt::arg("bus_nr",   bus.nr),
+    try {
+        print(
+            format,
+            fmt::arg("prefix",   sensor.prefix),
+            fmt::arg("path",     sensor.path),
+            fmt::arg("addr",     sensor.addr),
+            fmt::arg("bus_type", bus.type),
+            fmt::arg("bus_nr",   bus.nr),
 
-        fmt::arg("reading_number", reading.number),
-        fmt::arg("reading_temp",   reading.temp)
-    );
+            fmt::arg("reading_number", reading.number),
+            fmt::arg("reading_temp",   reading.temp)
+        );
+    } catch (const std::exception &e) {
+        errx(1, "Failed to print %s format in print_%s.cc: %s", name, "sensors", e.what());
+    }
 
     print_literal_str("\",");
 }

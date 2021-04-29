@@ -1,3 +1,6 @@
+#include <err.h>
+#include <exception>
+
 #include "alsa.h"
 #include "process_configuration.h"
 #include "printer.hpp"
@@ -29,7 +32,11 @@ static void print_fmt(const char *name, const char *format)
 {
     print("\"{}\":\"", name);
 
-    print(format, fmt::arg("volume", get_audio_volume()));
+    try {
+        print(format, fmt::arg("volume", get_audio_volume()));
+    } catch (const std::exception &e) {
+        errx(1, "Failed to print %s format in print_%s.cc: %s", name, "volume", e.what());
+    }
 
     print_literal_str("\",");
 }

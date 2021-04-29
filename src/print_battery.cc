@@ -15,6 +15,7 @@
 #include <fcntl.h>     /* For O_RDONLY */
 #include <unistd.h>    /* For close, lseek and fstat */
 
+#include <exception>
 #include <string_view>
 #include <vector>
 
@@ -87,11 +88,15 @@ static void print_fmt(const char *name, const char *fmt)
 {
     print("\"{}\":\"", name);
 
-    print(
-        fmt, 
-        fmt::arg("has_battery", swaystatus::Conditional{batteries.size() != 0}),
-        fmt::arg("per_battery_fmt_str", batteries)
-    );
+    try {
+        print(
+            fmt, 
+            fmt::arg("has_battery", swaystatus::Conditional{batteries.size() != 0}),
+            fmt::arg("per_battery_fmt_str", batteries)
+        );
+    } catch (const std::exception &e) {
+        errx(1, "Failed to print %s format in print_%s.cc: %s", name, "battery", e.what());
+    }
 
     print_literal_str("\",");
 }

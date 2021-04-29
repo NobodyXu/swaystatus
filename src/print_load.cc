@@ -7,6 +7,8 @@
 #include <unistd.h> /* For lseek */
 #include <fcntl.h>  /* For AT_FDCWD and O_RDONLY */
 
+#include <exception>
+
 #include "utility.h"
 #include "process_configuration.h"
 #include "printer.hpp"
@@ -91,15 +93,19 @@ static void print_fmt(const char *name, const char *format)
 {
     print("\"{}\":\"", name);
 
-    print(
-        format,
-        fmt::arg("loadavg_1m", statistics[0]),
-        fmt::arg("loadavg_5m", statistics[1]),
-        fmt::arg("loadavg_15m", statistics[2]),
-        fmt::arg("running_kthreads_cnt", statistics[3]),
-        fmt::arg("total_kthreads_cnt", statistics[4]),
-        fmt::arg("last_created_process_pid", statistics[5])
-    );
+    try {
+        print(
+            format,
+            fmt::arg("loadavg_1m", statistics[0]),
+            fmt::arg("loadavg_5m", statistics[1]),
+            fmt::arg("loadavg_15m", statistics[2]),
+            fmt::arg("running_kthreads_cnt", statistics[3]),
+            fmt::arg("total_kthreads_cnt", statistics[4]),
+            fmt::arg("last_created_process_pid", statistics[5])
+        );
+    } catch (const std::exception &e) {
+        errx(1, "Failed to print %s format in print_%s.cc: %s", name, "load", e.what());
+    }
 
     print_literal_str("\",");
 }
