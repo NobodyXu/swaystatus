@@ -26,7 +26,8 @@ static void print_fmt(const struct tm *local_time, const char *name, const char 
     char buffer[4096];
     size_t cnt = strftime(buffer, sizeof(buffer), format, local_time);
     if (cnt == 0)
-        errx(1, "strftime returns 0: buffer too small!");
+        errx(1, "strftime returns 0: Your format string generate string longer than 4096 "
+                "which is larger than the buffer");
 
     print_literal_str("\"");
     print_str(name);
