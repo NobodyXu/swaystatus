@@ -26,7 +26,7 @@ if [ $# -eq 2 ]; then
     changelogValue="$2"
 else
     changelogFile=$(mktemp)
-    nvim "$changelogFile"
+    "$EDITOR" "$changelogFile"
 
     changelogOption="-F"
     changelogValue="$changelogFile"
