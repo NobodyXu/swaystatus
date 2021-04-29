@@ -7,7 +7,7 @@
 
     "battery": {
         "format":
-            "{has_battery:{is_full:Battery is Full}{is_charging:charging {capacity}%}{is_discharging:discharging {capacity}%}}"
+            "{has_battery:{per_battery_fmt_str:{is_full:Battery is Full}{is_charging:charging {capacity}%}{is_discharging:discharging {capacity}%}}}"
     },
     "memory_usage": {
         "format": "<Mem> Free {MemFree}/Total {MemTotal} <Swap> Free {SwapFree}/{SwapTotal}"

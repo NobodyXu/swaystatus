@@ -1,7 +1,7 @@
 #ifndef  __swaystatus_sensors_HPP__
 # define __swaystatus_sensors_HPP__
 
-# include "fmt_config.h"
+# include "fmt_config.hpp"
 
 # include <cstdint>
 # include <limits>

@@ -1,7 +1,7 @@
 #ifndef  __swaystatus_LazyEval_H__
 # define __swaystatus_LazyEval_H__
 
-# include "fmt_config.h"
+# include "fmt_config.hpp"
 
 # include <type_traits>
 # include "dep/fmt/include/fmt/format.h"

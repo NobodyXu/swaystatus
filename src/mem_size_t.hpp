@@ -1,7 +1,7 @@
 #ifndef  __swaystatus_mem_size_t_H__
 # define __swaystatus_mem_size_t_H__
 
-# include "fmt_config.h"
+# include "fmt_config.hpp"
 
 # include <stddef.h>
 # include "dep/fmt/include/fmt/format.h"

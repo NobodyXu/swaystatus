@@ -1,11 +1,10 @@
 #ifndef  __swaystatus_printer_HPP__
 # define __swaystatus_printer_HPP__
 
-# include "fmt_config.h"
-
 # include <stddef.h>
 
 # ifdef __cplusplus
+#  include "fmt_config.hpp"
 #  include "dep/fmt/include/fmt/core.h"
 # endif
 
