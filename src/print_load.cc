@@ -37,10 +37,9 @@ void init_load(const void *config)
 {
     full_text_format = get_format(
         config,
-        "load",
         "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}"
     );
-    short_text_format = get_short_format(config, "load", NULL);
+    short_text_format = get_short_format(config, NULL);
     interval = get_update_interval(config, "load", 60);
 
     load_fd = openat_checked("", AT_FDCWD, loadavg_path, O_RDONLY);

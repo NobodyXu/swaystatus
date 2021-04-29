@@ -41,14 +41,13 @@ void init_battery_monitor(const void *config)
 {
     full_text_format = get_format(
         config,
-        "battery",
         "{has_battery:{per_battery_fmt_str:{status} {capacity}%}}"
     );
-    short_text_format = get_short_format(config, "battery", NULL);
+    short_text_format = get_short_format(config, NULL);
 
     interval = get_update_interval(config, "battery", 3);
 
-    const char *excluded_model = get_property(config, "battery", "excluded_model", "");
+    const char *excluded_model = get_property(config, "excluded_model", "");
 
     DIR *dir = opendir(Battery::power_supply_path);
     if (!dir)

@@ -15,8 +15,8 @@ static const char *short_text_format;
 
 void init_time(const void *config)
 {
-    full_text_format = get_format(config, "time", "%Y-%m-%d %T");
-    short_text_format = get_short_format(config, "time", NULL);
+    full_text_format = get_format(config, "%Y-%m-%d %T");
+    short_text_format = get_short_format(config, NULL);
 }
 
 static void print_fmt(const struct tm *local_time, const char *name, const char *format)

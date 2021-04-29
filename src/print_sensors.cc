@@ -23,10 +23,9 @@ void init_sensors(const void *config)
 {
     full_text_format = get_format(
         config,
-        "sensors",
         "{prefix} {reading_number}th sensor: {reading_temp}°C"
     );
-    short_text_format = get_short_format(config, "sensors", NULL);
+    short_text_format = get_short_format(config, NULL);
     interval = get_update_interval(config, "sensors", 5);
 
     sensors.init();

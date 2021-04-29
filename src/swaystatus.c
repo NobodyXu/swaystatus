@@ -94,7 +94,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     parse_inits_config(config, &inits);
 
     for (size_t i = 0; inits.inits[i]; ++i)
-        inits.inits[i](config);
+        inits.inits[i](get_module_config(config, inits.order[i]));
 
     *is_click_event_enabled = init_click_event_handlers(config, inits.order, *is_reload);
 

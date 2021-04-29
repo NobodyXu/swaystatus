@@ -87,8 +87,8 @@ static void addBacklight(int path_fd, const char *filename)
 
 void init_brightness_detection(const void *config)
 {
-    full_text_format = get_format(config, "brightness", "{backlight_device}: {brightness}");
-    short_text_format = get_short_format(config, "brightness", NULL);
+    full_text_format = get_format(config, "{backlight_device}: {brightness}");
+    short_text_format = get_short_format(config, NULL);
 
     interval = get_update_interval(config, "brightness", 1);
 

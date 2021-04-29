@@ -75,7 +75,6 @@ void init_network_interfaces_scanning(const void *config)
 {
     full_text_format = get_format(
         config,
-        "network_interface",
         "{is_connected:{per_interface_fmt_str:"
             "{name} {is_dhcp:DHCP }in: {rx_bytes} out: {tx_bytes} "
             "{ipv4_addrs:1} {ipv6_addrs:1}"
@@ -83,7 +82,6 @@ void init_network_interfaces_scanning(const void *config)
     );
     short_text_format = get_short_format(
         config,
-        "network_interface",
         "{is_connected:{per_interface_fmt_str:"
             "{name}"
         "}}"

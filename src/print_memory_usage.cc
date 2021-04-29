@@ -43,8 +43,8 @@ static size_t get_memusage(std::string_view element);
 
 void init_memory_usage_collection(const void *config)
 {
-    full_text_format = get_format(config, "memory_usage", "Mem Free={MemFree}/Total={MemTotal}");
-    short_text_format = get_short_format(config, "memory_usage", NULL);
+    full_text_format = get_format(config, "Mem Free={MemFree}/Total={MemTotal}");
+    short_text_format = get_short_format(config, NULL);
 
     interval = get_update_interval(config, "memory_usage", 10);
 
