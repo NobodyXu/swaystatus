@@ -93,8 +93,8 @@ protected:
         }
     {}
 
-    virtual void update();
-    virtual void do_print(const char *format);
+    virtual void update() = 0;
+    virtual void do_print(const char *format) = 0;
 
 public:
     void update_and_print();
