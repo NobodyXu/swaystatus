@@ -16,6 +16,7 @@
 
 #include "utility.h"
 #include "process_configuration.h"
+#include "handle_click_events.h"
 #include "printer.hpp"
 #include "Conditional.hpp"
 #include "print_brightness.h"
@@ -23,6 +24,8 @@
 using swaystatus::Conditional;
 using swaystatus::print;
 using swaystatus::get_user_specified_property_str;
+
+static const char * const module_name = "brightness";
 
 static const char * const path = "/sys/class/backlight/";
 
@@ -94,6 +97,8 @@ void init_brightness_detection(void *config)
     short_text_format = get_short_format(config, NULL);
 
     interval = get_update_interval(config, "brightness", 1);
+
+    add_click_event_handler(module_name, get_click_event_handler(config));
 
     user_specified_properties_str = get_user_specified_property_str(config);
 
@@ -180,7 +185,7 @@ void print_brightness()
     }
 
     print_literal_str("{\"name\":\"");
-    print_str("brightness");
+    print_str(module_name);
     print_literal_str("\",\"instance\":\"0\",");
 
     print_fmt("full_text", full_text_format);

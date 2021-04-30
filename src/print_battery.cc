@@ -21,6 +21,7 @@
 
 #include "utility.h"
 #include "process_configuration.h"
+#include "handle_click_events.h"
 #include "printer.hpp"
 #include "Battery.hpp"
 #include "print_battery.h"
@@ -28,6 +29,8 @@
 using swaystatus::Battery;
 using swaystatus::print;
 using swaystatus::get_user_specified_property_str;
+
+static const char * const module_name = "battery";
 
 static const char *user_specified_properties_str;
 
@@ -51,6 +54,8 @@ void init_battery_monitor(void *config)
     interval = get_update_interval(config, "battery", 3);
 
     const char *excluded_model = get_property(config, "excluded_model", "");
+
+    add_click_event_handler(module_name, get_click_event_handler(config));
 
     user_specified_properties_str = get_user_specified_property_str(
         config,
@@ -116,7 +121,7 @@ void print_battery()
     }
 
     print_literal_str("{\"name\":\"");
-    print_str("battery");
+    print_str(module_name);
     print_literal_str("\",\"instance\":\"0\",");
 
     print_fmt("full_text", full_text_format);

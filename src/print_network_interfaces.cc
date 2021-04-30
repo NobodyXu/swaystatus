@@ -7,6 +7,7 @@
 #include <exception>
 
 #include "process_configuration.h"
+#include "handle_click_events.h"
 #include "printer.hpp"
 #include "Conditional.hpp"
 #include "networking.hpp"
@@ -17,6 +18,8 @@ using swaystatus::interface_stats;
 using swaystatus::Interfaces;
 using swaystatus::print;
 using swaystatus::get_user_specified_property_str;
+
+static const char * const module_name = "network_interfaces";
 
 static const char *user_specified_properties_str;
 
@@ -91,6 +94,8 @@ void init_network_interfaces_scanning(void *config)
     );
     interval = get_update_interval(config, "network_interface", 60 * 2);
 
+    add_click_event_handler(module_name, get_click_event_handler(config));
+
     user_specified_properties_str = get_user_specified_property_str(config);
 
     getifaddrs_checked();
@@ -122,7 +127,7 @@ void print_network_interfaces()
     }
 
     print_literal_str("{\"name\":\"");
-    print_str("network_interfaces");
+    print_str(module_name);
     print_literal_str("\",\"instance\":\"0\",");
 
     print_fmt("full_text", full_text_format);

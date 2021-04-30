@@ -7,8 +7,11 @@
 #include <unistd.h>
 
 #include "process_configuration.h"
+#include "handle_click_events.h"
 #include "printer.hpp"
 #include "print_time.h"
+
+static const char * const module_name = "time";
 
 static const char *user_specified_properties_str;
 
@@ -19,6 +22,8 @@ void init_time(void *config)
 {
     full_text_format = get_format(config, "%Y-%m-%d %T");
     short_text_format = get_short_format(config, NULL);
+
+    add_click_event_handler(module_name, get_click_event_handler(config));
 
     user_specified_properties_str = get_user_specified_property_str_impl(config, 0);
 }
@@ -61,7 +66,7 @@ void print_time()
         errx(1, "localtime_r failed due to time(NULL) has failed");
 
     print_literal_str("{\"name\":\"");
-    print_str("time");
+    print_str(module_name);
     print_literal_str("\",\"instance\":\"0\",");
 
     print_fmt(&local_time, "full_text", full_text_format);

@@ -3,11 +3,14 @@
 
 #include "alsa.h"
 #include "process_configuration.h"
+#include "handle_click_events.h"
 #include "printer.hpp"
 #include "print_volume.h"
 
 using swaystatus::print;
 using swaystatus::get_user_specified_property_str;
+
+static const char * const module_name = "volume";
 
 static uint32_t cycle_cnt;
 static uint32_t interval;
@@ -29,6 +32,8 @@ void init_volume_monitor(void *config)
         get_property(config, "mix_name", "Master"),
         get_property(config, "card",     "default")
     );
+
+    add_click_event_handler(module_name, get_click_event_handler(config));
 
     user_specified_properties_str = get_user_specified_property_str(config, "mix_name", "card");
 }
@@ -53,7 +58,7 @@ void print_volume()
     }
 
     print_literal_str("{\"name\":\"");
-    print_str("volume");
+    print_str(module_name);
     print_literal_str("\",\"instance\":\"0\",");
 
     print_fmt("full_text", full_text_format);

@@ -25,7 +25,7 @@ void* get_module_config(void *config, const char *name);
 void free_config(void *config);
 
 /**
- * The 4 getters below are used in 'print_*.cc' only
+ * The 5 getters below are used in 'print_*.cc' only
  */
 
 /**
@@ -41,6 +41,8 @@ const char* get_short_format(const void *module_config, const char *default_val)
  * @param module_name used only for printing err msg
  */
 uint32_t get_update_interval(const void *module_config, const char *module_name, uint32_t default_val);
+
+const void* get_click_event_handler(const void *module_config);
 
 /**
  * @param n number of variadic args
@@ -75,14 +77,10 @@ struct Inits {
 };
 /**
  * @param config after this function is invoked, element 'order' is removed.
+ *
+ * This function also calls init_click_events_handling().
  */
 void parse_inits_config(void *config, struct Inits *inits);
-
-/**
- * @param config after this function, elements '*.click_event_handler' is removed.
- * @return whether click events handling is enabled.
- */
-int init_click_event_handlers(void *config, const char *names[9], int force_enabled);
 
 typedef void (*Printer_t)();
 /**
