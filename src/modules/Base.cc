@@ -3,8 +3,9 @@
 #include <cstdarg>
 #include <cstring>
 
-#include "../process_configuration.h"
 #include "../error_handling.hpp"
+#include "../process_configuration.h"
+#include "../handle_click_events.h"
 #include "../formatting/printer.hpp"
 
 #include "Base.hpp"
@@ -21,6 +22,8 @@ Base::Base(void *config, std::string_view module_name_arg,
     short_text_format{get_short_format(config, default_short_format)},
     interval{get_update_interval(config, module_name_arg.data(), default_interval)}
 {
+    add_click_event_handler(module_name.data(), get_click_event_handler(config));
+
     std::va_list ap;
     va_start(ap, n);
     user_specified_properties_str.reset(get_user_specified_property_str_impl2(config, n, ap));
