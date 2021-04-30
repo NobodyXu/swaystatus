@@ -123,19 +123,19 @@ const char* get_property(const void *module_config, const char *property, const 
 {
     const char *result = get_property_impl(module_config, property);
     if (result == NULL)
-        return default_val;
+        return strdup_checked(default_val);
     else
         return strdup_checked(result);
 }
 const char* get_format(const void *module_config, const char *default_val)
 {
     const char *fmt = get_property_impl(module_config, "format");
-    return fmt ? escape_quotation_marks(fmt) : default_val;
+    return fmt ? escape_quotation_marks(fmt) : strdup_checked(default_val);
 }
 const char* get_short_format(const void *module_config, const char *default_val)
 {
     const char *fmt = get_property_impl(module_config, "short_format");
-    return fmt ? escape_quotation_marks(fmt) : default_val;
+    return fmt ? escape_quotation_marks(fmt) : strdup_checked(default_val);
 }
 uint32_t get_update_interval(const void *module_config, const char *name, uint32_t default_val)
 {
