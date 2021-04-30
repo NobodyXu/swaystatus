@@ -22,7 +22,7 @@ void setup_pythonpath(const char *path);
 # include <type_traits>
 # include <initializer_list>
 
-# include "utility.h"
+# include "../utility.h"
 
 namespace swaystatus::python {
 class Interpreter {

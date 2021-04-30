@@ -35,10 +35,10 @@ endif
 endif
 
 ## Objects to build
-C_SRCS := $(wildcard *.c)
+C_SRCS := $(shell find -maxdepth 2 -name '*.c')
 C_OBJS := $(C_SRCS:.c=.o)
 
-CXX_SRCS := $(wildcard *.cc)
+CXX_SRCS := $(shell find -maxdepth 2 -name '*.cc')
 CXX_OBJS := $(CXX_SRCS:.cc=.o)
 
 OBJS := $(addprefix $(BUILD_DIR)/, $(C_OBJS) $(CXX_OBJS))
@@ -56,6 +56,11 @@ include $(wildcard $(DEPFILES))
 
 ## Build rules
 .SECONDEXPANSION:
+
+DEBUG:
+	@echo "C_SRCS=$(C_SRCS), C_OBJS=$(C_OBJS)"
+	@echo "CXX_SRCS=$(CXX_SRCS), CXX_OBJS=$(CXX_OBJS)"
+	@echo "OBJS=$(OBJS)"
 
 $(BUILD_DIR)/swaystatus: $(OBJS)
 	$(CXX) $(LDFLAGS) $(LIBS) $^ -o $@
@@ -83,14 +88,17 @@ all_builds: release_build release_no_py_build
 
 debug_build:
 	mkdir -p $@
+	mkdir -p $@/Callback
 	$(MAKE) BUILD_DIR=$@ DEBUG=true  PYTHON=true
 
 release_build:
 	mkdir -p $@
+	mkdir -p $@/Callback
 	$(MAKE) BUILD_DIR=$@ DEBUG=false PYTHON=true
 
 release_no_py_build:
 	mkdir -p $@
+	mkdir -p $@/Callback
 	$(MAKE) BUILD_DIR=$@ DEBUG=false PYTHON=false
 
 install: $(BUILD_DIR)/swaystatus
@@ -102,4 +110,4 @@ install_release_build: release_build
 clean:
 	rm -rf $(OBJS) $(BUILD_DIR)/swaystatus *_build/
 
-.PHONY: all_builds debug_build release_build release_no_py_build install clean
+.PHONY: DEBUG all_builds debug_build release_build release_no_py_build install install_release_build clean

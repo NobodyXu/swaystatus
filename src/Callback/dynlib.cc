@@ -2,7 +2,7 @@
 
 #include <err.h>
 
-#include "utility.h"
+#include "../utility.h"
 #include "dynlib.hpp"
 
 #include <array>

@@ -10,7 +10,7 @@
 # define PY_SSIZE_T_CLEAN
 # include <Python.h>
 
-# include "utility.h"
+# include "../utility.h"
 # include "python3.hpp"
 
 /*
