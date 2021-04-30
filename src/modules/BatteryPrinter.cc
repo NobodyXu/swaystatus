@@ -3,10 +3,6 @@
 # define _GNU_SOURCE     /* For strchrnul */
 #endif
 
-#include <dirent.h>
-
-#include <err.h>
-
 #include <vector>
 
 #include "../utility.h"
