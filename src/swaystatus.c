@@ -105,26 +105,6 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     return interval;
 }
 
-static void print_block(const char *name, void (*print)())
-{
-    print_literal_str("{\"name\":\"");
-    print_str(name);
-    print_literal_str("\",\"instance\":\"0\",");
-
-    /**
-     * print() would print:
-     *
-     *     "full_text": "...","short_text": "...",
-     */
-    print();
-
-    print_literal_str("}");
-}
-static void print_delimiter()
-{
-    print_literal_str(",");
-}
-
 static void print_blocks(int fd, enum Event events, void *data)
 {
     static const uintmax_t trim_interval = 3660;
@@ -139,11 +119,7 @@ static void print_blocks(int fd, enum Event events, void *data)
     print_literal_str("[");
 
     for (size_t i = 0; blocks->full_text_printers[i]; ++i) {
-        print_block(
-            blocks->names[i],
-            blocks->full_text_printers[i]
-        );
-        print_delimiter();
+        blocks->full_text_printers[i]();
     }
 
     /* Print dummy */

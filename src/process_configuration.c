@@ -294,5 +294,4 @@ void get_block_printers(const char * const order[9], struct Blocks *blocks)
         ++out;
     }
     blocks->full_text_printers[out] = NULL;
-    memcpy(blocks->names, order, sizeof(blocks->names));
 }

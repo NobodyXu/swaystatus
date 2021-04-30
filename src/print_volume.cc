@@ -52,10 +52,16 @@ void print_volume()
         update_volume();
     }
 
+    print_literal_str("{\"name\":\"");
+    print_str("volume");
+    print_literal_str("\",\"instance\":\"0\",");
+
     print_fmt("full_text", full_text_format);
     if (short_text_format)
         print_fmt("short_text", short_text_format);
 
     print_str(user_specified_properties_str);
+
+    print_literal_str("},");
 }
 } /* extern "C" */

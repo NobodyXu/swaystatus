@@ -91,10 +91,6 @@ typedef void (*Printer_t)();
  */
 struct Blocks {
     Printer_t full_text_printers[9];
-    /**
-     * Elements in here points to .rodata section.
-     */
-    const char *names[9];
 };
 /**
  */

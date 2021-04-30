@@ -60,9 +60,15 @@ void print_time()
     if (success == NULL)
         errx(1, "localtime_r failed due to time(NULL) has failed");
 
+    print_literal_str("{\"name\":\"");
+    print_str("time");
+    print_literal_str("\",\"instance\":\"0\",");
+
     print_fmt(&local_time, "full_text", full_text_format);
     if (short_text_format)
         print_fmt(&local_time, "short_text", short_text_format);
 
     print_str(user_specified_properties_str);
+
+    print_literal_str("},");
 }
