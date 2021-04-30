@@ -122,20 +122,34 @@ const char* get_property_impl(const void *module_config, const char *property)
 const char* get_property(const void *module_config, const char *property, const char *default_val)
 {
     const char *result = get_property_impl(module_config, property);
-    if (result == NULL)
-        return strdup_checked(default_val);
-    else
+    if (result == NULL) {
+        if (default_val)
+            return strdup_checked(default_val);
+        return NULL;
+    } else
         return strdup_checked(result);
 }
 const char* get_format(const void *module_config, const char *default_val)
 {
     const char *fmt = get_property_impl(module_config, "format");
-    return fmt ? escape_quotation_marks(fmt) : strdup_checked(default_val);
+    if (fmt) {
+        return escape_quotation_marks(fmt);
+    } else {
+        if (default_val)
+            return strdup_checked(default_val);
+        return NULL;
+    }
 }
 const char* get_short_format(const void *module_config, const char *default_val)
 {
     const char *fmt = get_property_impl(module_config, "short_format");
-    return fmt ? escape_quotation_marks(fmt) : strdup_checked(default_val);
+    if (fmt) {
+        return escape_quotation_marks(fmt);
+    } else {
+        if (default_val)
+            return strdup_checked(default_val);
+        return NULL;
+    }
 }
 uint32_t get_update_interval(const void *module_config, const char *name, uint32_t default_val)
 {
