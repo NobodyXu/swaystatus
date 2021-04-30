@@ -10,13 +10,17 @@
 #include "printer.hpp"
 #include "print_time.h"
 
+static const char *user_specified_properties_str;
+
 static const char *full_text_format;
 static const char *short_text_format;
 
-void init_time(const void *config)
+void init_time(void *config)
 {
-    full_text_format = get_format(config, "time", "%Y-%m-%d %T");
-    short_text_format = get_short_format(config, "time", NULL);
+    full_text_format = get_format(config, "%Y-%m-%d %T");
+    short_text_format = get_short_format(config, NULL);
+
+    user_specified_properties_str = get_user_specified_property_str_impl(config, 0);
 }
 
 static void print_fmt(const struct tm *local_time, const char *name, const char *format)
@@ -56,7 +60,15 @@ void print_time()
     if (success == NULL)
         errx(1, "localtime_r failed due to time(NULL) has failed");
 
+    print_literal_str("{\"name\":\"");
+    print_str("time");
+    print_literal_str("\",\"instance\":\"0\",");
+
     print_fmt(&local_time, "full_text", full_text_format);
     if (short_text_format)
         print_fmt(&local_time, "short_text", short_text_format);
+
+    print_str(user_specified_properties_str);
+
+    print_literal_str("},");
 }

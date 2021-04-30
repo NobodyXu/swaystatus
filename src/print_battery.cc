@@ -27,6 +27,9 @@
 
 using swaystatus::Battery;
 using swaystatus::print;
+using swaystatus::get_user_specified_property_str;
+
+static const char *user_specified_properties_str;
 
 static const char *full_text_format;
 static const char *short_text_format;
@@ -37,18 +40,22 @@ static uint32_t interval;
 static std::vector<Battery> batteries;
 
 extern "C" {
-void init_battery_monitor(const void *config)
+void init_battery_monitor(void *config)
 {
     full_text_format = get_format(
         config,
-        "battery",
         "{has_battery:{per_battery_fmt_str:{status} {capacity}%}}"
     );
-    short_text_format = get_short_format(config, "battery", NULL);
+    short_text_format = get_short_format(config, NULL);
 
     interval = get_update_interval(config, "battery", 3);
 
-    const char *excluded_model = get_property(config, "battery", "excluded_model", "");
+    const char *excluded_model = get_property(config, "excluded_model", "");
+
+    user_specified_properties_str = get_user_specified_property_str(
+        config,
+        "excluded_model"
+    );
 
     DIR *dir = opendir(Battery::power_supply_path);
     if (!dir)
@@ -108,8 +115,16 @@ void print_battery()
             bat.read_battery_uevent();
     }
 
+    print_literal_str("{\"name\":\"");
+    print_str("battery");
+    print_literal_str("\",\"instance\":\"0\",");
+
     print_fmt("full_text", full_text_format);
     if (short_text_format)
         print_fmt("short_text", short_text_format);
+
+    print_str(user_specified_properties_str);
+
+    print_literal_str("},");
 }
 } /* extern "C" */

@@ -7,7 +7,7 @@
 extern "C" {
 # endif
 
-void init_load(const void *config);
+void init_load(void *config);
 void print_load();
 
 # ifdef __cplusplus

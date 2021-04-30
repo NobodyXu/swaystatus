@@ -16,6 +16,9 @@ using swaystatus::Conditional;
 using swaystatus::interface_stats;
 using swaystatus::Interfaces;
 using swaystatus::print;
+using swaystatus::get_user_specified_property_str;
+
+static const char *user_specified_properties_str;
 
 static const char *full_text_format;
 static const char *short_text_format;
@@ -71,11 +74,10 @@ static void getifaddrs_checked()
 
     freeifaddrs(ifaddr);
 }
-void init_network_interfaces_scanning(const void *config)
+void init_network_interfaces_scanning(void *config)
 {
     full_text_format = get_format(
         config,
-        "network_interface",
         "{is_connected:{per_interface_fmt_str:"
             "{name} {is_dhcp:DHCP }in: {rx_bytes} out: {tx_bytes} "
             "{ipv4_addrs:1} {ipv6_addrs:1}"
@@ -83,12 +85,13 @@ void init_network_interfaces_scanning(const void *config)
     );
     short_text_format = get_short_format(
         config,
-        "network_interface",
         "{is_connected:{per_interface_fmt_str:"
             "{name}"
         "}}"
     );
     interval = get_update_interval(config, "network_interface", 60 * 2);
+
+    user_specified_properties_str = get_user_specified_property_str(config);
 
     getifaddrs_checked();
 }
@@ -118,8 +121,16 @@ void print_network_interfaces()
         getifaddrs_checked();
     }
 
+    print_literal_str("{\"name\":\"");
+    print_str("network_interfaces");
+    print_literal_str("\",\"instance\":\"0\",");
+
     print_fmt("full_text", full_text_format);
     if (short_text_format)
         print_fmt("short_text", short_text_format);
+
+    print_str(user_specified_properties_str);
+
+    print_literal_str("},");
 }
 } /* extern "C" */

@@ -15,6 +15,7 @@
 #include "print_load.h"
 
 using swaystatus::print;
+using swaystatus::get_user_specified_property_str;
 
 static const char * const loadavg_path = "/proc/loadavg";
 
@@ -25,6 +26,8 @@ static int load_fd;
 static char buffer[100];
 static const char* statistics[6];
 
+static const char *user_specified_properties_str;
+
 static const char *full_text_format;
 static const char *short_text_format;
 
@@ -33,15 +36,16 @@ static uint32_t interval;
 
 extern "C" {
 static void update_load();
-void init_load(const void *config)
+void init_load(void *config)
 {
     full_text_format = get_format(
         config,
-        "load",
         "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}"
     );
-    short_text_format = get_short_format(config, "load", NULL);
+    short_text_format = get_short_format(config, NULL);
     interval = get_update_interval(config, "load", 60);
+
+    user_specified_properties_str = get_user_specified_property_str(config);
 
     load_fd = openat_checked("", AT_FDCWD, loadavg_path, O_RDONLY);
     update_load();
@@ -116,8 +120,16 @@ void print_load()
         update_load();
     }
 
+    print_literal_str("{\"name\":\"");
+    print_str("load");
+    print_literal_str("\",\"instance\":\"0\",");
+
     print_fmt("full_text", full_text_format);
     if (short_text_format)
         print_fmt("short_text", short_text_format);
+
+    print_str(user_specified_properties_str);
+
+    print_literal_str("},");
 }
 } /* extern "C" */

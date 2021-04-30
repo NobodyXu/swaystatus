@@ -98,6 +98,8 @@ The following values are valid name:
  - time
  - sensors
 
+**Any unrecognized parameters will be ignored.**
+
 #### "format"
 
 It is used internally to generate the "full_text" that will be passed to swaybar.

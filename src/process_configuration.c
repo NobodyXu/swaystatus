@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include <assert.h>
 #include <err.h>
@@ -70,34 +71,6 @@ _Static_assert(
     ""
 );
 
-struct Property {
-    const char *name;
-    json_type type;
-};
-static const struct Property valid_properties[] = {
-    {"format", json_type_string},
-    {"short_format", json_type_string},
-
-    {"update_interval", json_type_int},
-
-    {"click_event_handler", json_type_object},
-
-    /* swaybar-protocol properties */
-    {"color", json_type_string},
-    {"background", json_type_string},
-    {"border", json_type_string},
-    {"border_top", json_type_int},
-    {"border_bottom", json_type_int},
-    {"border_left", json_type_int},
-    {"border_right", json_type_int},
-    {"min_width", json_type_int},
-    {"align", json_type_string},
-    {"separator", json_type_boolean},
-    {"separator_block_width", json_type_int},
-    {"markup", json_type_string},
-};
-static const size_t valid_property_sz = sizeof(valid_properties) / sizeof(struct Property);
-
 static size_t find_valid_name(const char *name)
 {
     size_t i = 0;
@@ -107,95 +80,11 @@ static size_t find_valid_name(const char *name)
     }
     return i;
 }
-static bool is_valid_name(const char *name)
-{
-    if (find_valid_name(name) != valid_name_sz)
-        return true;
-    else
-        return false;
-}
-static void verify_order(const char *filename, struct json_object *entry)
-{
-    if (json_object_get_type(entry) != json_type_array)
-        errx(1, "Invalid type of value for %s.%s in %s", "", "order", filename);
-
-    const size_t n = json_object_array_length(entry);
-    if (n > valid_name_sz)
-        errx(1, "Invalid order in %s: Cannot have more elements than %zu", filename, valid_name_sz);
-
-    for (size_t i = 0; i != n; i++) {
-        struct json_object *object = json_object_array_get_idx(entry, i);
-        if (json_object_get_type(object) != json_type_string)
-            errx(1, "Invalid type of value for %s[%zu] in %s", "order", i, filename);
-
-        const char *name = json_object_get_string(object);
-        if (!is_valid_name(name))
-            errx(1, "Invalid name %s found in %s[%zu], %s", name, "order", i, filename);
-    }
-}
-static void verify_entry(const char *filename, const char *name, struct json_object *entry)
-{
-    json_object_object_foreach(entry, property, val) {
-        if (strcmp(name, "volume") == 0) {
-            if (strcmp(property, "mix_name") == 0 || strcmp(property, "card") == 0) {
-                if (json_object_get_type(val) != json_type_string)
-                    errx(1, "Invalid type of value for %s.%s in %s", name, property, filename);
-                continue;
-            }
-        }
-        if (strcmp(name, "battery") == 0) {
-            if (strcmp(property, "excluded_model") == 0) {
-                if (json_object_get_type(val) != json_type_string)
-                    errx(1, "Invalid type of value for %s.%s in %s", name, property, filename);
-                continue;
-            }
-        }
-
-        /* Ignore JSON comments */
-        if (property[0] == '_') {
-            json_object_object_del(entry, property);
-            continue;
-        }
-
-        size_t i = 0;
-        for (; i != valid_property_sz; ++i) {
-            if (strcmp(property, valid_properties[i].name) == 0) {
-                if (json_object_get_type(val) != valid_properties[i].type)
-                    errx(1, "Invalid type of value for %s.%s in %s", name, property, filename);
-                break;
-            }
-        }
-        if (i == valid_property_sz)
-            errx(1, "Invalid property %s of %s found in %s", property, name, filename);
-    }
-}
-static void verify_config(const char *filename, struct json_object *config)
-{
-    json_object_object_foreach(config, name, properties) {
-        /* Ignore JSON comments */
-        if (name[0] == '_')
-            continue;
-        if (strcmp(name, "order") == 0) {
-            verify_order(filename, properties);
-            continue;
-        }
-
-        if (!is_valid_name(name))
-            errx(1, "Invalid name %s found in %s", name, filename);
-
-        json_type properties_type = json_object_get_type(properties);
-        if (properties_type != json_type_object && properties_type != json_type_boolean)
-            errx(1, "Invalid value for name %s found in %s", name, filename);
-        if (properties_type == json_type_object)
-            verify_entry(filename, name, properties);
-    }
-}
 void* load_config(const char *filename)
 {
     struct json_object *config = json_object_from_file(filename);
     if (!config)
         errx(1, "%s on %s failed: %s", "json_object_from_file", filename, json_util_get_last_err());
-    verify_config(filename, config);
 
     return config;
 }
@@ -204,57 +93,57 @@ void free_config(void *config)
     json_object_put(config);
 }
 
-const char* get_property_impl(const void *config, const char *name, const char *property)
+void* get_module_config(void *config, const char *name)
 {
     if (!config)
         return NULL;
 
-    struct json_object *properties;
-    if (!json_object_object_get_ex(config, name, &properties))
+    struct json_object *module;
+    if (!json_object_object_get_ex(config, name, &module))
         return NULL;
 
-    if (json_object_get_type(properties) == json_type_boolean)
+    if (json_object_get_type(module) == json_type_boolean)
         return NULL;
     
+    return module;
+}
+
+const char* get_property_impl(const void *module_config, const char *property)
+{
+    if (!module_config)
+        return NULL;
+
     struct json_object *value;
-    if (!json_object_object_get_ex(properties, property, &value))
+    if (!json_object_object_get_ex(module_config, property, &value))
         return NULL;
 
     return json_object_get_string(value);
 }
-const char* get_property(const void *config, const char *name, const char *property,
-                         const char *default_val)
+const char* get_property(const void *module_config, const char *property, const char *default_val)
 {
-    const char *result = get_property_impl(config, name, property);
+    const char *result = get_property_impl(module_config, property);
     if (result == NULL)
         return default_val;
     else
         return strdup_checked(result);
 }
-const char* get_format(const void *config, const char *name, const char *default_val)
+const char* get_format(const void *module_config, const char *default_val)
 {
-    const char *fmt = get_property_impl(config, name, "format");
+    const char *fmt = get_property_impl(module_config, "format");
     return fmt ? escape_quotation_marks(fmt) : default_val;
 }
-const char* get_short_format(const void *config, const char *name, const char *default_val)
+const char* get_short_format(const void *module_config, const char *default_val)
 {
-    const char *fmt = get_property_impl(config, name, "short_format");
+    const char *fmt = get_property_impl(module_config, "short_format");
     return fmt ? escape_quotation_marks(fmt) : default_val;
 }
-uint32_t get_update_interval(const void *config, const char *name, uint32_t default_val)
+uint32_t get_update_interval(const void *module_config, const char *name, uint32_t default_val)
 {
-    if (!config)
+    if (!module_config)
         return default_val;
 
-    struct json_object *properties;
-    if (!json_object_object_get_ex(config, name, &properties))
-        return default_val;
-
-    if (json_object_get_type(properties) == json_type_boolean)
-        return default_val;
-    
     struct json_object *value;
-    if (!json_object_object_get_ex(properties, "update_interval", &value))
+    if (!json_object_object_get_ex(module_config, "update_interval", &value))
         return default_val;
 
     errno = 0;
@@ -267,6 +156,57 @@ uint32_t get_update_interval(const void *config, const char *name, uint32_t defa
         errx(1, "%s on %s.%s%s", "Negative number is not accepted", name, "update_interval", "");
 
     return interval;
+}
+
+static int has_seperator(const struct json_object *properties)
+{
+    struct json_object *separator;
+    return json_object_object_get_ex(properties, "separator", &separator);
+}
+const char* get_user_specified_property_str_impl(void *module_config, unsigned n, ...)
+{
+#define DEFAULT_PROPERTY "\"separator\":true"
+    if (!module_config)
+        return DEFAULT_PROPERTY;
+
+    va_list ap;
+    va_start(ap, n);
+
+    json_object_object_del(module_config, "format");
+    json_object_object_del(module_config, "update_interval");
+    for (unsigned i = 0; i != n; ++i) {
+        json_object_object_del(module_config, va_arg(ap, const char*));
+    }
+
+    va_end(ap);
+
+    if (json_object_object_length(module_config) == 0)
+        return DEFAULT_PROPERTY;
+
+    size_t json_str_len;
+    const char *json_str = json_object_to_json_string_length(
+        module_config,
+        json2str_flag,
+        &json_str_len
+    );
+
+    size_t size = json_str_len;
+
+    const int has_sep = has_seperator(module_config);
+    if (!has_sep)
+        size += /* For the comma */ 1 + sizeof(DEFAULT_PROPERTY) - 1;
+
+    size = size - /* Remove '{' and '}' */ 2 + 1;
+    char *ret = malloc_checked(size);
+    memcpy(ret, json_str + 1, json_str_len - 2);
+    if (!has_sep) {
+        char *dest = ret + json_str_len - 2;
+        *dest++ = ',';
+        memcpy(dest, DEFAULT_PROPERTY, sizeof(DEFAULT_PROPERTY) - 1);
+    }
+    ret[size - 1] = '\0';
+
+    return ret;
 }
 
 static bool is_block_printer_enabled(const void *config, const char *name)
@@ -345,73 +285,13 @@ int init_click_event_handlers(void *config, const char *names[9], int force_enab
     return 1;
 }
 
-static int has_seperator(const struct json_object *properties)
-{
-    struct json_object *separator;
-    return json_object_object_get_ex(properties, "separator", &separator);
-}
-static const char* get_elements_str(const void *config, const char *name)
-{
-#define DEFAULT_PROPERTY "\"separator\":true"
-
-    struct json_object *properties;
-    if (!json_object_object_get_ex(config, name, &properties))
-        return DEFAULT_PROPERTY;
-
-    if (json_object_get_type(properties) == json_type_boolean)
-        return DEFAULT_PROPERTY;
-
-    json_object_object_del(properties, "format");
-    json_object_object_del(properties, "update_interval");
-    if (strcmp(name, "volume") == 0) {
-        json_object_object_del(properties, "mix_name");
-        json_object_object_del(properties, "card");
-    }
-    if (strcmp(name, "battery") == 0)
-        json_object_object_del(properties, "excluded_model");
-
-    if (json_object_object_length(properties) == 0)
-        return DEFAULT_PROPERTY;
-
-    size_t json_str_len;
-    const char *json_str = json_object_to_json_string_length(
-        properties,
-        json2str_flag,
-        &json_str_len
-    );
-
-    size_t size = json_str_len;
-
-    const int has_sep = has_seperator(properties);
-    if (!has_sep)
-        size += /* For the comma */ 1 + sizeof(DEFAULT_PROPERTY) - 1;
-
-    size = size - /* Remove '{' and '}' */ 2 + 1;
-    char *ret = malloc_checked(size);
-    memcpy(ret, json_str + 1, json_str_len - 2);
-    if (!has_sep) {
-        char *dest = ret + json_str_len - 2;
-        *dest++ = ',';
-        memcpy(dest, DEFAULT_PROPERTY, sizeof(DEFAULT_PROPERTY) - 1);
-    }
-    ret[size - 1] = '\0';
-
-    return ret;
-}
-
-void parse_block_printers_config(
-    void *config,
-    const char * const order[9],
-    struct Blocks *blocks
-)
+void get_block_printers(const char * const order[9], struct Blocks *blocks)
 {
     size_t out = 0;
     for (size_t i = 0; order[i]; ++i) {
         size_t name_index = find_valid_name(order[i]);
         blocks->full_text_printers[out] = default_full_text_printers[name_index];
-        blocks->JSON_elements_strs[out++] = get_elements_str(config, order[i]);
+        ++out;
     }
     blocks->full_text_printers[out] = NULL;
-    blocks->JSON_elements_strs[out] = NULL;
-    memcpy(blocks->names, order, sizeof(blocks->names));
 }
