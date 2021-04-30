@@ -6,6 +6,7 @@
 
 #include <exception>
 
+#include "../error_handling.hpp"
 #include "../process_configuration.h"
 #include "../handle_click_events.h"
 #include "../formatting/printer.hpp"
@@ -105,17 +106,17 @@ static void print_fmt(const char *name, const char *format)
 {
     print("\"{}\":\"", name);
 
-    try {
+    TRY {
         print(
             format,
             fmt::arg("is_not_connected",      Conditional{interfaces.is_empty()}),
             fmt::arg("is_connected",          Conditional{!interfaces.is_empty()}),
             fmt::arg("per_interface_fmt_str", interfaces)
         );
-    } catch (const std::exception &e) {
+    } CATCH (const std::exception &e) {
         errx(1, "Failed to print %s format in print_%s.cc: %s",
                 name, "network_interfaces", e.what());
-    }
+    };
 
     print_literal_str("\",");
 }
