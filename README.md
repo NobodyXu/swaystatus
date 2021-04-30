@@ -31,6 +31,7 @@ You can customize ou build via environment variable:
  - `TARGET_DIR`: where the executable will be installed when `make install` is executed. Default is `/usr/local/bin`
  - `PYTHON`: whether to include embeded python interpreter support in `swaystatus`, can be `true` or `false`. Default is `true`.
  - `DEBUG`: whether to have a debug build or release build. `true` for debug build and `false`for release build. Default is `false`.
+ - `EXCEPTION`: whether to enable C++ exception. `false` to disable C++ exception.
 
 To install, run `sudo make install`, which by default will install a single binary `swaystatus` to `/usr/local/bin`.
 
