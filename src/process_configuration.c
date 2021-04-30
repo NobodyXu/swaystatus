@@ -71,34 +71,6 @@ _Static_assert(
     ""
 );
 
-struct Property {
-    const char *name;
-    json_type type;
-};
-static const struct Property valid_properties[] = {
-    {"format", json_type_string},
-    {"short_format", json_type_string},
-
-    {"update_interval", json_type_int},
-
-    {"click_event_handler", json_type_object},
-
-    /* swaybar-protocol properties */
-    {"color", json_type_string},
-    {"background", json_type_string},
-    {"border", json_type_string},
-    {"border_top", json_type_int},
-    {"border_bottom", json_type_int},
-    {"border_left", json_type_int},
-    {"border_right", json_type_int},
-    {"min_width", json_type_int},
-    {"align", json_type_string},
-    {"separator", json_type_boolean},
-    {"separator_block_width", json_type_int},
-    {"markup", json_type_string},
-};
-static const size_t valid_property_sz = sizeof(valid_properties) / sizeof(struct Property);
-
 static size_t find_valid_name(const char *name)
 {
     size_t i = 0;
@@ -108,95 +80,11 @@ static size_t find_valid_name(const char *name)
     }
     return i;
 }
-static bool is_valid_name(const char *name)
-{
-    if (find_valid_name(name) != valid_name_sz)
-        return true;
-    else
-        return false;
-}
-static void verify_order(const char *filename, struct json_object *entry)
-{
-    if (json_object_get_type(entry) != json_type_array)
-        errx(1, "Invalid type of value for %s.%s in %s", "", "order", filename);
-
-    const size_t n = json_object_array_length(entry);
-    if (n > valid_name_sz)
-        errx(1, "Invalid order in %s: Cannot have more elements than %zu", filename, valid_name_sz);
-
-    for (size_t i = 0; i != n; i++) {
-        struct json_object *object = json_object_array_get_idx(entry, i);
-        if (json_object_get_type(object) != json_type_string)
-            errx(1, "Invalid type of value for %s[%zu] in %s", "order", i, filename);
-
-        const char *name = json_object_get_string(object);
-        if (!is_valid_name(name))
-            errx(1, "Invalid name %s found in %s[%zu], %s", name, "order", i, filename);
-    }
-}
-static void verify_entry(const char *filename, const char *name, struct json_object *entry)
-{
-    json_object_object_foreach(entry, property, val) {
-        if (strcmp(name, "volume") == 0) {
-            if (strcmp(property, "mix_name") == 0 || strcmp(property, "card") == 0) {
-                if (json_object_get_type(val) != json_type_string)
-                    errx(1, "Invalid type of value for %s.%s in %s", name, property, filename);
-                continue;
-            }
-        }
-        if (strcmp(name, "battery") == 0) {
-            if (strcmp(property, "excluded_model") == 0) {
-                if (json_object_get_type(val) != json_type_string)
-                    errx(1, "Invalid type of value for %s.%s in %s", name, property, filename);
-                continue;
-            }
-        }
-
-        /* Ignore JSON comments */
-        if (property[0] == '_') {
-            json_object_object_del(entry, property);
-            continue;
-        }
-
-        size_t i = 0;
-        for (; i != valid_property_sz; ++i) {
-            if (strcmp(property, valid_properties[i].name) == 0) {
-                if (json_object_get_type(val) != valid_properties[i].type)
-                    errx(1, "Invalid type of value for %s.%s in %s", name, property, filename);
-                break;
-            }
-        }
-        if (i == valid_property_sz)
-            errx(1, "Invalid property %s of %s found in %s", property, name, filename);
-    }
-}
-static void verify_config(const char *filename, struct json_object *config)
-{
-    json_object_object_foreach(config, name, properties) {
-        /* Ignore JSON comments */
-        if (name[0] == '_')
-            continue;
-        if (strcmp(name, "order") == 0) {
-            verify_order(filename, properties);
-            continue;
-        }
-
-        if (!is_valid_name(name))
-            errx(1, "Invalid name %s found in %s", name, filename);
-
-        json_type properties_type = json_object_get_type(properties);
-        if (properties_type != json_type_object && properties_type != json_type_boolean)
-            errx(1, "Invalid value for name %s found in %s", name, filename);
-        if (properties_type == json_type_object)
-            verify_entry(filename, name, properties);
-    }
-}
 void* load_config(const char *filename)
 {
     struct json_object *config = json_object_from_file(filename);
     if (!config)
         errx(1, "%s on %s failed: %s", "json_object_from_file", filename, json_util_get_last_err());
-    verify_config(filename, config);
 
     return config;
 }
