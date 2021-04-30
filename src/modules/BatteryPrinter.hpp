@@ -1,5 +1,5 @@
-#ifndef  __swaystatus_print_battery_H__
-# define __swaystatus_print_battery_H__
+#ifndef  __swaystatus_BatteryPrinter_H__
+# define __swaystatus_BatteryPrinter_H__
 
 # include "Base.hpp"
 
