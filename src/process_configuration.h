@@ -25,7 +25,7 @@ void* get_module_config(void *config, const char *name);
 void free_config(void *config);
 
 /**
- * The 3 getters below are used in 'print_*.cc' only
+ * The 4 getters below are used in 'print_*.cc' only
  */
 
 /**
@@ -43,12 +43,25 @@ const char* get_short_format(const void *module_config, const char *default_val)
 uint32_t get_update_interval(const void *module_config, const char *module_name, uint32_t default_val);
 
 /**
- * The 2 getters below are only used in swaystatus.c
+ * @param n number of variadic args
+ * @param args should be properties to be removed before converting this module_config 
+ *             the a string `"property0": val, ...`, suitable for printing a json directly
+ *             Eg: "\"border_top\":2,\"borer_left\":3"
+ *
+ * This function will convert config to struct JSON_elements_strs and apply default value
+ * to certain properties:
+ *  - separator
+ * if not specified by user.
+ */
+const char* get_user_specified_property_str_impl(void *module_config, unsigned n, /* args */ ...);
+
+/**
+ * The 3 functions below are only used in swaystatus.c
  */
 
 /**
  */
-typedef void (*Init_t)(const void *config);
+typedef void (*Init_t)(void *config);
 /**
  * All members are variable length arrays
  * The last entry will always be set to NULL.
@@ -79,33 +92,26 @@ typedef void (*Printer_t)();
 struct Blocks {
     Printer_t full_text_printers[9];
     /**
-     * Each element contains JSON elements for brightness;
-     * Eg: "\"border_top\":2,\"borer_left\":3"
-     */
-    const char *JSON_elements_strs[9];
-    /**
      * Elements in here points to .rodata section.
      */
     const char *names[9];
 };
 /**
- * @param config after this function is invoked, all "*.format", "*.mix_name", "*.card" and all
- *               other properties that is not specified by swaybar-protocol will be removed,
- *               but it will still be a valid object after this function call
- *
- * This function will convert config to struct JSON_elements_strs and apply default value
- * to certain properties:
- *  - separator
- * if not specified by user.
  */
-void parse_block_printers_config(
-    void *config,
-    const char * const order[9],
-    struct Blocks *blocks
-);
+void get_block_printers(const char * const order[9], struct Blocks *blocks);
 
 # ifdef __cplusplus
 }
+
+#include <utility>
+
+namespace swaystatus {
+template <class ...Args>
+const char* get_user_specified_property_str(void *module_config, Args &&...args)
+{
+    return ::get_user_specified_property_str_impl(module_config, sizeof...(args), std::forward<Args>(args)...);
+}
+} /* namespace swaystatus */
 # endif
 
 #endif

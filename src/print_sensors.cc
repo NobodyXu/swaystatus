@@ -8,6 +8,9 @@
 
 using swaystatus::Sensors;
 using swaystatus::print;
+using swaystatus::get_user_specified_property_str;
+
+static const char *user_specified_properties_str;
 
 static const char *full_text_format;
 static const char *short_text_format;
@@ -19,7 +22,7 @@ static Sensors sensors;
 static typename Sensors::const_iterator reading_it;
 
 extern "C" {
-void init_sensors(const void *config)
+void init_sensors(void *config)
 {
     full_text_format = get_format(
         config,
@@ -27,6 +30,8 @@ void init_sensors(const void *config)
     );
     short_text_format = get_short_format(config, NULL);
     interval = get_update_interval(config, "sensors", 5);
+
+    user_specified_properties_str = get_user_specified_property_str(config);
 
     sensors.init();
     reading_it = sensors.begin();
@@ -73,5 +78,7 @@ void print_sensors()
     print_fmt("full_text", full_text_format);
     if (short_text_format)
         print_fmt("short_text", short_text_format);
+
+    print_str(user_specified_properties_str);
 }
 } /* extern "C" */

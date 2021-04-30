@@ -7,13 +7,7 @@
 extern "C" {
 # endif
 
-/*
- *
-    const char *format_str, uint32_t interval,
-    const char *mix_name, const char *card
- */
-
-void init_volume_monitor(const void *config);
+void init_volume_monitor(void *config);
 void print_volume();
 
 # ifdef __cplusplus

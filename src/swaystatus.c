@@ -98,14 +98,14 @@ static uintmax_t parse_cmdline_arg_and_initialize(
 
     *is_click_event_enabled = init_click_event_handlers(config, inits.order, *is_reload);
 
-    parse_block_printers_config(config, inits.order, blocks);
+    get_block_printers(inits.order, blocks);
 
     free_config(config);
 
     return interval;
 }
 
-static void print_block(const char *name, void (*print)(), const char *json_element_str)
+static void print_block(const char *name, void (*print)())
 {
     print_literal_str("{\"name\":\"");
     print_str(name);
@@ -118,10 +118,6 @@ static void print_block(const char *name, void (*print)(), const char *json_elem
      */
     print();
 
-    /**
-     * Print the rest elements
-     */
-    print_str(json_element_str);
     print_literal_str("}");
 }
 static void print_delimiter()
@@ -145,8 +141,7 @@ static void print_blocks(int fd, enum Event events, void *data)
     for (size_t i = 0; blocks->full_text_printers[i]; ++i) {
         print_block(
             blocks->names[i],
-            blocks->full_text_printers[i],
-            blocks->JSON_elements_strs[i]
+            blocks->full_text_printers[i]
         );
         print_delimiter();
     }

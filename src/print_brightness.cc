@@ -22,6 +22,7 @@
 
 using swaystatus::Conditional;
 using swaystatus::print;
+using swaystatus::get_user_specified_property_str;
 
 static const char * const path = "/sys/class/backlight/";
 
@@ -43,6 +44,8 @@ struct Backlight {
 
 static struct Backlight *backlights;
 static size_t backlight_sz;
+
+static const char *user_specified_properties_str;
 
 static const char *full_text_format;
 static const char *short_text_format;
@@ -85,12 +88,14 @@ static void addBacklight(int path_fd, const char *filename)
     update_brightness(backlight);
 }
 
-void init_brightness_detection(const void *config)
+void init_brightness_detection(void *config)
 {
     full_text_format = get_format(config, "{backlight_device}: {brightness}");
     short_text_format = get_short_format(config, NULL);
 
     interval = get_update_interval(config, "brightness", 1);
+
+    user_specified_properties_str = get_user_specified_property_str(config);
 
     DIR *dir = opendir(path);
     if (!dir)
@@ -177,5 +182,7 @@ void print_brightness()
     print_fmt("full_text", full_text_format);
     if (short_text_format)
         print_fmt("short_text", short_text_format);
+
+    print_str(user_specified_properties_str);
 }
 } /* extern "C" */

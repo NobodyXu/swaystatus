@@ -5,7 +5,7 @@
 extern "C" {
 # endif
 
-void init_time(const void *config);
+void init_time(void *config);
 void print_time();
 
 # ifdef __cplusplus

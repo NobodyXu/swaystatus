@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include <assert.h>
 #include <err.h>
@@ -269,6 +270,57 @@ uint32_t get_update_interval(const void *module_config, const char *name, uint32
     return interval;
 }
 
+static int has_seperator(const struct json_object *properties)
+{
+    struct json_object *separator;
+    return json_object_object_get_ex(properties, "separator", &separator);
+}
+const char* get_user_specified_property_str_impl(void *module_config, unsigned n, ...)
+{
+#define DEFAULT_PROPERTY "\"separator\":true"
+    if (!module_config)
+        return DEFAULT_PROPERTY;
+
+    va_list ap;
+    va_start(ap, n);
+
+    json_object_object_del(module_config, "format");
+    json_object_object_del(module_config, "update_interval");
+    for (unsigned i = 0; i != n; ++i) {
+        json_object_object_del(module_config, va_arg(ap, const char*));
+    }
+
+    va_end(ap);
+
+    if (json_object_object_length(module_config) == 0)
+        return DEFAULT_PROPERTY;
+
+    size_t json_str_len;
+    const char *json_str = json_object_to_json_string_length(
+        module_config,
+        json2str_flag,
+        &json_str_len
+    );
+
+    size_t size = json_str_len;
+
+    const int has_sep = has_seperator(module_config);
+    if (!has_sep)
+        size += /* For the comma */ 1 + sizeof(DEFAULT_PROPERTY) - 1;
+
+    size = size - /* Remove '{' and '}' */ 2 + 1;
+    char *ret = malloc_checked(size);
+    memcpy(ret, json_str + 1, json_str_len - 2);
+    if (!has_sep) {
+        char *dest = ret + json_str_len - 2;
+        *dest++ = ',';
+        memcpy(dest, DEFAULT_PROPERTY, sizeof(DEFAULT_PROPERTY) - 1);
+    }
+    ret[size - 1] = '\0';
+
+    return ret;
+}
+
 static bool is_block_printer_enabled(const void *config, const char *name)
 {
     if (config == NULL)
@@ -345,73 +397,14 @@ int init_click_event_handlers(void *config, const char *names[9], int force_enab
     return 1;
 }
 
-static int has_seperator(const struct json_object *properties)
-{
-    struct json_object *separator;
-    return json_object_object_get_ex(properties, "separator", &separator);
-}
-static const char* get_elements_str(const void *config, const char *name)
-{
-#define DEFAULT_PROPERTY "\"separator\":true"
-
-    struct json_object *properties;
-    if (!json_object_object_get_ex(config, name, &properties))
-        return DEFAULT_PROPERTY;
-
-    if (json_object_get_type(properties) == json_type_boolean)
-        return DEFAULT_PROPERTY;
-
-    json_object_object_del(properties, "format");
-    json_object_object_del(properties, "update_interval");
-    if (strcmp(name, "volume") == 0) {
-        json_object_object_del(properties, "mix_name");
-        json_object_object_del(properties, "card");
-    }
-    if (strcmp(name, "battery") == 0)
-        json_object_object_del(properties, "excluded_model");
-
-    if (json_object_object_length(properties) == 0)
-        return DEFAULT_PROPERTY;
-
-    size_t json_str_len;
-    const char *json_str = json_object_to_json_string_length(
-        properties,
-        json2str_flag,
-        &json_str_len
-    );
-
-    size_t size = json_str_len;
-
-    const int has_sep = has_seperator(properties);
-    if (!has_sep)
-        size += /* For the comma */ 1 + sizeof(DEFAULT_PROPERTY) - 1;
-
-    size = size - /* Remove '{' and '}' */ 2 + 1;
-    char *ret = malloc_checked(size);
-    memcpy(ret, json_str + 1, json_str_len - 2);
-    if (!has_sep) {
-        char *dest = ret + json_str_len - 2;
-        *dest++ = ',';
-        memcpy(dest, DEFAULT_PROPERTY, sizeof(DEFAULT_PROPERTY) - 1);
-    }
-    ret[size - 1] = '\0';
-
-    return ret;
-}
-
-void parse_block_printers_config(
-    void *config,
-    const char * const order[9],
-    struct Blocks *blocks
-)
+void get_block_printers(const char * const order[9], struct Blocks *blocks)
 {
     size_t out = 0;
     for (size_t i = 0; order[i]; ++i) {
         size_t name_index = find_valid_name(order[i]);
         blocks->full_text_printers[out] = default_full_text_printers[name_index];
-        blocks->JSON_elements_strs[out++] = get_elements_str(config, order[i]);
+        ++out;
     }
     blocks->full_text_printers[out] = NULL;
-    blocks->JSON_elements_strs[out] = NULL;
     memcpy(blocks->names, order, sizeof(blocks->names));
 }

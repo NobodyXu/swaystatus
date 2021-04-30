@@ -7,7 +7,7 @@
 extern "C" {
 # endif
 
-void init_memory_usage_collection(const void *config);
+void init_memory_usage_collection(void *config);
 void print_memory_usage();
 
 # ifdef __cplusplus
