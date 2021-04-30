@@ -19,11 +19,11 @@
 #include <string_view>
 #include <vector>
 
-#include "utility.h"
-#include "process_configuration.h"
-#include "handle_click_events.h"
-#include "formatting/printer.hpp"
-#include "Battery.hpp"
+#include "../utility.h"
+#include "../process_configuration.h"
+#include "../handle_click_events.h"
+#include "../formatting/printer.hpp"
+#include "../Battery.hpp"
 #include "print_battery.h"
 
 using swaystatus::Battery;

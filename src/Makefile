@@ -90,18 +90,21 @@ debug_build:
 	mkdir -p $@
 	mkdir -p $@/Callback
 	mkdir -p $@/formatting
+	mkdir -p $@/modules
 	$(MAKE) BUILD_DIR=$@ DEBUG=true  PYTHON=true
 
 release_build:
 	mkdir -p $@
 	mkdir -p $@/Callback
 	mkdir -p $@/formatting
+	mkdir -p $@/modules
 	$(MAKE) BUILD_DIR=$@ DEBUG=false PYTHON=true
 
 release_no_py_build:
 	mkdir -p $@
 	mkdir -p $@/Callback
 	mkdir -p $@/formatting
+	mkdir -p $@/modules
 	$(MAKE) BUILD_DIR=$@ DEBUG=false PYTHON=false
 
 install: $(BUILD_DIR)/swaystatus
