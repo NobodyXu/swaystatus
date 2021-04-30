@@ -187,9 +187,8 @@ const char* get_user_specified_property_str_impl(void *module_config, unsigned n
 }
 const char* get_user_specified_property_str_impl2(void *module_config, unsigned n, va_list ap)
 {
-#define DEFAULT_PROPERTY "\"separator\":true"
     if (!module_config)
-        return DEFAULT_PROPERTY;
+        return NULL;
 
     va_list args;
     va_copy(args, ap);
@@ -204,7 +203,7 @@ const char* get_user_specified_property_str_impl2(void *module_config, unsigned 
     va_end(args);
 
     if (json_object_object_length(module_config) == 0)
-        return DEFAULT_PROPERTY;
+        return NULL;
 
     size_t json_str_len;
     const char *json_str = json_object_to_json_string_length(
@@ -214,6 +213,8 @@ const char* get_user_specified_property_str_impl2(void *module_config, unsigned 
     );
 
     size_t size = json_str_len;
+
+#define DEFAULT_PROPERTY "\"separator\":true"
 
     const int has_sep = has_seperator(module_config);
     if (!has_sep)

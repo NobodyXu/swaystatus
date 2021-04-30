@@ -50,11 +50,9 @@ const void* get_click_event_handler(const void *module_config);
  * @param args should be properties to be removed before converting this module_config 
  *             the a string `"property0": val, ...`, suitable for printing a json directly
  *             Eg: "\"border_top\":2,\"borer_left\":3"
+ * @return If user hasn't specialized any property, then NULL
  *
- * This function will convert config to struct JSON_elements_strs and apply default value
- * to certain properties:
- *  - separator
- * if not specified by user.
+ * If user hasn't specified "separator", then it would be set to true.
  */
 const char* get_user_specified_property_str_impl(void *module_config, unsigned n, /* args */ ...);
 const char* get_user_specified_property_str_impl2(void *module_config, unsigned n, va_list ap);
