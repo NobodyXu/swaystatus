@@ -56,6 +56,8 @@ protected:
 
 public:
     void update_and_print();
+
+    virtual ~Base();
 };
 } /* namespace swaystatus::modules */
 
