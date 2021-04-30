@@ -36,7 +36,7 @@ public:
 
     void read_battery_uevent();
 
-    auto get_property(const char *name) const noexcept -> std::string_view;
+    auto get_property(std::string_view name) const noexcept -> std::string_view;
 };
 
 class Batteries {

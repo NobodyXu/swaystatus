@@ -89,16 +89,16 @@ void Battery::read_battery_uevent()
         err(1, "%s on %s%s/%s failed", "lseek", power_supply_path, battery_device.c_str(), "uevent");
 }
 
-auto Battery::get_property(const char *name) const noexcept -> std::string_view
+auto Battery::get_property(std::string_view name) const noexcept -> std::string_view
 {
     if (uevent_fd == -1)
         return {};
 
-    std::size_t name_len = std::strlen(name);
+    std::size_t name_len = name.size();
 
     char *substr = const_cast<char*>(buffer.c_str());
     for (; ;) {
-        substr = strcasestr(substr, name);
+        substr = strcasestr(substr, name.data());
         if (!substr)
             return "nullptr";
         if (substr[name_len] == '=')
@@ -136,14 +136,14 @@ auto Batteries_formatter::format(const Batteries &batteries, format_context &ctx
         return out;
 
     for (const swaystatus::Battery &battery: batteries) {
-        auto get_bat_property_lazy = [&battery](const char *name) noexcept
+        auto get_bat_property_lazy = [&battery](std::string_view name) noexcept
         {
             return swaystatus::LazyEval{[&battery, name]() noexcept
             {
                 return battery.get_property(name);
             }};
         };
-        auto get_conditional_lazy = [&battery](const char *name, const char *val) noexcept
+        auto get_conditional_lazy = [&battery](std::string_view name, std::string_view val) noexcept
         {
             return swaystatus::LazyEval{[&battery, name, val]() noexcept
             {
