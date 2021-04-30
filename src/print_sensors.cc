@@ -4,7 +4,7 @@
 #include "sensors.hpp"
 #include "process_configuration.h"
 #include "handle_click_events.h"
-#include "printer.hpp"
+#include "formatting/printer.hpp"
 #include "print_sensors.h"
 
 using swaystatus::Sensors;

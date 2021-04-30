@@ -8,8 +8,8 @@
 
 #include "process_configuration.h"
 #include "handle_click_events.h"
-#include "printer.hpp"
-#include "Conditional.hpp"
+#include "formatting/printer.hpp"
+#include "formatting/Conditional.hpp"
 #include "networking.hpp"
 #include "print_network_interfaces.h"
 

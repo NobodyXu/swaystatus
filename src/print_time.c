@@ -8,7 +8,7 @@
 
 #include "process_configuration.h"
 #include "handle_click_events.h"
-#include "printer.hpp"
+#include "formatting/printer.hpp"
 #include "print_time.h"
 
 static const char * const module_name = "time";

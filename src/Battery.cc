@@ -14,7 +14,7 @@
 #include "dep/fmt/include/fmt/core.h"
 
 #include "utility.h"
-#include "fmt_utility.hpp"
+#include "formatting/fmt_utility.hpp"
 
 #include "Battery.hpp"
 

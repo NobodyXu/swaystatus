@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "utility.h"
+#include "../utility.h"
 
 #include "fmt_config.hpp"
 

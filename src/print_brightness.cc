@@ -17,8 +17,8 @@
 #include "utility.h"
 #include "process_configuration.h"
 #include "handle_click_events.h"
-#include "printer.hpp"
-#include "Conditional.hpp"
+#include "formatting/printer.hpp"
+#include "formatting/Conditional.hpp"
 #include "print_brightness.h"
 
 using swaystatus::Conditional;

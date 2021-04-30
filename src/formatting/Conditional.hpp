@@ -14,7 +14,7 @@
 # include <type_traits>
 # include <string_view>
 
-# include "dep/fmt/include/fmt/format.h"
+# include "../dep/fmt/include/fmt/format.h"
 
 namespace swaystatus {
 struct Conditional {

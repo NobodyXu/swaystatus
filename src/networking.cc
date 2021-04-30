@@ -8,8 +8,8 @@
 #include <algorithm>
 
 #include "utility.h"
-#include "fmt_utility.hpp"
-#include "Conditional.hpp"
+#include "formatting/fmt_utility.hpp"
+#include "formatting/Conditional.hpp"
 #include "mem_size_t.hpp"
 #include "networking.hpp"
 

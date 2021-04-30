@@ -18,7 +18,7 @@
 
 #include "help.h"
 #include "utility.h"
-#include "printer.hpp"
+#include "formatting/printer.hpp"
 #include "Callback/python3.hpp"
 #include "process_configuration.h"
 #include "poller.h"

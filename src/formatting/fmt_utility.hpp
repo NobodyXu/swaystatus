@@ -2,7 +2,7 @@
 # define __swaystatus_fmt_utility_HPP__
 
 # include "fmt_config.hpp"
-# include "dep/fmt/include/fmt/format.h"
+# include "../dep/fmt/include/fmt/format.h"
 
 namespace swaystatus {
 using fmt::format_parse_context;

@@ -16,9 +16,9 @@
 #include "utility.h"
 #include "process_configuration.h"
 #include "handle_click_events.h"
-#include "printer.hpp"
+#include "formatting/printer.hpp"
+#include "formatting/LazyEval.hpp"
 #include "mem_size_t.hpp"
-#include "LazyEval.hpp"
 #include "print_memory_usage.h"
 
 using namespace std::literals;
