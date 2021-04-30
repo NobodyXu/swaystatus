@@ -165,21 +165,29 @@ static int has_seperator(const struct json_object *properties)
 }
 const char* get_user_specified_property_str_impl(void *module_config, unsigned n, ...)
 {
+    va_list ap;
+    va_start(ap, n);
+    const char *ret = get_user_specified_property_str_impl2(module_config, n, ap);
+    va_end(ap);
+    return ret;
+}
+const char* get_user_specified_property_str_impl2(void *module_config, unsigned n, va_list ap)
+{
 #define DEFAULT_PROPERTY "\"separator\":true"
     if (!module_config)
         return DEFAULT_PROPERTY;
 
-    va_list ap;
-    va_start(ap, n);
+    va_list args;
+    va_copy(args, ap);
 
     json_object_object_del(module_config, "format");
     json_object_object_del(module_config, "update_interval");
     json_object_object_del(module_config, "click_event_handler");
     for (unsigned i = 0; i != n; ++i) {
-        json_object_object_del(module_config, va_arg(ap, const char*));
+        json_object_object_del(module_config, va_arg(args, const char*));
     }
 
-    va_end(ap);
+    va_end(args);
 
     if (json_object_object_length(module_config) == 0)
         return DEFAULT_PROPERTY;

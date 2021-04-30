@@ -7,6 +7,7 @@ extern "C" {
 
 # include <stdbool.h>
 # include <stdint.h>
+# include <stdarg.h>
 
 /**
  * load and verify the configuration.
@@ -56,6 +57,7 @@ const void* get_click_event_handler(const void *module_config);
  * if not specified by user.
  */
 const char* get_user_specified_property_str_impl(void *module_config, unsigned n, /* args */ ...);
+const char* get_user_specified_property_str_impl2(void *module_config, unsigned n, va_list ap);
 
 /**
  * The 3 functions below are only used in swaystatus.c
