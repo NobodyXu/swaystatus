@@ -9,6 +9,7 @@
 
 #include <exception>
 
+#include "../error_handling.hpp"
 #include "../utility.h"
 #include "../process_configuration.h"
 #include "../handle_click_events.h"
@@ -102,7 +103,7 @@ static void print_fmt(const char *name, const char *format)
 {
     print("\"{}\":\"", name);
 
-    try {
+    TRY {
         print(
             format,
             fmt::arg("loadavg_1m", statistics[0]),
@@ -112,9 +113,9 @@ static void print_fmt(const char *name, const char *format)
             fmt::arg("total_kthreads_cnt", statistics[4]),
             fmt::arg("last_created_process_pid", statistics[5])
         );
-    } catch (const std::exception &e) {
+    } CATCH (const std::exception &e) {
         errx(1, "Failed to print %s format in print_%s.cc: %s", name, "load", e.what());
-    }
+    };
 
     print_literal_str("\",");
 }

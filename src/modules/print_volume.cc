@@ -1,6 +1,7 @@
 #include <err.h>
 #include <exception>
 
+#include "../error_handling.hpp"
 #include "../alsa.h"
 #include "../process_configuration.h"
 #include "../handle_click_events.h"
@@ -42,11 +43,11 @@ static void print_fmt(const char *name, const char *format)
 {
     print("\"{}\":\"", name);
 
-    try {
+    TRY {
         print(format, fmt::arg("volume", get_audio_volume()));
-    } catch (const std::exception &e) {
+    } CATCH (const std::exception &e) {
         errx(1, "Failed to print %s format in print_%s.cc: %s", name, "volume", e.what());
-    }
+    };
 
     print_literal_str("\",");
 }

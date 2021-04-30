@@ -13,6 +13,7 @@
 #include <exception>
 #include <string_view>
 
+#include "../error_handling.hpp"
 #include "../utility.h"
 #include "../process_configuration.h"
 #include "../handle_click_events.h"
@@ -116,7 +117,7 @@ static void print_fmt(const char *name, const char *format)
 {
     print("\"{}\":\"", name);
 
-    try {
+    TRY {
         print(
             format,
             fmt::arg("MemFree", get_memusage_lazy("MemFree")),
@@ -136,9 +137,9 @@ static void print_fmt(const char *name, const char *format)
             fmt::arg("Shmem", get_memusage_lazy("Shmem")),
             fmt::arg("MemTotal", mem_size_t{memtotal})
         );
-    } catch (const std::exception &e) {
+    } CATCH (const std::exception &e) {
         errx(1, "Failed to print %s format in print_%s.cc: %s", name, "memory_usage", e.what());
-    }
+    };
 
     print_literal_str("\",");
 }

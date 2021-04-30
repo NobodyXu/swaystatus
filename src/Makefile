@@ -5,6 +5,7 @@ TARGET_DIR := /usr/local
 # Features
 PYTHON ?= true
 DEBUG ?= false
+EXCEPTION ?= true
 
 # compiler and flags
 CC := clang
@@ -19,6 +20,10 @@ ifeq ($(DEBUG), false)
 	LDFLAGS := -s -flto -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3,--as-needed
 else
 	CFLAGS := -Og -g -Wall
+endif
+
+ifeq ($(EXCEPTION), false)
+	CXXFLAGS += -fno-exceptions
 endif
 
 CFLAGS += $(shell pkg-config --cflags alsa json-c)
