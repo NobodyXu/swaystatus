@@ -70,6 +70,9 @@ void init_click_events_handling()
 
 void add_click_event_handler(const char *name, const void *click_event_handler_config)
 {
+    if (click_event_handler_config == NULL)
+        return;
+
     auto &callback = callbacks[callback_cnt++];
 
     callback.name = name;

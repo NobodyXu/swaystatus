@@ -174,6 +174,7 @@ const char* get_user_specified_property_str_impl(void *module_config, unsigned n
 
     json_object_object_del(module_config, "format");
     json_object_object_del(module_config, "update_interval");
+    json_object_object_del(module_config, "click_event_handler");
     for (unsigned i = 0; i != n; ++i) {
         json_object_object_del(module_config, va_arg(ap, const char*));
     }
@@ -208,6 +209,13 @@ const char* get_user_specified_property_str_impl(void *module_config, unsigned n
 
     return ret;
 }
+const void* get_click_event_handler(const void *module_config)
+{
+    struct json_object *click_event_handler;
+    if (!json_object_object_get_ex(module_config, "click_event_handler", &click_event_handler))
+        return NULL;
+    return click_event_handler;
+}
 
 static bool is_block_printer_enabled(const void *config, const char *name)
 {
@@ -237,6 +245,8 @@ static void get_default_order(const void *config, struct Inits *inits)
 }
 void parse_inits_config(void *config, struct Inits *inits)
 {
+    init_click_events_handling();
+
     if (config == NULL)
         return get_default_order(config, inits);
 
@@ -259,30 +269,6 @@ void parse_inits_config(void *config, struct Inits *inits)
     inits->order[out] = NULL;
 
     json_object_object_del(config, "order");
-}
-
-int init_click_event_handlers(void *config, const char *names[9], int force_enabled)
-{
-    init_click_events_handling();
-
-    if (!config)
-        return 1;
-
-    for (size_t i = 0; names[i]; ++i) {
-        const char *name = names[i];
-
-        struct json_object *block;
-        if (!json_object_object_get_ex(config, name, &block))
-            continue;
-
-        struct json_object *click_event_handler;
-        if (!json_object_object_get_ex(block, "click_event_handler", &click_event_handler))
-            continue;
-
-        add_click_event_handler(name, click_event_handler);
-    }
-
-    return 1;
 }
 
 void get_block_printers(const char * const order[9], struct Blocks *blocks)

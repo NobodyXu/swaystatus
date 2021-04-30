@@ -43,7 +43,7 @@ static void handle_reload_request(int sig)
 
 static uintmax_t parse_cmdline_arg_and_initialize(
     int argc, char* argv[],
-    bool *is_reload, bool *is_click_event_enabled, const char **config_filename,
+    bool *is_reload, const char **config_filename,
     struct Blocks *blocks
 )
 {
@@ -95,8 +95,6 @@ static uintmax_t parse_cmdline_arg_and_initialize(
 
     for (size_t i = 0; inits.inits[i]; ++i)
         inits.inits[i](get_module_config(config, inits.order[i]));
-
-    *is_click_event_enabled = init_click_event_handlers(config, inits.order, *is_reload);
 
     get_block_printers(inits.order, blocks);
 
@@ -151,12 +149,11 @@ int main(int argc, char* argv[])
     struct Blocks blocks;
 
     bool is_reload = false;
-    bool is_click_event_enabled;
     const char *config_filename = NULL;
 
     const uintmax_t interval = parse_cmdline_arg_and_initialize(
         argc, argv,
-        &is_reload, &is_click_event_enabled, &config_filename,
+        &is_reload, &config_filename,
         &blocks
     );
 
@@ -165,12 +162,7 @@ int main(int argc, char* argv[])
 
     if (!is_reload) {
         /* Print header */
-        print_literal_str("{\"version\":1");
-
-        if (is_click_event_enabled)
-            print_literal_str(",\"click_events\":true");
-
-        print_literal_str("}\n");
+        print_literal_str("{\"version\":1,\"click_events\":true}\n");
 
         flush();
 
