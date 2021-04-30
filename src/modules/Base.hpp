@@ -3,12 +3,36 @@
 
 # include <cstdint>
 # include <utility>
+# include <type_traits>
 # include <memory>
 # include <string_view>
 
 # include "../formatting/printer.hpp"
 
 namespace swaystatus::modules {
+namespace impl {
+template <class ...Args>
+struct is_cstr: public std::true_type {};
+
+template <class T, class ...Args>
+struct is_cstr<T, Args...>
+{
+    constexpr bool operator () () const noexcept
+    {
+        /**
+         * Use if constexpr to avoid instantiation if possible.
+         */
+        if constexpr(std::is_same_v<std::decay_t<T>, const char*>)
+            return is_cstr<Args...>{}();
+        else
+            return false;
+    }
+};
+
+template <class ...Args>
+inline constexpr const bool is_cstr_v = is_cstr<Args...>{}();
+} /* namespace impl */
+
 class Base {
     // instance variables
     const std::string_view module_name;
@@ -55,7 +79,7 @@ protected:
     /**
      * Convenient wrapper
      */
-    template <class ...Args>
+    template <class ...Args, class = std::enable_if_t< impl::is_cstr_v<Args...> >>
     Base(
         void *config, std::string_view module_name_arg,
         std::uint32_t default_interval,
