@@ -283,6 +283,7 @@ NOTE that these variables are evaluated per backlight_device.
 
  - `backlight_device`
  - `brightness`
+ - `max_brightness`
  - `has_multiple_backlight_devices` (this is a Conditional Variable)
 
 #### Network Interface variables;
