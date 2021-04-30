@@ -38,8 +38,8 @@ cd $(dirname $0)
 
 ./run_all_builds.sh
 
-cp release_build/swaystatus "/tmp/swaystatus-with-python-support-$label_postfix"
-cp release_no_py_build/swaystatus "/tmp/swaystatus-no-python-support-$label_postfix"
+cp src/release_build/swaystatus "/tmp/swaystatus-with-python-support-$label_postfix"
+cp src/release_no_py_build/swaystatus "/tmp/swaystatus-no-python-support-$label_postfix"
 
 git push
 exec gh release create "$tag" \

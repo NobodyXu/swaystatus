@@ -9,10 +9,10 @@
 
 #include <exception>
 
-#include "utility.h"
-#include "process_configuration.h"
-#include "handle_click_events.h"
-#include "printer.hpp"
+#include "../utility.h"
+#include "../process_configuration.h"
+#include "../handle_click_events.h"
+#include "../formatting/printer.hpp"
 #include "print_load.h"
 
 using swaystatus::print;

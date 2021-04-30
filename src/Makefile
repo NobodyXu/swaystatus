@@ -35,25 +35,43 @@ endif
 endif
 
 ## Objects to build
-C_SRCS := $(wildcard *.c)
+C_SRCS := $(shell find -maxdepth 2 -name '*.c')
 C_OBJS := $(C_SRCS:.c=.o)
 
-CXX_SRCS := $(wildcard *.cc)
+CXX_SRCS := $(shell find -maxdepth 2 -name '*.cc')
 CXX_OBJS := $(CXX_SRCS:.cc=.o)
 
 OBJS := $(addprefix $(BUILD_DIR)/, $(C_OBJS) $(CXX_OBJS))
 
+.DEFAULT_GOAL := $(BUILD_DIR)/swaystatus
+
+## Automatic dependency building
+DEPFLAGS = -MT $@ -MMD -MP -MF $(BUILD_DIR)/$*.Td
+DEPFILES := $(OBJS:%.o=%.d)
+
+## Dummy target for $(DEPFILES) when they are not present.
+$(DEPFILES):
+## Use wildcard so that nonexisitent dep files are ignored.
+include $(wildcard $(DEPFILES))
+
 ## Build rules
 .SECONDEXPANSION:
+
+DEBUG:
+	@echo "C_SRCS=$(C_SRCS), C_OBJS=$(C_OBJS)"
+	@echo "CXX_SRCS=$(CXX_SRCS), CXX_OBJS=$(CXX_OBJS)"
+	@echo "OBJS=$(OBJS)"
 
 $(BUILD_DIR)/swaystatus: $(OBJS)
 	$(CXX) $(LDFLAGS) $(LIBS) $^ -o $@
 
 $(BUILD_DIR)/%.o: %.c $$(wildcard %.h) Makefile
-	$(CC) -std=c11 -c $(CFLAGS) -o $@ $<
+	$(CC) -std=c11 -c $(CFLAGS) $(DEPFLAGS) -o $@ $<
+	mv -f $(BUILD_DIR)/$*.Td $(BUILD_DIR)/$*.d && touch $@
 
 $(BUILD_DIR)/%.o: %.cc $$(wildcard %.h) $$(wildcard %.hpp) Makefile
-	$(CXX) -std=c++17 -c $(CXXFLAGS) $(CFLAGS) -o $@ $<
+	$(CXX) -std=c++17 -c $(CXXFLAGS) $(CFLAGS) $(DEPFLAGS) -o $@ $<
+	mv -f $(BUILD_DIR)/$*.Td $(BUILD_DIR)/$*.d && touch $@
 
 compile_flags.txt: Makefile
 	echo '-xc++' $(CXXFLAGS) $(CFLAGS) | sed 's/-I/-I /g' | xargs -n1 echo | tee $@
@@ -70,51 +88,24 @@ all_builds: release_build release_no_py_build
 
 debug_build:
 	mkdir -p $@
+	mkdir -p $@/Callback
+	mkdir -p $@/formatting
+	mkdir -p $@/modules
 	$(MAKE) BUILD_DIR=$@ DEBUG=true  PYTHON=true
 
 release_build:
 	mkdir -p $@
+	mkdir -p $@/Callback
+	mkdir -p $@/formatting
+	mkdir -p $@/modules
 	$(MAKE) BUILD_DIR=$@ DEBUG=false PYTHON=true
 
 release_no_py_build:
 	mkdir -p $@
+	mkdir -p $@/Callback
+	mkdir -p $@/formatting
+	mkdir -p $@/modules
 	$(MAKE) BUILD_DIR=$@ DEBUG=false PYTHON=false
-
-## Dependencies
-$(BUILD_DIR)/swaystatus.o: help.h utility.h printer.hpp process_configuration.h poller.h
-
-$(BUILD_DIR)/process_configuration.o: utility.h $(wildcard print_*.h) handle_click_events.h
-
-$(filter $(BUILD_DIR)/print_%.o,$(OBJS)): printer.hpp process_configuration.h
-
-$(BUILD_DIR)/print_volume.o: alsa.h
-
-printer.hpp: dep/fmt/include/fmt/core.h fmt_config.hpp
-	touch $@
-$(BUILD_DIR)/printer.o: dep/fmt/include/fmt/format.h dep/fmt/include/fmt/format-inl.h fmt_config.hpp
-
-fmt_utility.hpp: dep/fmt/include/fmt/format.h fmt_config.hpp
-	touch $@
-
-mem_size_t.hpp: dep/fmt/include/fmt/format.h
-	touch $@
-LazyEval.hpp: dep/fmt/include/fmt/format.h
-	touch $@
-Conditional.hpp: dep/fmt/include/fmt/format.h fmt_utility.hpp
-	touch $@
-
-networking.hpp: dep/fmt/include/fmt/format.h fmt_config.hpp
-	touch $@
-$(BUILD_DIR)/networking.o: utility.h fmt_utility.hpp Conditional.hpp mem_size_t.hpp dep/fmt/include/fmt/core.h
-
-sensors.hpp: dep/fmt/include/fmt/format.h fmt_config.hpp
-
-$(BUILD_DIR)/handle_click_events.o: poller.h utility.h python3.hpp
-
-$(BUILD_DIR)/print_brightness.o: Conditional.hpp
-$(BUILD_DIR)/print_battery.o: Conditional.hpp
-$(BUILD_DIR)/print_memory_usage.o: mem_size_t.hpp LazyEval.hpp
-$(BUILD_DIR)/print_network_interfaces.o: Conditional.hpp networking.hpp
 
 install: $(BUILD_DIR)/swaystatus
 	cp -f $(BUILD_DIR)/swaystatus $(TARGET_DIR)/bin/
@@ -125,4 +116,4 @@ install_release_build: release_build
 clean:
 	rm -rf $(OBJS) $(BUILD_DIR)/swaystatus *_build/
 
-.PHONY: all_builds debug_build release_build release_no_py_build install clean
+.PHONY: DEBUG all_builds debug_build release_build release_no_py_build install install_release_build clean

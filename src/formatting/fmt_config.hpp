@@ -30,4 +30,7 @@ void fmt_throw_impl(const std::exception &e, const char *func, int line, const c
 
 #endif
 
-//#define FMT_THROW(x) ::swaystatus::fmt_throw_impl((x), __PRETTY_FUNCTION__, __LINE__, __FILE__)
+// Check if exceptions are disabled, copied from fmt
+#if (defined(__GNUC__) && !defined(__EXCEPTIONS)) || FMT_MSC_VER && !_HAS_EXCEPTIONS
+# define FMT_THROW(x) ::swaystatus::fmt_throw_impl((x), __PRETTY_FUNCTION__, __LINE__, __FILE__)
+#endif

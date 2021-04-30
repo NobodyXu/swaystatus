@@ -4,7 +4,7 @@
 # include "fmt_config.hpp"
 
 # include <type_traits>
-# include "dep/fmt/include/fmt/format.h"
+# include "fmt/include/fmt/format.h"
 
 namespace swaystatus {
 template <class F>

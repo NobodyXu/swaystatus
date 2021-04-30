@@ -1,7 +1,7 @@
 #ifndef  __swaystatus_networking_H__
 # define __swaystatus_networking_H__
 
-# include "fmt_config.hpp"
+# include "formatting/fmt_config.hpp"
 
 # include <sys/types.h>
 # include <netinet/in.h>
@@ -13,7 +13,7 @@
 # include <string_view>
 # include <array>
 
-# include "dep/fmt/include/fmt/format.h"
+# include "formatting/fmt/include/fmt/format.h"
 
 namespace swaystatus {
 using ipv4_addr = struct in_addr;

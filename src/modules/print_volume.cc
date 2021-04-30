@@ -1,10 +1,10 @@
 #include <err.h>
 #include <exception>
 
-#include "alsa.h"
-#include "process_configuration.h"
-#include "handle_click_events.h"
-#include "printer.hpp"
+#include "../alsa.h"
+#include "../process_configuration.h"
+#include "../handle_click_events.h"
+#include "../formatting/printer.hpp"
 #include "print_volume.h"
 
 using swaystatus::print;

@@ -12,14 +12,14 @@
 
 #include "utility.h"
 #include "handle_click_events.h"
-#include "print_battery.h"
-#include "print_time.h"
-#include "print_volume.h"
-#include "print_network_interfaces.h"
-#include "print_brightness.h"
-#include "print_memory_usage.h"
-#include "print_load.h"
-#include "print_sensors.h"
+#include "modules/print_battery.h"
+#include "modules/print_time.h"
+#include "modules/print_volume.h"
+#include "modules/print_network_interfaces.h"
+#include "modules/print_brightness.h"
+#include "modules/print_memory_usage.h"
+#include "modules/print_load.h"
+#include "modules/print_sensors.h"
 #include "process_configuration.h"
 
 static const int json2str_flag = JSON_C_TO_STRING_PLAIN | JSON_C_TO_STRING_NOZERO;

@@ -5,9 +5,9 @@
 
 #include <algorithm>
 
-#include "dep/fmt/include/fmt/format.h"
+#include "fmt/include/fmt/format.h"
 
-#include "utility.h"
+#include "../utility.h"
 #include "printer.hpp"
 
 static fmt::basic_memory_buffer<char, /* Inline buffer size */ 4096> out;

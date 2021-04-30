@@ -1,7 +1,7 @@
 #ifndef  __swaystatus_sensors_HPP__
 # define __swaystatus_sensors_HPP__
 
-# include "fmt_config.hpp"
+# include "formatting/fmt_config.hpp"
 
 # include <cstdint>
 # include <limits>
@@ -10,7 +10,7 @@
 # include <array>
 # include <vector>
 
-# include "dep/fmt/include/fmt/format.h"
+# include "formatting/fmt/include/fmt/format.h"
 
 namespace swaystatus {
 struct sensor_bus_type {
