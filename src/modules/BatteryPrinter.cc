@@ -29,38 +29,26 @@ public:
             "excluded_model"
         }
     {
-        DIR *dir = opendir(Battery::power_supply_path);
-        if (!dir)
-            err(1, "%s on %s failed", "opendir", Battery::power_supply_path);
+        visit_all_subdirs(
+            Battery::power_supply_path,
+            [](int path_fd, const char *d_name, va_list ap)
+            {
+                va_list args;
+                va_copy(args, ap);
 
-        const int path_fd = dirfd(dir);
+                auto *excluded_model = va_arg(args, const char*);
+                auto &batteries = *va_arg(args, std::vector<Battery>*);
 
-        errno = 0;
-        for (struct dirent *ent; (ent = readdir(dir)); errno = 0) {
-            switch (ent->d_type) {
-                case DT_UNKNOWN:
-                case DT_LNK:
-                    if (!isdir(Battery::power_supply_path, path_fd, ent->d_name))
-                        break;
+                auto result = Battery::makeBattery(path_fd, d_name, excluded_model);
+                if (result)
+                    batteries.push_back(std::move(*result));
 
-                case DT_DIR:
-                    if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
-                        auto result = Battery::makeBattery(path_fd, ent->d_name, excluded_model);
-                        if (result)
-                            batteries.push_back(std::move(*result));
-                    }
-
-                default:
-                    break;
-            }
-        }
-
-        if (errno != 0)
-            err(1, "%s on %s failed", "readdir", Battery::power_supply_path);
+                va_end(args);
+            },
+            excluded_model, &batteries
+        );
 
         batteries.shrink_to_fit();
-
-        closedir(dir);
     }
 
     ~BatteryPrinter() = default;
