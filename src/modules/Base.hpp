@@ -2,6 +2,7 @@
 # define __swaystatus_modules_Base_HPP__
 
 # include <cstdint>
+# include <utility>
 # include <memory>
 # include <string_view>
 
@@ -50,6 +51,23 @@ protected:
          std::uint32_t default_interval,
          const char *default_full_format, const char *default_short_format,
          unsigned n, ...);
+
+    /**
+     * Convenient wrapper
+     */
+    template <class ...Args>
+    Base(
+        void *config, std::string_view module_name_arg,
+        std::uint32_t default_interval,
+        const char *default_full_format, const char *default_short_format,
+        Args &&...args
+    ):
+        Base{
+            config, module_name_arg,
+            default_interval, default_full_format, default_short_format,
+            sizeof...(args), std::forward<Args>(args)...
+        }
+    {}
 
     virtual void update();
     virtual void do_print(const char *format);

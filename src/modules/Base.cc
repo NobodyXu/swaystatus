@@ -13,10 +13,12 @@
 using namespace std::literals;
 
 namespace swaystatus::modules {
-Base::Base(void *config, std::string_view module_name_arg,
-           std::uint32_t default_interval,
-           const char *default_full_format, const char *default_short_format,
-           unsigned n, ...):
+Base::Base(
+    void *config, std::string_view module_name_arg,
+    std::uint32_t default_interval,
+    const char *default_full_format, const char *default_short_format,
+    unsigned n, ...
+):
     module_name{module_name_arg},
     full_text_format{get_format(config, default_full_format)},
     short_text_format{get_short_format(config, default_short_format)},
