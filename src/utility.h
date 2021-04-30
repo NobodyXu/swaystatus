@@ -2,6 +2,7 @@
 # define __swaystatus_utility_H__
 
 # include <stddef.h>
+# include <stdarg.h>
 # include <stdint.h>
 # include <inttypes.h>
 # include <sys/types.h>
@@ -109,6 +110,12 @@ const char* readall_as_uintmax(int fd, uintmax_t *val);
 int isdir(const char *dir, int dirfd, const char *path);
 
 void stack_bt();
+
+typedef void (*subdir_visiter)(int path_fd, const char *d_name, va_list ap);
+/**
+ * Wrapper function for readdir
+ */
+void visit_all_subdirs(const char *path, subdir_visiter visiter, ...);
 
 # ifdef __cplusplus
 }
