@@ -60,7 +60,7 @@ void Base::print_fmt(std::string_view name, const char *format)
     TRY {
         do_print(format);
     } CATCH (const std::exception &e) {
-        errx(1, "Failed to print %s format in print_%s.cc: %s",
+        errx(1, "Failed to print %s format in %s: %s",
                 name.data(), module_name.data(), e.what());
     };
 
