@@ -13,7 +13,7 @@
 # include <string_view>
 # include <array>
 
-# include "dep/fmt/include/fmt/format.h"
+# include "formatting/fmt/include/fmt/format.h"
 
 namespace swaystatus {
 using ipv4_addr = struct in_addr;

@@ -11,7 +11,7 @@
 
 #include <utility>
 
-#include "dep/fmt/include/fmt/core.h"
+#include "formatting/fmt/include/fmt/core.h"
 
 #include "utility.h"
 #include "formatting/fmt_utility.hpp"

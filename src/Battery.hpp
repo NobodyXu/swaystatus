@@ -9,7 +9,7 @@
 # include "formatting/LazyEval.hpp"
 # include "formatting/Conditional.hpp"
 
-# include "dep/fmt/include/fmt/format.h"
+# include "formatting/fmt/include/fmt/format.h"
 
 namespace swaystatus {
 class Battery {

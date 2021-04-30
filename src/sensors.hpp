@@ -10,7 +10,7 @@
 # include <array>
 # include <vector>
 
-# include "dep/fmt/include/fmt/format.h"
+# include "formatting/fmt/include/fmt/format.h"
 
 namespace swaystatus {
 struct sensor_bus_type {

@@ -5,7 +5,7 @@
 
 # ifdef __cplusplus
 #  include "fmt_config.hpp"
-#  include "../dep/fmt/include/fmt/core.h"
+#  include "fmt/include/fmt/core.h"
 # endif
 
 # ifdef __cplusplus

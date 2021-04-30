@@ -5,7 +5,7 @@
 
 #include <algorithm>
 
-#include "../dep/fmt/include/fmt/format.h"
+#include "fmt/include/fmt/format.h"
 
 #include "../utility.h"
 #include "printer.hpp"

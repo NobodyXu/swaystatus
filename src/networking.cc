@@ -13,7 +13,7 @@
 #include "mem_size_t.hpp"
 #include "networking.hpp"
 
-#include "dep/fmt/include/fmt/core.h"
+#include "formatting/fmt/include/fmt/core.h"
 
 using swaystatus::Conditional;
 using swaystatus::mem_size_t;

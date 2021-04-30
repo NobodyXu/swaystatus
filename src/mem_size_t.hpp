@@ -4,7 +4,7 @@
 # include "formatting/fmt_config.hpp"
 
 # include <stddef.h>
-# include "dep/fmt/include/fmt/format.h"
+# include "formatting/fmt/include/fmt/format.h"
 
 namespace swaystatus {
 struct mem_size_t {
