@@ -60,7 +60,6 @@ Battery::Battery(int path_fd, std::string &&device):
     battery_device.append("/uevent");
 
     uevent_fd = openat_checked(power_supply_path, path_fd, battery_device.c_str(), O_RDONLY);
-    read_battery_uevent();
 }
 
 Battery::Battery(Battery &&other) noexcept:
