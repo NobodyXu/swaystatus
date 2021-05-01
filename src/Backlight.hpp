@@ -34,7 +34,7 @@ public:
     Backlight(int path_fd, const char *filename_arg);
 
     Backlight(const Backlight&) = delete;
-    Backlight(Backlight&&) = default;
+    Backlight(Backlight&&) noexcept;
 
     Backlight& operator = (const Backlight&) = delete;
     Backlight& operator = (Backlight&&) = delete;

@@ -5,6 +5,8 @@
 #include <fcntl.h>     /* For O_RDONLY */
 #include <unistd.h>    /* For close and lseek */
 
+#include <utility>
+
 #include "utility.h"
 
 #include "Backlight.hpp"
@@ -34,9 +36,19 @@ Backlight::Backlight(int path_fd, const char *filename_arg):
     buffer.shrink_to_fit();
 }
 
+Backlight::Backlight(Backlight &&other) noexcept:
+    filename{std::move(other.filename)},
+    max_brightness{other.max_brightness},
+    fd{other.fd},
+    brightness{other.brightness}
+{
+    other.fd = -1;
+}
+
 Backlight::~Backlight()
 {
-    close(fd);
+    if (fd != -1)
+        close(fd);
 }
 
 std::uintmax_t Backlight::calculate_brightness()
