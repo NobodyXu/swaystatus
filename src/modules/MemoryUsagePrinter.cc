@@ -22,7 +22,7 @@ class MemoryUsagePrinter: public Base {
     static constexpr const char * const path = "/proc/meminfo";
 
     int meminfo_fd;
-    std::size_t memtotal;
+    std::size_t memtotal = -1;
     std::string buffer;
 
     void read_meminfo()
@@ -83,14 +83,13 @@ public:
             10, "Mem Free={MemFree}/Total={MemTotal}", nullptr
         },
         meminfo_fd{openat_checked("", AT_FDCWD, path, O_RDONLY)}
-    {
-        read_meminfo();
-        memtotal = get_memusage("MemTotal"sv);
-    }
+    {}
 
     void update()
     {
         read_meminfo();
+        if (UNLIKELY(memtotal == -1))
+            memtotal = get_memusage("MemTotal"sv);
     }
     void do_print(const char *format)
     {
