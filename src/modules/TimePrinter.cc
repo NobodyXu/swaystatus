@@ -14,7 +14,15 @@ namespace swaystatus::modules {
 class TimePrinter: public Base {
     struct tm local_time;
 
-    void get_localtime()
+public:
+    TimePrinter(void *config):
+        Base{
+            config, "TimePrinter"sv,
+            1, "%Y-%m-%d %T", nullptr
+        }
+    {}
+
+    void update()
     {
         /*
          * time technically can't fail as long as the first arg is set to nullptr
@@ -23,21 +31,6 @@ class TimePrinter: public Base {
         struct tm local_time;
         if (localtime_r(&epoch, &local_time) == nullptr)
             errx(1, "%s failed %s", "localtime_r", "due to time(nullptr) has failed");
-    }
-
-public:
-    TimePrinter(void *config):
-        Base{
-            config, "TimePrinter"sv,
-            1, "%Y-%m-%d %T", nullptr
-        }
-    {
-        get_localtime();
-    }
-
-    void update()
-    {
-        get_localtime();
     }
     void do_print(const char *format)
     {
