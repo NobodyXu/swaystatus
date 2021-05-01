@@ -163,6 +163,7 @@ const char* get_user_specified_property_str_impl2(void *module_config, unsigned 
     va_copy(args, ap);
 
     json_object_object_del(module_config, "format");
+    json_object_object_del(module_config, "short_format");
     json_object_object_del(module_config, "update_interval");
     json_object_object_del(module_config, "click_event_handler");
     for (unsigned i = 0; i != n; ++i) {
