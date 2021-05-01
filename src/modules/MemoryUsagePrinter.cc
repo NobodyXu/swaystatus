@@ -48,10 +48,13 @@ class MemoryUsagePrinter: public Base {
      */
     std::size_t get_memusage(std::string_view element)
     {
-        char *line = strstr(buffer.data(), element.data());
-        if (!line)
-            return -1;
-    
+        char *line;
+        do {
+            line = strstr(buffer.data(), element.data());
+            if (!line)
+                return -1;
+        } while (line[element.size()] != ':');
+
         line += element.size() + 1;
         line = skip_space(line);
     

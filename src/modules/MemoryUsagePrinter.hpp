@@ -1,5 +1,5 @@
-#ifndef  __swaystatus_MemoryUsagePrinter_H__
-# define __swaystatus_MemoryUsagePrinter_H__
+#ifndef  __swaystatus_MemoryUsagePrinter_HPP__
+# define __swaystatus_MemoryUsagePrinter_HPP__
 
 # include "Base.hpp"
 
