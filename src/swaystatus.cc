@@ -46,62 +46,6 @@ static void handle_reload_request(int sig)
     reload_requested = true;
 }
 
-static auto parse_cmdline_arg_and_initialize(
-    int argc, char* argv[],
-    bool *is_reload, const char **config_filename,
-    uintmax_t *interval
-)
-{
-    /* Default interval is 1 second */
-    *interval = 1000;
-
-    void *config = NULL;
-
-    for (int i = 1; i != argc; ++i) {
-        if (strcmp(argv[i], "--help") == 0) {
-            fputs(help, stderr);
-            exit(1);
-        } else if (starts_with(argv[i], "--interval=")) {
-            char *endptr;
-            errno = 0;
-            *interval = strtoumax(argv[i] + sizeof("--interval=") - 1, &endptr, 10);
-            if (errno == ERANGE)
-                err(1, "Invalid argument %s%s", argv[i], "");
-            else if (*endptr != '\0')
-                errx(1, "Invalid argument %s%s", argv[i], ": Contains non-digit character");
-        } else if (strcmp(argv[i], "--reload") == 0) {
-            *is_reload = true;
-        } else {
-            if (config)
-                errx(1, "Error: configuration file is specified twice");
-            *config_filename = realpath_checked(argv[i]);
-            config = load_config(argv[i]);
-        }
-    }
-
-    init_poller();
-
-#ifdef USE_PYTHON
-    if (!(*is_reload)) {
-        if (*config_filename) {
-            char *file = strdup_checked(*config_filename);
-            char *path = dirname(file);
-
-            setup_pythonpath(path);
-
-            free(file);
-        } else
-            setup_pythonpath(NULL);
-    }
-#endif
-
-    auto modules = modules::makeModules(config);
-
-    free_config(config);
-
-    return modules; // Guaranteed NRVO
-}
-
 static void print_blocks(int fd, enum Event events, void *data)
 {
     static const uintmax_t trim_interval = 3660;
@@ -147,12 +91,52 @@ int main(int argc, char* argv[])
     bool is_reload = false;
     const char *config_filename = NULL;
 
-    uintmax_t interval;
-    auto modules = parse_cmdline_arg_and_initialize(
-        argc, argv,
-        &is_reload, &config_filename,
-        &interval
-    );
+    /* Default interval is 1 second */
+    uintmax_t interval = 1000;
+
+    void *config = NULL;
+
+    for (int i = 1; i != argc; ++i) {
+        if (strcmp(argv[i], "--help") == 0) {
+            fputs(help, stderr);
+            exit(1);
+        } else if (starts_with(argv[i], "--interval=")) {
+            char *endptr;
+            errno = 0;
+            interval = strtoumax(argv[i] + sizeof("--interval=") - 1, &endptr, 10);
+            if (errno == ERANGE)
+                err(1, "Invalid argument %s%s", argv[i], "");
+            else if (*endptr != '\0')
+                errx(1, "Invalid argument %s%s", argv[i], ": Contains non-digit character");
+        } else if (strcmp(argv[i], "--reload") == 0) {
+            is_reload = true;
+        } else {
+            if (config)
+                errx(1, "Error: configuration file is specified twice");
+            config_filename = realpath_checked(argv[i]);
+            config = load_config(argv[i]);
+        }
+    }
+
+    init_poller();
+
+#ifdef USE_PYTHON
+    if (!is_reload) {
+        if (config_filename) {
+            char *file = strdup_checked(config_filename);
+            char *path = dirname(file);
+
+            setup_pythonpath(path);
+
+            free(file);
+        } else
+            setup_pythonpath(NULL);
+    }
+#endif
+
+    auto modules = modules::makeModules(config);
+
+    free_config(config);
 
     if (chdir("/") < 0)
         err(1, "%s failed", "chdir(\"/\")");
