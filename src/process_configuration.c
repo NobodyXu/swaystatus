@@ -16,30 +16,6 @@
 
 static const int json2str_flag = JSON_C_TO_STRING_PLAIN | JSON_C_TO_STRING_NOZERO;
 
-/**
- * This array also defines the default order of blocks.
- */
-static const char * const valid_names[] = {
-    "brightness",
-    "volume",
-    "battery",
-    "network_interface",
-    "load",
-    "memory_usage",
-    "sensors",
-    "time",
-};
-static const size_t valid_name_sz = sizeof(valid_names) / sizeof(const char*);
-
-static size_t find_valid_name(const char *name)
-{
-    size_t i = 0;
-    for (; i != valid_name_sz; ++i) {
-        if (strcmp(name, valid_names[i]) == 0)
-            break;
-    }
-    return i;
-}
 void* load_config(const char *filename)
 {
     struct json_object *config = json_object_from_file(filename);
