@@ -110,8 +110,6 @@ void Sensors::init()
     }
 
     sensors.shrink_to_fit();
-
-    update();
 }
 
 void Sensors::update()

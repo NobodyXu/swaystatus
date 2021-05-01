@@ -64,7 +64,9 @@ public:
     Sensors() = default;
 
     /**
-     * Initialize libsensors and get a list of sensors on the system and fetch their value.
+     * Initialize libsensors and get a list of sensors on the system and fetch their value
+     *
+     * You need to call update() after init(), otherwise begin() == end().
      */
     void init();
 
