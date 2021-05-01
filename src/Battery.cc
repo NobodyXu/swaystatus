@@ -49,6 +49,7 @@ auto Battery::makeBattery(int path_fd, std::string_view device, std::string_view
 
     auto battery = Battery{path_fd, std::move(path)};
 
+    battery.read_battery_uevent();
     if (battery.get_property("model_name") == excluded_model)
         return std::nullopt;
 
