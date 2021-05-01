@@ -1,4 +1,6 @@
-#define _GNU_SOURCE     /* For RTLD_DEFAULT */
+#ifndef  _GNU_SOURCE
+# define _GNU_SOURCE     /* For RTLD_DEFAULT */
+#endif
 #define _DEFAULT_SOURCE /* For nice */
 
 #include <stdio.h>
@@ -21,7 +23,10 @@
 #include "formatting/printer.hpp"
 #include "Callback/python3.hpp"
 #include "process_configuration.h"
+#include "modules/Base.hpp"
 #include "poller.h"
+
+namespace modules = swaystatus::modules;
 
 #define starts_with(str, prefix) (strncmp((str), (prefix), sizeof(prefix) - 1) == 0)
 
@@ -41,14 +46,14 @@ static void handle_reload_request(int sig)
     reload_requested = true;
 }
 
-static uintmax_t parse_cmdline_arg_and_initialize(
+static auto parse_cmdline_arg_and_initialize(
     int argc, char* argv[],
     bool *is_reload, const char **config_filename,
-    struct Blocks *blocks
+    uintmax_t *interval
 )
 {
     /* Default interval is 1 second */
-    uintmax_t interval = 1000;
+    *interval = 1000;
 
     void *config = NULL;
 
@@ -59,7 +64,7 @@ static uintmax_t parse_cmdline_arg_and_initialize(
         } else if (starts_with(argv[i], "--interval=")) {
             char *endptr;
             errno = 0;
-            interval = strtoumax(argv[i] + sizeof("--interval=") - 1, &endptr, 10);
+            *interval = strtoumax(argv[i] + sizeof("--interval=") - 1, &endptr, 10);
             if (errno == ERANGE)
                 err(1, "Invalid argument %s%s", argv[i], "");
             else if (*endptr != '\0')
@@ -90,17 +95,11 @@ static uintmax_t parse_cmdline_arg_and_initialize(
     }
 #endif
 
-    struct Inits inits;
-    parse_inits_config(config, &inits);
-
-    for (size_t i = 0; inits.inits[i]; ++i)
-        inits.inits[i](get_module_config(config, inits.order[i]));
-
-    get_block_printers(inits.order, blocks);
+    auto modules = modules::makeModules(config);
 
     free_config(config);
 
-    return interval;
+    return modules; // Guaranteed NRVO
 }
 
 static void print_blocks(int fd, enum Event events, void *data)
@@ -112,13 +111,12 @@ static void print_blocks(int fd, enum Event events, void *data)
      */
     static uintmax_t cycle_cnt = trim_interval - 1;
 
-    struct Blocks *blocks = data;
+    auto &modules = *static_cast<std::vector<std::unique_ptr<modules::Base>>*>(data);
 
     print_literal_str("[");
 
-    for (size_t i = 0; blocks->full_text_printers[i]; ++i) {
-        blocks->full_text_printers[i]();
-    }
+    for (auto &module: modules)
+        module->update_and_print();
 
     /* Print dummy */
     print_literal_str("{}],\n");
@@ -146,15 +144,14 @@ int main(int argc, char* argv[])
     sigaction_checked(SIGABRT, sigabort_handler);
     sigaction_checked(SIGUSR1, handle_reload_request);
 
-    struct Blocks blocks;
-
     bool is_reload = false;
     const char *config_filename = NULL;
 
-    const uintmax_t interval = parse_cmdline_arg_and_initialize(
+    uintmax_t interval;
+    auto modules = parse_cmdline_arg_and_initialize(
         argc, argv,
         &is_reload, &config_filename,
-        &blocks
+        &interval
     );
 
     if (chdir("/") < 0)
@@ -172,7 +169,7 @@ int main(int argc, char* argv[])
     }
 
     int timerfd = create_pollable_monotonic_timer(interval);
-    request_polling(timerfd, read_ready, print_blocks, &blocks);
+    request_polling(timerfd, read_ready, print_blocks, &modules);
 
     do {
         perform_polling(-1);
