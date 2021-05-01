@@ -73,7 +73,6 @@ public:
         }
     {
         load_fd = openat_checked("", AT_FDCWD, loadavg_path, O_RDONLY);
-        update_load();
     }
 
     void update()
