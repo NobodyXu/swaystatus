@@ -86,14 +86,14 @@ void Base::print_fmt(std::string_view name, const char *format)
 }
 
 static constexpr const char * const default_order[] = {
-    "BacklightPrinter",
-    "BatteryPrinter",
-    "LoadPrinter",
-    "MemoryUsagePrinter",
-    "NetworkInterfacesPrinter",
-    "TemperaturePrinter",
-    "TimePrinter",
-    "VolumePrinter"
+    "brightness",
+    "battery",
+    "load",
+    "memory_usage",
+    "network_interface",
+    "sensors",
+    "time",
+    "volume"
 };
 static constexpr std::size_t default_order_len = sizeof(default_order) / sizeof(const char*);
 static constexpr const std::size_t default_index[] = {
