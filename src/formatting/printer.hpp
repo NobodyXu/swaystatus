@@ -36,6 +36,8 @@ void flush();
 # endif
 
 # ifdef __cplusplus
+#  include <string_view>
+
 namespace swaystatus {
 /**
  * @param str must not be nullptr
@@ -50,6 +52,11 @@ inline void print_str(const char *str)
 inline void print_str2(const char *str, size_t len)
 {
     ::print_str2(str, len);
+}
+
+inline void print_str2(std::string_view sv)
+{
+    ::print_str2(sv.data(), sv.size());
 }
 
 /**

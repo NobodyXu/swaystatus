@@ -12,74 +12,10 @@
 
 #include "utility.h"
 #include "handle_click_events.h"
-#include "modules/print_battery.h"
-#include "modules/print_time.h"
-#include "modules/print_volume.h"
-#include "modules/print_network_interfaces.h"
-#include "modules/print_brightness.h"
-#include "modules/print_memory_usage.h"
-#include "modules/print_load.h"
-#include "modules/print_sensors.h"
 #include "process_configuration.h"
 
 static const int json2str_flag = JSON_C_TO_STRING_PLAIN | JSON_C_TO_STRING_NOZERO;
 
-/**
- * This array also defines the default order of blocks.
- */
-static const char * const valid_names[] = {
-    "brightness",
-    "volume",
-    "battery",
-    "network_interface",
-    "load",
-    "memory_usage",
-    "sensors",
-    "time",
-};
-static const size_t valid_name_sz = sizeof(valid_names) / sizeof(const char*);
-
-static const Init_t default_inits[] = {
-    init_brightness_detection,
-    init_volume_monitor,
-    init_battery_monitor,
-    init_network_interfaces_scanning,
-    init_load,
-    init_memory_usage_collection,
-    init_sensors,
-    init_time,
-};
-_Static_assert(sizeof(default_inits) < (offsetof(struct Inits, order)), "");
-_Static_assert(
-    sizeof(default_inits) / sizeof(Init_t) == sizeof(valid_names) / sizeof(const char*),
-    ""
-);
-
-static const Printer_t default_full_text_printers[] = {
-    print_brightness,
-    print_volume,
-    print_battery,
-    print_network_interfaces,
-    print_load,
-    print_memory_usage,
-    print_sensors,
-    print_time,
-};
-_Static_assert(
-    sizeof(default_full_text_printers) / sizeof(Printer_t) == 
-        sizeof(valid_names) / sizeof(const char*),
-    ""
-);
-
-static size_t find_valid_name(const char *name)
-{
-    size_t i = 0;
-    for (; i != valid_name_sz; ++i) {
-        if (strcmp(name, valid_names[i]) == 0)
-            break;
-    }
-    return i;
-}
 void* load_config(const char *filename)
 {
     struct json_object *config = json_object_from_file(filename);
@@ -108,6 +44,39 @@ void* get_module_config(void *config, const char *name)
     return module;
 }
 
+const char** get_module_order(void *config, const char* moduleOrder[], size_t len)
+{
+    if (config == NULL)
+        return NULL;
+
+    struct json_object *order;
+    if (!json_object_object_get_ex(config, "order", &order))
+        return NULL;
+
+    size_t out = 0;
+    size_t n = json_object_array_length(order);
+    n = n > len ? len : n;
+    for (size_t i = 0; i != n; i++) {
+        moduleOrder[out++] = json_object_get_string(json_object_array_get_idx(order, i));
+    }
+
+    return moduleOrder + out;
+}
+
+bool is_block_printer_enabled(const void *config, const char *name)
+{
+    if (config == NULL)
+        return true;
+
+    struct json_object *val;
+    if (!json_object_object_get_ex(config, name, &val))
+        return true;
+    if (json_object_get_type(val) == json_type_object)
+        return true;
+
+    return json_object_get_boolean(val);
+}
+
 const char* get_property_impl(const void *module_config, const char *property)
 {
     if (!module_config)
@@ -122,20 +91,34 @@ const char* get_property_impl(const void *module_config, const char *property)
 const char* get_property(const void *module_config, const char *property, const char *default_val)
 {
     const char *result = get_property_impl(module_config, property);
-    if (result == NULL)
-        return default_val;
-    else
+    if (result == NULL) {
+        if (default_val)
+            return strdup_checked(default_val);
+        return NULL;
+    } else
         return strdup_checked(result);
 }
 const char* get_format(const void *module_config, const char *default_val)
 {
     const char *fmt = get_property_impl(module_config, "format");
-    return fmt ? escape_quotation_marks(fmt) : default_val;
+    if (fmt) {
+        return escape_quotation_marks(fmt);
+    } else {
+        if (default_val)
+            return strdup_checked(default_val);
+        return NULL;
+    }
 }
 const char* get_short_format(const void *module_config, const char *default_val)
 {
     const char *fmt = get_property_impl(module_config, "short_format");
-    return fmt ? escape_quotation_marks(fmt) : default_val;
+    if (fmt) {
+        return escape_quotation_marks(fmt);
+    } else {
+        if (default_val)
+            return strdup_checked(default_val);
+        return NULL;
+    }
 }
 uint32_t get_update_interval(const void *module_config, const char *name, uint32_t default_val)
 {
@@ -165,24 +148,32 @@ static int has_seperator(const struct json_object *properties)
 }
 const char* get_user_specified_property_str_impl(void *module_config, unsigned n, ...)
 {
-#define DEFAULT_PROPERTY "\"separator\":true"
-    if (!module_config)
-        return DEFAULT_PROPERTY;
-
     va_list ap;
     va_start(ap, n);
+    const char *ret = get_user_specified_property_str_impl2(module_config, n, ap);
+    va_end(ap);
+    return ret;
+}
+const char* get_user_specified_property_str_impl2(void *module_config, unsigned n, va_list ap)
+{
+    if (!module_config)
+        return NULL;
+
+    va_list args;
+    va_copy(args, ap);
 
     json_object_object_del(module_config, "format");
+    json_object_object_del(module_config, "short_format");
     json_object_object_del(module_config, "update_interval");
     json_object_object_del(module_config, "click_event_handler");
     for (unsigned i = 0; i != n; ++i) {
-        json_object_object_del(module_config, va_arg(ap, const char*));
+        json_object_object_del(module_config, va_arg(args, const char*));
     }
 
-    va_end(ap);
+    va_end(args);
 
     if (json_object_object_length(module_config) == 0)
-        return DEFAULT_PROPERTY;
+        return NULL;
 
     size_t json_str_len;
     const char *json_str = json_object_to_json_string_length(
@@ -192,6 +183,8 @@ const char* get_user_specified_property_str_impl(void *module_config, unsigned n
     );
 
     size_t size = json_str_len;
+
+#define DEFAULT_PROPERTY "\"separator\":true"
 
     const int has_sep = has_seperator(module_config);
     if (!has_sep)
@@ -215,69 +208,4 @@ const void* get_click_event_handler(const void *module_config)
     if (!json_object_object_get_ex(module_config, "click_event_handler", &click_event_handler))
         return NULL;
     return click_event_handler;
-}
-
-static bool is_block_printer_enabled(const void *config, const char *name)
-{
-    if (config == NULL)
-        return true;
-
-    struct json_object *val;
-    if (!json_object_object_get_ex(config, name, &val))
-        return true;
-    if (json_object_get_type(val) == json_type_object)
-        return true;
-
-    return json_object_get_boolean(val);
-}
-
-static void get_default_order(const void *config, struct Inits *inits)
-{
-    size_t out = 0;
-    for (size_t i = 0; i != valid_name_sz; ++i) {
-        if (is_block_printer_enabled(config, valid_names[i])) {
-            inits->inits[out] = default_inits[i];
-            inits->order[out++] = valid_names[i];
-        }
-    }
-    inits->inits[out] = NULL;
-    inits->order[out] = NULL;
-}
-void parse_inits_config(void *config, struct Inits *inits)
-{
-    init_click_events_handling();
-
-    if (config == NULL)
-        return get_default_order(config, inits);
-
-    struct json_object *order;
-    if (!json_object_object_get_ex(config, "order", &order))
-        return get_default_order(config, inits);
-
-    size_t out = 0;
-    const size_t n = json_object_array_length(order);
-    for (size_t i = 0; i != n; i++) {
-        const char *name = json_object_get_string(json_object_array_get_idx(order, i));
-
-        if (is_block_printer_enabled(config, name)) {
-            size_t name_index = find_valid_name(name);
-            inits->inits[out] = default_inits[name_index];
-            inits->order[out++] = valid_names[name_index];
-        }
-    }
-    inits->inits[out] = NULL;
-    inits->order[out] = NULL;
-
-    json_object_object_del(config, "order");
-}
-
-void get_block_printers(const char * const order[9], struct Blocks *blocks)
-{
-    size_t out = 0;
-    for (size_t i = 0; order[i]; ++i) {
-        size_t name_index = find_valid_name(order[i]);
-        blocks->full_text_printers[out] = default_full_text_printers[name_index];
-        ++out;
-    }
-    blocks->full_text_printers[out] = NULL;
 }

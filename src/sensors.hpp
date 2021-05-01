@@ -61,12 +61,11 @@ class Sensors {
     friend Sensor;
 
 public:
-    Sensors() = default;
-
     /**
-     * Initialize libsensors and get a list of sensors on the system and fetch their value.
+     * Initialize libsensors and get a list of sensors on the system
+     * You need to call update() after ctor to fetch the readings, otherwise begin() == end().
      */
-    void init();
+    Sensors();
 
     void update();
 

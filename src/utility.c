@@ -1,4 +1,4 @@
-#define _DEFAULT_SOURCE /* For reallocarray and realpath */
+#define _DEFAULT_SOURCE /* For reallocarray, realpath and struct dirent::d_type */
 #define _POSIX_C_SOURCE 200809L /* For openat, fstatat, sigaction */
 #define _XOPEN_SOURCE 500 /* For realpath */
 
@@ -302,4 +302,39 @@ void stack_bt()
 
     int sz = backtrace(bt_buffer, sizeof(bt_buffer) / sizeof(void*));
     backtrace_symbols_fd(bt_buffer, sz, 2);
+}
+
+void visit_all_subdirs(const char *path, subdir_visiter visiter, ...)
+{
+    DIR *dir = opendir(path);
+    if (!dir)
+        err(1, "%s on %s failed", "opendir", path);
+
+    va_list ap;
+    va_start(ap, visiter);
+
+    const int path_fd = dirfd(dir);
+
+    errno = 0;
+    for (struct dirent *ent; (ent = readdir(dir)); errno = 0) {
+        switch (ent->d_type) {
+            case DT_UNKNOWN:
+            case DT_LNK:
+                // Check if it is a dir after resolution
+                if (!isdir(path, path_fd, ent->d_name))
+                    break;
+
+            case DT_DIR:
+                if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0)
+                    visiter(path_fd, ent->d_name, ap);
+
+            default:
+                break;
+        }
+    }
+    if (errno != 0)
+        err(1, "%s on %s failed", "readdir", path);
+
+    va_end(ap);
+    closedir(dir);
 }

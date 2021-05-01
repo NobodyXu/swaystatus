@@ -2,6 +2,7 @@
 # define _GNU_SOURCE     /* For strchrnul, strcasestr */
 #endif
 
+#include <cstddef>
 #include <cstring>
 
 #include <err.h>
@@ -22,7 +23,7 @@ namespace swaystatus {
 auto Battery::makeBattery(int path_fd, std::string_view device, std::string_view excluded_model) ->
     std::optional<Battery>
 {
-    size_t device_name_len = device.size();
+    std::size_t device_name_len = device.size();
 
     std::string path(device);
     path.reserve(device_name_len + 1 + sizeof("uevent"));
@@ -48,6 +49,7 @@ auto Battery::makeBattery(int path_fd, std::string_view device, std::string_view
 
     auto battery = Battery{path_fd, std::move(path)};
 
+    battery.read_battery_uevent();
     if (battery.get_property("model_name") == excluded_model)
         return std::nullopt;
 
@@ -57,10 +59,13 @@ auto Battery::makeBattery(int path_fd, std::string_view device, std::string_view
 Battery::Battery(int path_fd, std::string &&device):
     battery_device{std::move(device)}
 {
-    battery_device.append("/uevent");
+    auto device_sz = battery_device.size();
 
-    uevent_fd = openat_checked(power_supply_path, path_fd, battery_device.c_str(), O_RDONLY);
-    read_battery_uevent();
+    auto &buffer = battery_device;
+    buffer.append("/uevent");
+    uevent_fd = openat_checked(power_supply_path, path_fd, buffer.c_str(), O_RDONLY);
+    battery_device.resize(device_sz);
+    battery_device.shrink_to_fit();
 }
 
 Battery::Battery(Battery &&other) noexcept:
@@ -89,16 +94,16 @@ void Battery::read_battery_uevent()
         err(1, "%s on %s%s/%s failed", "lseek", power_supply_path, battery_device.c_str(), "uevent");
 }
 
-auto Battery::get_property(const char *name) const noexcept -> std::string_view
+auto Battery::get_property(std::string_view name) const noexcept -> std::string_view
 {
     if (uevent_fd == -1)
         return {};
 
-    std::size_t name_len = std::strlen(name);
+    std::size_t name_len = name.size();
 
     char *substr = const_cast<char*>(buffer.c_str());
     for (; ;) {
-        substr = strcasestr(substr, name);
+        substr = strcasestr(substr, name.data());
         if (!substr)
             return "nullptr";
         if (substr[name_len] == '=')
@@ -136,14 +141,14 @@ auto Batteries_formatter::format(const Batteries &batteries, format_context &ctx
         return out;
 
     for (const swaystatus::Battery &battery: batteries) {
-        auto get_bat_property_lazy = [&battery](const char *name) noexcept
+        auto get_bat_property_lazy = [&battery](std::string_view name) noexcept
         {
             return swaystatus::LazyEval{[&battery, name]() noexcept
             {
                 return battery.get_property(name);
             }};
         };
-        auto get_conditional_lazy = [&battery](const char *name, const char *val) noexcept
+        auto get_conditional_lazy = [&battery](std::string_view name, std::string_view val) noexcept
         {
             return swaystatus::LazyEval{[&battery, name, val]() noexcept
             {

@@ -97,7 +97,7 @@ sensor_reading::sensor_reading(Sensor *sensor, int number) noexcept:
     sensor{sensor}, number{number}
 {}
 
-void Sensors::init()
+Sensors::Sensors()
 {
     if (sensors_init(nullptr) != 0)
         errx(1, "%s failed", "sensors_init");
@@ -110,8 +110,6 @@ void Sensors::init()
     }
 
     sensors.shrink_to_fit();
-
-    update();
 }
 
 void Sensors::update()

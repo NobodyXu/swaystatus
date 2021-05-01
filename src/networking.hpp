@@ -97,6 +97,7 @@ public:
     auto cbegin() const noexcept -> const_iterator;
     auto cend() const noexcept -> const_iterator;
 
+    void update();
     void clear() noexcept;
 };
 }
