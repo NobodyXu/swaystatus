@@ -1,9 +1,3 @@
-#include <err.h>
-
-#include <sys/types.h>
-#include <net/if.h>
-#include <ifaddrs.h>
-
 #include "../formatting/Conditional.hpp"
 #include "../networking.hpp"
 
@@ -14,52 +8,6 @@ using namespace std::literals;
 namespace swaystatus::modules {
 class NetworkInterfacesPrinter: public Base {
     Interfaces interfaces;
-
-    void getifaddrs_checked()
-    {
-        interfaces.clear();
-    
-        struct ifaddrs *ifaddr;
-        if (getifaddrs(&ifaddr) < 0)
-            err(1, "%s failed", "getifaddrs");
-    
-        for (struct ifaddrs *ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-            if (ifa->ifa_addr == NULL)
-                continue;
-    
-            auto ifa_flags = ifa->ifa_flags;
-            if (ifa_flags & IFF_LOOPBACK)
-                continue;
-            if (!(ifa_flags & IFF_UP))
-                continue;
-            if (!(ifa_flags & IFF_RUNNING))
-                continue;
-    
-            auto sa_family = ifa->ifa_addr->sa_family;
-            if (sa_family != AF_INET && sa_family != AF_INET6 && sa_family != AF_PACKET)
-                continue;
-    
-            auto *interface = interfaces[ifa->ifa_name];
-            if (!interface)
-                break;
-            interface->flags = ifa->ifa_flags;
-            switch (ifa->ifa_addr->sa_family) {
-                case AF_INET:
-                    interface->ipv4_addrs_v.add(ifa->ifa_addr);
-                    break;
-    
-                case AF_INET6:
-                    interface->ipv6_addrs_v.add(ifa->ifa_addr);
-                    break;
-    
-                case AF_PACKET:
-                    interface->stat = *static_cast<interface_stats*>(ifa->ifa_data);
-                    break;
-            }
-        }
-    
-        freeifaddrs(ifaddr);
-    }
 
 public:
     NetworkInterfacesPrinter(void *config):
@@ -78,7 +26,7 @@ public:
 
     void update()
     {
-        getifaddrs_checked();
+        interfaces.update();
     }
     void do_print(const char *format)
     {

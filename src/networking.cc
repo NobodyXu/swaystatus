@@ -1,5 +1,8 @@
 #include <arpa/inet.h>
 #include <net/if.h>
+#include <ifaddrs.h>
+
+#include <err.h>
 
 #include <cstring>
 #include <cinttypes>
@@ -151,6 +154,53 @@ void Interfaces::clear() noexcept
         interface.reset();
 
     cnt = 0;
+}
+void Interfaces::update()
+{
+    clear();
+    
+    struct ifaddrs *ifaddr;
+    if (getifaddrs(&ifaddr) < 0)
+        err(1, "%s failed", "getifaddrs");
+    
+    for (auto *ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
+        // Filter out uninterested entries
+        if (ifa->ifa_addr == nullptr)
+            continue;
+    
+        auto ifa_flags = ifa->ifa_flags;
+        if (ifa_flags & IFF_LOOPBACK)
+            continue;
+        if (!(ifa_flags & IFF_UP))
+            continue;
+        if (!(ifa_flags & IFF_RUNNING))
+            continue;
+    
+        auto sa_family = ifa->ifa_addr->sa_family;
+        if (sa_family != AF_INET && sa_family != AF_INET6 && sa_family != AF_PACKET)
+            continue;
+
+        // Add new interface
+        auto *interface = (*this)[ifa->ifa_name];
+        if (!interface) // If it is full, then stop getting more
+            break;
+        interface->flags = ifa->ifa_flags;
+        switch (sa_family) {
+            case AF_INET:
+                interface->ipv4_addrs_v.add(ifa->ifa_addr);
+                break;
+    
+            case AF_INET6:
+                interface->ipv6_addrs_v.add(ifa->ifa_addr);
+                break;
+    
+            case AF_PACKET:
+                interface->stat = *static_cast<interface_stats*>(ifa->ifa_data);
+                break;
+        }
+    }
+    
+    freeifaddrs(ifaddr);
 }
 } /* namespace swaystatus */
 
