@@ -74,9 +74,7 @@ public:
                 "{name}"
             "}}"
         }
-    {
-        getifaddrs_checked();
-    }
+    {}
 
     void update()
     {
