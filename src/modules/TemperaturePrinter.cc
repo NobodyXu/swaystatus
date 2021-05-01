@@ -17,13 +17,16 @@ public:
         }
     {
         sensors.init();
+        /**
+         * Here, reading_it = sensors.begin() = sensor.end()
+         */
         reading_it = sensors.begin();
     }
 
     void update()
     {
         ++reading_it;
-        if (reading_it == sensors.end()) {
+        if (reading_it >= sensors.end()) {
             sensors.update();
             reading_it = sensors.begin();
         }
