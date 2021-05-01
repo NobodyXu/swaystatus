@@ -6,6 +6,7 @@
 # include <type_traits>
 # include <memory>
 # include <string_view>
+# include <vector>
 
 # include "../formatting/printer.hpp"
 
@@ -104,6 +105,8 @@ public:
 
     virtual ~Base();
 };
+
+auto makeModules(void *config) -> std::vector<std::unique_ptr<Base>>;
 } /* namespace swaystatus::modules */
 
 #endif
