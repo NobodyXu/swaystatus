@@ -14,14 +14,12 @@ public:
         Base{
             config, "TemperaturePrinter"sv,
             5, "{prefix} {reading_number}th sensor: {reading_temp}°C", nullptr
-        }
-    {
-        sensors.init();
+        },
         /**
          * Here, reading_it = sensors.begin() = sensor.end()
          */
-        reading_it = sensors.begin();
-    }
+        reading_it{sensors.begin()}
+    {}
 
     void update()
     {
