@@ -2,6 +2,7 @@
 # define _GNU_SOURCE     /* For strchrnul, strcasestr */
 #endif
 
+#include <cstddef>
 #include <cstring>
 
 #include <err.h>
@@ -22,7 +23,7 @@ namespace swaystatus {
 auto Battery::makeBattery(int path_fd, std::string_view device, std::string_view excluded_model) ->
     std::optional<Battery>
 {
-    size_t device_name_len = device.size();
+    std::size_t device_name_len = device.size();
 
     std::string path(device);
     path.reserve(device_name_len + 1 + sizeof("uevent"));
@@ -57,9 +58,13 @@ auto Battery::makeBattery(int path_fd, std::string_view device, std::string_view
 Battery::Battery(int path_fd, std::string &&device):
     battery_device{std::move(device)}
 {
-    battery_device.append("/uevent");
+    auto device_sz = battery_device.size();
 
-    uevent_fd = openat_checked(power_supply_path, path_fd, battery_device.c_str(), O_RDONLY);
+    auto &buffer = battery_device;
+    buffer.append("/uevent");
+    uevent_fd = openat_checked(power_supply_path, path_fd, buffer.c_str(), O_RDONLY);
+    battery_device.resize(device_sz);
+    battery_device.shrink_to_fit();
 }
 
 Battery::Battery(Battery &&other) noexcept:
