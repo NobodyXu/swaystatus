@@ -103,7 +103,7 @@ public:
      */
     void update_and_print();
 
-    virtual ~Base();
+    virtual ~Base() = default;
 };
 
 auto makeModules(void *config) -> std::vector<std::unique_ptr<Base>>;
