@@ -25,6 +25,10 @@ public:
             "excluded_model"
         }
     {
+        std::string_view excluded_model_sv;
+        if (excluded_model)
+            excluded_model_sv = excluded_model;
+
         visit_all_subdirs(
             Battery::power_supply_path,
             [](int path_fd, const char *d_name, va_list ap)
@@ -32,7 +36,7 @@ public:
                 va_list args;
                 va_copy(args, ap);
 
-                auto *excluded_model = va_arg(args, const char*);
+                auto &excluded_model = *va_arg(args, std::string_view*);
                 auto &batteries = *va_arg(args, std::vector<Battery>*);
 
                 auto result = Battery::makeBattery(path_fd, d_name, excluded_model);
@@ -41,7 +45,7 @@ public:
 
                 va_end(args);
             },
-            excluded_model, &batteries
+            &excluded_model_sv, &batteries
         );
 
         batteries.shrink_to_fit();
