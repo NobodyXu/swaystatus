@@ -32,8 +32,6 @@ Backlight::Backlight(int path_fd, const char *filename_arg):
     buffer.resize(filename_sz);
 
     buffer.shrink_to_fit();
-
-    update_brightness();
 }
 
 Backlight::~Backlight()
