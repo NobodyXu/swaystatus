@@ -15,6 +15,8 @@ get_libc_name() {
     fi
 }
 
+cd $(dirname $0)
+
 label_postfix="$(arch)-$(uname)-$(get_libc_name)"
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
@@ -33,8 +35,6 @@ else
     changelogOption="-F"
     changelogValue="$changelogFile"
 fi
-
-cd $(dirname $0)
 
 ./run_all_builds.sh
 
