@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 
 get_libc_name() {
-    libc=$(ldd release_build/swaystatus | grep libc | cut -d '>' -f 2 | sed 's/(.*)$//')
+    libc=$(ldd src/release_build/swaystatus | grep libc | cut -d '>' -f 2 | sed 's/(.*)$//')
     output=$($libc 2>&1)
     if echo "$output" | grep -q 'GNU C Library'; then
         version="$(echo $output | grep -o 'release version [0-9]*\.[0-9]*' | sed -e 's/release version //')"
