@@ -101,17 +101,21 @@ int create_pollable_monotonic_timer(uintmax_t msec)
     if (timerfd == -1)
         err(1, "%s failed", "timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC)");
 
-       int timerfd_settime(int fd, int flags,
-                           const struct itimerspec *new_value,
-                           struct itimerspec *old_value);
-
     struct itimerspec spec = {
         .it_interval = {
             .tv_sec = msec / 1000,
             .tv_nsec = (msec % 1000) * 1000 * 1000
+        },
+        /**
+         * In order to arm the timer, either it_value.tv_sec or it_value.tv_nsec has to be non-zero
+         * However, I'd like the initial expire of the timer to be ASAP, so tv_nsec is set to 
+         * 1 while tv_sec is set to 0.
+         */
+        .it_value = {
+            .tv_sec = 0,
+            .tv_nsec = 1
         }
     };
-    spec.it_value = spec.it_interval;
     int result = timerfd_settime(timerfd, 0, &spec, NULL);
     if (result == -1)
         err(1, "%s failed", "timerfd_settime");
