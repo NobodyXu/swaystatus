@@ -52,6 +52,8 @@ void msleep(uintmax_t msec);
  * @param msec milliseconds
  * @return a pollable fd. 
  *
+ * The initial expire of the timer is ASAP (1 ns)
+ *
  * Check man page of timefd_create for how to use the return value of this API.
  */
 int create_pollable_monotonic_timer(uintmax_t msec);
