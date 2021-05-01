@@ -28,7 +28,6 @@ public:
          * time technically can't fail as long as the first arg is set to nullptr
          */
         const time_t epoch = time(nullptr);
-        struct tm local_time;
         if (localtime_r(&epoch, &local_time) == nullptr)
             errx(1, "%s failed %s", "localtime_r", "due to time(nullptr) has failed");
     }
