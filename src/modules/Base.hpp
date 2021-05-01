@@ -40,7 +40,7 @@ class Base {
     const std::unique_ptr<const char[]> full_text_format;
     const std::unique_ptr<const char[]> short_text_format;
 
-    std::uint32_t cycle_cnt = 0;
+    std::uint32_t cycle_cnt;
     const std::uint32_t interval;
 
     std::unique_ptr<const char[]> user_specified_properties_str;
@@ -97,6 +97,9 @@ protected:
     virtual void do_print(const char *format) = 0;
 
 public:
+    /**
+     * The first call to update_and_print will always trigger update
+     */
     void update_and_print();
 
     virtual ~Base();

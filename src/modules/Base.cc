@@ -24,6 +24,8 @@ Base::Base(
     short_text_format{get_short_format(config, default_short_format)},
     interval{get_update_interval(config, module_name_arg.data(), default_interval)}
 {
+    this->cycle_cnt = interval - 1;
+
     add_click_event_handler(module_name.data(), get_click_event_handler(config));
 
     std::va_list ap;
