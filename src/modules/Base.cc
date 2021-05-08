@@ -76,7 +76,9 @@ void Base::print_fmt(std::string_view name, const char *format)
     print_literal_str("\":\"");
 
     TRY {
+        fmt_set_calling_module(module_name.data());
         do_print(format);
+        fmt_set_calling_module(nullptr);
     } CATCH (const std::exception &e) {
         errx(1, "Failed to print %s format in %s: %s",
                 name.data(), module_name.data(), e.what());
