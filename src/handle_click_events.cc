@@ -40,6 +40,7 @@ struct Callback {
         const ClickPos &,
         const BlockSize &
     > callable;
+    std::uint8_t requested_events = 0;
 
     auto operator () (
         const char *instance,
@@ -50,7 +51,7 @@ struct Callback {
         const BlockSize &size
     )
     {
-        return callable(instance, pos, button, event, relative_pos, size);
+        requested_events |= callable(instance, pos, button, event, relative_pos, size);
     }
 };
 
@@ -68,10 +69,10 @@ void init_click_events_handling()
     request_polling(0, read_ready, click_events_handler, NULL);
 }
 
-void add_click_event_handler(const char *name, const void *click_event_handler_config)
+uint8_t* add_click_event_handler(const char *name, const void *click_event_handler_config)
 {
     if (click_event_handler_config == NULL)
-        return;
+        return NULL;
 
     auto &callback = callbacks[callback_cnt++];
 
@@ -82,9 +83,9 @@ void add_click_event_handler(const char *name, const void *click_event_handler_c
         parser = json_tokener_new();
         if (parser == NULL)
             errx(1, "%s failed", "json_tokener_new");
-
-        //json_tokener_set_flags(parser, JSON_TOKENER_ALLOW_TRAILING_CHARS);
     }
+
+    return &callback.requested_events;
 }
 } /* extern "C" */
 
