@@ -7,6 +7,7 @@
 #include <fcntl.h>  /* For AT_FDCWD and O_RDONLY */
 
 #include "../utility.h"
+#include "../Fd.hpp"
 
 #include "LoadPrinter.hpp"
 
@@ -14,7 +15,7 @@ using namespace std::literals;
 
 namespace swaystatus::modules {
 class LoadPrinter: public Base {
-    int load_fd;
+    Fd load_fd;
     /*
      * 100-long buffer should be enough for /proc/loadavg
      */
@@ -50,14 +51,14 @@ class LoadPrinter: public Base {
 
     void update_load()
     {
-        ssize_t cnt = readall(load_fd, buffer, sizeof(buffer) - 1);
+        ssize_t cnt = readall(load_fd.get(), buffer, sizeof(buffer) - 1);
         if (cnt == -1)
             err(1, "%s on %s failed", "readall", loadavg_path);
         if (cnt == 0 || cnt == sizeof(buffer) - 1)
             errx(1, "%s on %s failed", "Assumption", loadavg_path);
         buffer[cnt] = '\0';
     
-        if (lseek(load_fd, 0, SEEK_SET) == (off_t) -1)
+        if (lseek(load_fd.get(), 0, SEEK_SET) == (off_t) -1)
             err(1, "%s on %s failed", "lseek", loadavg_path);
     
         parse_loadavg(buffer, statistics);
@@ -70,10 +71,9 @@ public:
         Base{
             config, "LoadPrinter"sv,
             60, "1m: {loadavg_1m} 5m: {loadavg_5m} 15m: {loadavg_15m}", nullptr
-        }
-    {
-        load_fd = openat_checked("", AT_FDCWD, loadavg_path, O_RDONLY);
-    }
+        },
+        load_fd{openat_checked("", AT_FDCWD, loadavg_path, O_RDONLY)}
+    {}
 
     void update()
     {
