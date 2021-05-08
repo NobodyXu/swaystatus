@@ -13,12 +13,12 @@ enum class ClickHandlerRequest: uint8_t {
     reload = 1 << 1,
 };
 
-uint8_t operator & (const ClickHandlerRequest &x, const ClickHandlerRequest &y) noexcept
+inline uint8_t operator & (const ClickHandlerRequest &x, const ClickHandlerRequest &y) noexcept
 {
     return static_cast<uint8_t>(x) & static_cast<uint8_t>(y);
 }
 
-uint8_t operator |= (ClickHandlerRequest &x, const ClickHandlerRequest &y) noexcept
+inline uint8_t operator |= (ClickHandlerRequest &x, const ClickHandlerRequest &y) noexcept
 {
     auto ret = static_cast<uint8_t>(static_cast<uint8_t>(x) | static_cast<uint8_t>(y));
     x = ClickHandlerRequest{ret};
