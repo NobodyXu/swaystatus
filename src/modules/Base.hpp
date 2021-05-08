@@ -103,6 +103,7 @@ protected:
 public:
     /**
      * The first call to update_and_print will always trigger update
+     * Immediately after reload(), update() will be called.
      */
     void update_and_print();
 
