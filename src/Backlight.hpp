@@ -5,6 +5,8 @@
 # include <string>
 # include <string_view>
 
+# include "Fd.hpp"
+
 namespace swaystatus {
 class Backlight {
 public:
@@ -19,7 +21,7 @@ public:
     /**
      * opened file of /sys/class/backlight/{BacklightDevice}/brightness
      */
-    int fd;
+    Fd fd;
     /**
      * cached brightness
      */
@@ -34,12 +36,12 @@ public:
     Backlight(int path_fd, const char *filename_arg);
 
     Backlight(const Backlight&) = delete;
-    Backlight(Backlight&&) noexcept;
+    Backlight(Backlight&&) = default;
 
     Backlight& operator = (const Backlight&) = delete;
     Backlight& operator = (Backlight&&) = delete;
 
-    ~Backlight();
+    ~Backlight() = default;
 
     void update_brightness();
 
