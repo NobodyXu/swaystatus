@@ -98,6 +98,7 @@ protected:
 
     virtual void update() = 0;
     virtual void do_print(const char *format) = 0;
+    virtual void reload() = 0;
 
 public:
     /**

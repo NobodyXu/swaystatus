@@ -13,6 +13,11 @@ enum class ClickHandlerRequest: uint8_t {
     reload = 1 << 1,
 };
 
+uint8_t operator & (const ClickHandlerRequest &x, const ClickHandlerRequest &y) noexcept
+{
+    return static_cast<uint8_t>(x) & static_cast<uint8_t>(y);
+}
+
 # endif
 
 void init_click_events_handling();
