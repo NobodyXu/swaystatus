@@ -9,8 +9,8 @@ extern "C" {
 
 enum class ClickHandlerRequest: uint8_t {
     none = 0,
-    update = 1 << 0,
-    reload = 1 << 1,
+    update = 1,
+    reload = 2,
 };
 
 inline uint8_t operator & (const ClickHandlerRequest &x, const ClickHandlerRequest &y) noexcept
