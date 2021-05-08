@@ -67,6 +67,14 @@ public:
      */
     Sensors();
 
+    Sensors(const Sensors&) = delete;
+    Sensors(Sensors&&) = delete;
+
+    Sensors& operator = (const Sensors&) = delete;
+    Sensors& operator = (Sensors&&) = delete;
+
+    void reload();
+
     void update();
 
     using const_iterator = std::vector<sensor_reading>::const_iterator;

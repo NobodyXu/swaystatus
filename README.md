@@ -121,6 +121,11 @@ It is used to generate "short_text", which is used by `swaybar` when it decided 
 TO enable click event handling for a block, add json object "click_event_handler" 
 to the block that block.
 
+The return value of it can be `or`ed from the following values:
+ - `0` do nothing
+ - `1` force the module to update
+ - `2` force the module to reload
+
 Currently, the handler can be written in python or C/C++.
 
 ##### Loading python handler

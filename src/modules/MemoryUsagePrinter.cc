@@ -9,6 +9,7 @@
 #include <string>
 
 #include "../utility.h"
+#include "../Fd.hpp"
 
 #include "../formatting/printer.hpp"
 #include "../formatting/LazyEval.hpp"
@@ -21,17 +22,17 @@ namespace swaystatus::modules {
 class MemoryUsagePrinter: public Base {
     static constexpr const char * const path = "/proc/meminfo";
 
-    int meminfo_fd;
+    Fd meminfo_fd;
     std::size_t memtotal = -1;
     std::string buffer;
 
     void read_meminfo()
     {
-        ssize_t cnt = asreadall(meminfo_fd, buffer);
+        ssize_t cnt = asreadall(meminfo_fd.get(), buffer);
         if (cnt < 0)
             err(1, "%s on %s failed", "read", path);
     
-        if (lseek(meminfo_fd, 0, SEEK_SET) == (off_t) -1)
+        if (lseek(meminfo_fd.get(), 0, SEEK_SET) == (off_t) -1)
             err(1, "%s on %s failed", "lseek", path);
     }
     char* skip_space(char *str)
@@ -113,6 +114,8 @@ public:
             fmt::arg("MemTotal", mem_size_t{memtotal})
         );
     }
+    void reload()
+    {}
 };
 
 std::unique_ptr<Base> makeMemoryUsagePrinter(void *config)

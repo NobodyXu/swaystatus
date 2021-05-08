@@ -3,8 +3,8 @@
 #include <cassert>
 
 #define USE_PYTHON
-#include "../../../src/python3.hpp"
 #include "../../../src/utility.h"
+#include "../../../src/Callback/python3.hpp"
 
 using namespace swaystatus::python;
 

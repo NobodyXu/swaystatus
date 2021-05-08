@@ -30,6 +30,8 @@ public:
     {
         print(format, fmt::arg("volume", get_audio_volume()));
     }
+    void reload()
+    {}
 };
 
 std::unique_ptr<Base> makeVolumePrinter(void *config)

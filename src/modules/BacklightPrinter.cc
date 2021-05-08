@@ -13,12 +13,7 @@ namespace swaystatus::modules {
 class BacklightPrinter: public Base {
     std::vector<Backlight> backlights;
 
-public:
-    BacklightPrinter(void *config):
-        Base{
-            config, "BacklightPrinter"sv,
-            1, "{backlight_device}: {brightness}", nullptr
-        }
+    void load()
     {
         visit_all_subdirs(
             Backlight::path,
@@ -33,6 +28,16 @@ public:
         );
 
         backlights.shrink_to_fit();
+    }
+
+public:
+    BacklightPrinter(void *config):
+        Base{
+            config, "BacklightPrinter"sv,
+            1, "{backlight_device}: {brightness}", nullptr
+        }
+    {
+        load();
     }
 
     ~BacklightPrinter() = default;
@@ -57,6 +62,11 @@ public:
             if (i++ != backlights.size())
                 print_literal_str(" ");
         }
+    }
+    void reload()
+    {
+        backlights.clear();
+        load();
     }
 };
 

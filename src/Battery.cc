@@ -68,35 +68,21 @@ Battery::Battery(int path_fd, std::string &&device):
     battery_device.shrink_to_fit();
 }
 
-Battery::Battery(Battery &&other) noexcept:
-    battery_device{std::move(other.battery_device)},
-    uevent_fd{other.uevent_fd},
-    buffer{std::move(other.buffer)}
-{
-    other.uevent_fd = -1;
-}
-
-Battery::~Battery()
-{
-    if (uevent_fd != -1)
-        close(uevent_fd);
-}
-
 void Battery::read_battery_uevent()
 {
     buffer.clear();
 
-    ssize_t cnt = asreadall(uevent_fd, buffer);
+    ssize_t cnt = asreadall(uevent_fd.get(), buffer);
     if (cnt < 0)
         err(1, "%s on %s%s/%s failed", "read", power_supply_path, battery_device.c_str(), "uevent");
 
-    if (lseek(uevent_fd, 0, SEEK_SET) == static_cast<off_t>(-1))
+    if (lseek(uevent_fd.get(), 0, SEEK_SET) == static_cast<off_t>(-1))
         err(1, "%s on %s%s/%s failed", "lseek", power_supply_path, battery_device.c_str(), "uevent");
 }
 
 auto Battery::get_property(std::string_view name) const noexcept -> std::string_view
 {
-    if (uevent_fd == -1)
+    if (!uevent_fd)
         return {};
 
     std::size_t name_len = name.size();

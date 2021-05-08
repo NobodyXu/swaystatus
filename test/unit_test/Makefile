@@ -14,11 +14,14 @@ CXX_OBJS := $(CXX_SRCS:.cc=.out)
 
 OBJS := $(C_OBJS) $(CXX_OBJS)
 
-DEPS := $(filter-out build_dir/swaystatus.o, $(wildcard build_dir/*.o))
+DEPS := $(filter-out build_dir/swaystatus.o, $(shell find build_dir/ -name '*.o'))
 
 ## Build rules
 all:
 	mkdir -p build_dir
+	mkdir -p build_dir/Callback
+	mkdir -p build_dir/formatting
+	mkdir -p build_dir/modules
 	BUILD_DIR=${PWD}/build_dir PYTHON=true DEBUG=true $(MAKE) -C ../../src/
 	$(MAKE) build
 	./run_tests.sh $(OBJS)

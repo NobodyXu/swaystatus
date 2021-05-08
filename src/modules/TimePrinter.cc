@@ -50,6 +50,8 @@ public:
 
         print_str2(buffer, cnt);
     }
+    void reload()
+    {}
 };
 
 std::unique_ptr<Base> makeTimePrinter(void *config)

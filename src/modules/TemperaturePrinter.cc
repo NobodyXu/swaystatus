@@ -47,6 +47,10 @@ public:
             fmt::arg("reading_temp",   reading.temp)
         );
     }
+    void reload()
+    {
+        sensors.reload();
+    }
 };
 
 std::unique_ptr<Base> makeTemperaturePrinter(void *config)

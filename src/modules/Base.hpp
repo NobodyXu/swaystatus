@@ -47,6 +47,8 @@ class Base {
     std::unique_ptr<const char[]> user_specified_properties_str;
     std::size_t user_specified_properties_str_len;
 
+    std::uint8_t * const requested_events;
+
     // instance methods
 
     /**
@@ -96,10 +98,12 @@ protected:
 
     virtual void update() = 0;
     virtual void do_print(const char *format) = 0;
+    virtual void reload() = 0;
 
 public:
     /**
      * The first call to update_and_print will always trigger update
+     * Immediately after reload(), update() will be called.
      */
     void update_and_print();
 

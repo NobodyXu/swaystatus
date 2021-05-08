@@ -36,29 +36,14 @@ Backlight::Backlight(int path_fd, const char *filename_arg):
     buffer.shrink_to_fit();
 }
 
-Backlight::Backlight(Backlight &&other) noexcept:
-    filename{std::move(other.filename)},
-    max_brightness{other.max_brightness},
-    fd{other.fd},
-    brightness{other.brightness}
-{
-    other.fd = -1;
-}
-
-Backlight::~Backlight()
-{
-    if (fd != -1)
-        close(fd);
-}
-
 std::uintmax_t Backlight::calculate_brightness()
 {
     uintmax_t val;
-    const char *failed_part = readall_as_uintmax(fd, &val);
+    const char *failed_part = readall_as_uintmax(fd.get(), &val);
     if (failed_part)
         err(1, "%s on %s%s/%s failed", failed_part, path, filename.c_str(), "brightness");
 
-    if (lseek(fd, 0, SEEK_SET) == (off_t) -1)
+    if (lseek(fd.get(), 0, SEEK_SET) == (off_t) -1)
         err(1, "%s on %s%s/%s failed", "lseek", path, filename.c_str(), "brightness");
 
     return 100 * val / max_brightness;

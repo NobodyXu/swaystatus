@@ -33,11 +33,10 @@ Base::Base(
     module_name{module_name_arg},
     full_text_format{get_format(config, default_full_format)},
     short_text_format{get_short_format(config, default_short_format)},
-    interval{get_update_interval(config, module_name_arg.data(), default_interval)}
+    interval{get_update_interval(config, module_name_arg.data(), default_interval)},
+    requested_events{add_click_event_handler(module_name.data(), get_click_event_handler(config))}
 {
     this->cycle_cnt = interval - 1;
-
-    add_click_event_handler(module_name.data(), get_click_event_handler(config));
 
     std::va_list ap;
     va_start(ap, n);
@@ -49,6 +48,18 @@ Base::Base(
 
 void Base::update_and_print()
 {
+    if (requested_events) {
+        const ClickHandlerRequest requests{*requested_events};
+        *requested_events = static_cast<std::uint8_t>(ClickHandlerRequest::none);
+
+        if (requests & ClickHandlerRequest::reload) {
+            reload();
+            update();
+        }
+        if (requests & ClickHandlerRequest::update)
+            update();
+    }
+
     if (++cycle_cnt == interval) {
         cycle_cnt = 0;
         update();
