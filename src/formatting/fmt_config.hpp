@@ -26,6 +26,11 @@
 # define __swaystatus_fmt_config_HPP__
 
 namespace swaystatus {
+/**
+ * @param module nullptr to mark the completion current module
+ */
+void fmt_set_calling_module(const char *module) noexcept;
+
 [[noreturn]]
 void fmt_throw_impl(const std::exception &e, const char *func, int line, const char *file) noexcept;
 } /* namespace swaystatus */
