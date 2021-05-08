@@ -124,7 +124,7 @@ to the block that block.
 The return value of it can be `or`ed from the following values:
  - `0` do nothing
  - `1` force the module to update
- - `2` force the module to reload (not yet implemented)
+ - `2` force the module to reload
 
 Currently, the handler can be written in python or C/C++.
 
