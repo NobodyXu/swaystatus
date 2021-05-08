@@ -113,6 +113,8 @@ public:
             fmt::arg("MemTotal", mem_size_t{memtotal})
         );
     }
+    void reload()
+    {}
 };
 
 std::unique_ptr<Base> makeMemoryUsagePrinter(void *config)
