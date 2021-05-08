@@ -3,7 +3,7 @@
 #include <cassert>
 
 #include "../../../src/utility.h"
-#include "../../../src/dynlib.hpp"
+#include "../../../src/Callback/dynlib.hpp"
 
 using namespace swaystatus;
 
