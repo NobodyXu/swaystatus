@@ -101,6 +101,13 @@ Sensors::Sensors()
 {
     if (sensors_init(nullptr) != 0)
         errx(1, "%s failed", "sensors_init");
+    reload();
+}
+
+void Sensors::reload()
+{
+    sensors.clear();
+    readings.clear();
 
     sensors_chip_name const * cn;
     int c = 0;
