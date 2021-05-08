@@ -37,6 +37,14 @@ public:
             fmt::arg("per_interface_fmt_str", interfaces)
         );
     }
+    void reload()
+    {
+        /*
+         * Since each call t interfaces.update() would read all network interfaces again,
+         * reload() needs to do nothing here as Base::update_and_print() will always
+         * call update() after reload().
+         */
+    }
 };
 
 std::unique_ptr<Base> makeNetworkInterfacesPrinter(void *config)
