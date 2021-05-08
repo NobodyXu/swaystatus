@@ -6,6 +6,8 @@
 # include <vector>
 # include <optional>
 
+# include "Fd.hpp"
+
 # include "formatting/LazyEval.hpp"
 # include "formatting/Conditional.hpp"
 
@@ -14,7 +16,7 @@
 namespace swaystatus {
 class Battery {
     std::string battery_device;
-    int uevent_fd;
+    Fd uevent_fd;
 
     std::string buffer;
 
@@ -27,12 +29,12 @@ public:
     static auto makeBattery(int path_fd, std::string_view device, std::string_view excluded_model)
         -> std::optional<Battery>;
 
-    Battery(Battery &&) noexcept;
+    Battery(Battery&&) = default;
 
     Battery& operator = (const Battery&) = delete;
     Battery& operator = (Battery&&) = delete;
 
-    ~Battery();
+    ~Battery() = default;
 
     void read_battery_uevent();
 
