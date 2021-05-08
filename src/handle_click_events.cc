@@ -157,8 +157,13 @@ static void click_events_handler(int fd, enum Event events, void *data)
 }
 static void click_event_handler(const struct json_object *event)
 {
+    // swaybar-protocol requires the input to be an infinite array of json objects, 
+    // and each `event` should be the individual object.
+    //
+    // If it is not an object, then it is likely that `swaystatus` reloaded and the input isn't 
+    // completed processed before exec.
     if (json_object_get_type(event) != json_type_object)
-        errx(1, "%s on %s failed", "Assumption", "click event read from stdin");
+        return;
 
     auto get_str = [&](const char *key)
     {
