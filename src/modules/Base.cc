@@ -49,12 +49,12 @@ Base::Base(
 void Base::update_and_print()
 {
     if (requested_events && ClickHandlerRequest{*requested_events} == ClickHandlerRequest::update) {
-        ClickHandlerRequest requests{*requested_events};
+        const ClickHandlerRequest requests{*requested_events};
         *requested_events = static_cast<std::uint8_t>(ClickHandlerRequest::none);
 
         if (requests & ClickHandlerRequest::reload) {
             reload();
-            requests |= ClickHandlerRequest::update;
+            update();
         }
         if (requests & ClickHandlerRequest::update)
             update();
