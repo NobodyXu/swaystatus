@@ -79,7 +79,6 @@ public:
     {
         update_load();
     }
-
     void do_print(const char *format)
     {
         print(
@@ -92,6 +91,8 @@ public:
             fmt::arg("last_created_process_pid", statistics[5])
         );
     }
+    void reload()
+    {}
 };
 
 std::unique_ptr<Base> makeLoadPrinter(void *config)
