@@ -47,6 +47,8 @@ class Base {
     std::unique_ptr<const char[]> user_specified_properties_str;
     std::size_t user_specified_properties_str_len;
 
+    std::uint8_t * const requested_events;
+
     // instance methods
 
     /**
