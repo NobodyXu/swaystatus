@@ -18,13 +18,6 @@ inline uint8_t operator & (const ClickHandlerRequest &x, const ClickHandlerReque
     return static_cast<uint8_t>(x) & static_cast<uint8_t>(y);
 }
 
-inline uint8_t operator |= (ClickHandlerRequest &x, const ClickHandlerRequest &y) noexcept
-{
-    auto ret = static_cast<uint8_t>(static_cast<uint8_t>(x) | static_cast<uint8_t>(y));
-    x = ClickHandlerRequest{ret};
-    return ret;
-}
-
 # endif
 
 void init_click_events_handling();
