@@ -15,19 +15,14 @@ using namespace std::literals;
 
 namespace swaystatus::modules {
 class BatteryPrinter: public Base {
+    std::unique_ptr<const char[]> excluded_model;
     std::vector<Battery> batteries;
 
-public:
-    BatteryPrinter(void *config, const char *excluded_model):
-        Base{
-            config, "BatteryPrinter"sv,
-            3, "{has_battery:{per_battery_fmt_str:{status} {capacity}%}}", nullptr,
-            "excluded_model"
-        }
+    void load()
     {
         std::string_view excluded_model_sv;
         if (excluded_model)
-            excluded_model_sv = excluded_model;
+            excluded_model_sv = excluded_model.get();
 
         visit_all_subdirs(
             Battery::power_supply_path,
@@ -51,6 +46,18 @@ public:
         batteries.shrink_to_fit();
     }
 
+public:
+    BatteryPrinter(void *config, std::unique_ptr<const char[]> &&excluded_model_arg):
+        Base{
+            config, "BatteryPrinter"sv,
+            3, "{has_battery:{per_battery_fmt_str:{status} {capacity}%}}", nullptr,
+            "excluded_model"
+        },
+        excluded_model{std::move(excluded_model_arg)}
+    {
+        load();
+    }
+
     ~BatteryPrinter() = default;
 
     void update()
@@ -66,15 +73,18 @@ public:
             fmt::arg("per_battery_fmt_str", batteries)
         );
     }
+    void reload()
+    {
+        batteries.clear();
+        load();
+    }
 };
 
 std::unique_ptr<Base> makeBatteryPrinter(void *config)
 {
-    std::unique_ptr<const char[]> excluded_model{get_property(config, "excluded_model", nullptr)};
-
     return std::make_unique<BatteryPrinter>(
         config,
-        excluded_model.get()
+        std::unique_ptr<const char[]>{get_property(config, "excluded_model", nullptr)}
     );
 }
 } /* namespace swaystatus::modules */
