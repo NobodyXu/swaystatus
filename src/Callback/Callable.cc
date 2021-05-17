@@ -13,10 +13,10 @@ static const char *get_click_event_str(
 {
     struct json_object *val;
     if (!json_object_object_get_ex(click_event_handler, attr, &val))
-        errx(1, "Attr %s.click_event_handler.%s %s", name, attr, "is missing");
+        errx(1, "Attr %s.click_event_handler/callback.%s %s", name, attr, "is missing");
 
     if (json_object_get_type(val) != json_type_string)
-        errx(1, "Attr %s.click_event_handler.%s %s", name, attr, "contains invalid value");
+        errx(1, "Attr %s.click_event_handler/callback.%s %s", name, attr, "contains invalid value");
 
     return json_object_get_string(val);
 }
