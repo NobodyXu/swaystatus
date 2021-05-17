@@ -20,6 +20,7 @@
 #include "TemperaturePrinter.hpp"
 #include "TimePrinter.hpp"
 #include "VolumePrinter.hpp"
+#include "CustomPrinter.hpp"
 
 using namespace std::literals;
 
@@ -155,6 +156,8 @@ auto makeModules(void *config) -> std::vector<std::unique_ptr<Base>>
 {
     init_click_events_handling();
 
+    std::vector<std::unique_ptr<Base>> modules;
+
     const char *buffer[20];
     auto *end = get_module_order(config, buffer, sizeof(buffer) / sizeof(const char*));
     if (end) {
@@ -175,8 +178,14 @@ auto makeModules(void *config) -> std::vector<std::unique_ptr<Base>>
             index_buffer[i] = it - default_order;
         }
 
-        return makeModules(config, index_buffer, len);
+        modules = makeModules(config, index_buffer, len);
     } else
-        return makeModules(config, default_index, default_order_len);
+        modules = makeModules(config, default_index, default_order_len);
+
+    void *custom_config = get_module_config(config, "custom");
+    if (custom_config)
+        modules.push_back(makeCustomPrinter(custom_config));
+
+    return modules;
 }
 } /* namespace swaystatus::modules */
