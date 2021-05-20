@@ -276,7 +276,7 @@ void Object::setattr(const char *name, Object object)
 
 void Object::free() noexcept
 {
-    if (obj && obj != Py_None)
+    if (obj)
         Py_DECREF(getPyObject(*this));
 }
 Object::~Object()
