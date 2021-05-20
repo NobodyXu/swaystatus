@@ -53,7 +53,7 @@ class Callable_base {
 public:
     Callable_base() = default;
 
-    Callable_base(const char *name, const void *click_event_handler_config);
+    Callable_base(const char *name, const void *callable_config);
 
     Callable_base(Callable_base&&) = default;
     Callable_base& operator = (Callable_base&&) = default;
