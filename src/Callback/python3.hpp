@@ -276,6 +276,11 @@ public:
     operator std::string_view () const noexcept;
 };
 
+template <>
+struct Conversion<std::string> {
+    using result_type = str;
+};
+
 class str_view {
     const str string;
     const std::string_view view;
