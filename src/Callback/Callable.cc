@@ -5,7 +5,7 @@
 #include "Callable.hpp"
 
 namespace swaystatus {
-static const char *get_click_event_str(
+static const char *get_str_from_config(
     const char *name,
     const json_object *callable_config,
     const char *attr
@@ -24,11 +24,11 @@ static const char *get_click_event_str(
 Callable_base::Callable_base(const char *name, const void *callable_config_arg)
 {
     auto *callable_config = static_cast<const json_object*>(callable_config_arg);
-    const char *type = get_click_event_str(name, callable_config, "type");
+    const char *type = get_str_from_config(name, callable_config, "type");
 
     auto get_str = [&](const char *attr)
     {
-        return get_click_event_str(name, callable_config, attr);
+        return get_str_from_config(name, callable_config, attr);
     };
 
     auto *module_name = get_str("module_name");
