@@ -169,7 +169,7 @@ struct Conversion {
 };
 
 template <class T>
-struct Conversion<T, std::enable_if_t< is_object_v<T> >> {
+struct Conversion<T, std::enable_if_t< is_object_v<T> || std::is_same_v<T, None> >> {
     using result_type = T;
 };
 
