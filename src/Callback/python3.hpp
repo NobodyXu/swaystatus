@@ -142,6 +142,20 @@ public:
     ~Object();
 };
 
+/**
+ * None can only serve as a dummy return value for Callable
+ */
+struct None {
+    None() = default;
+
+    None(const None&) = default;
+    None& operator = (const None&) = default;
+
+    ~None() = default;
+
+    None(Object &&obj);
+};
+
 template <class T>
 static constexpr const bool is_object_v = std::is_base_of_v<Object, rm_cvref_t<T>>;
 

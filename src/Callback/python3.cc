@@ -284,6 +284,12 @@ Object::~Object()
     free();
 }
 
+None::None(Object &&obj)
+{
+    if (!obj.is_none())
+        errx(1, "Error in None: obj is not actually Py_None!");
+}
+
 static PyObject* compile(const char *code, const char *pseudo_filename, Compiled::Type type)
 {
     PyCompilerFlags flags{
