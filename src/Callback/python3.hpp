@@ -277,7 +277,21 @@ public:
 };
 
 class str_view {
-    ;
+    const str string;
+    const std::string_view view;
+
+public:
+    str_view(std::string_view view) noexcept;
+    str_view(str &&string) noexcept;
+
+    str_view(const str_view&) = delete;
+    str_view(str_view&&) = delete;
+
+    str_view& operator = (const str_view&) = delete;
+    str_view& operator = (str_view&&) = delete;
+
+    auto get_view() const noexcept -> std::string_view;
+    operator std::string_view () const noexcept;
 };
 
 class tuple: public Object {

@@ -433,6 +433,23 @@ str::operator std::string_view () const noexcept
     return get_view();
 }
 
+str_view::str_view(std::string_view view) noexcept:
+    view{view}
+{}
+str_view::str_view(str &&string_arg) noexcept:
+    string{std::move(string_arg)},
+    view{string}
+{}
+
+auto str_view::get_view() const noexcept -> std::string_view
+{
+    return view;
+}
+str_view::operator std::string_view () const noexcept
+{
+    return get_view();
+}
+
 auto tuple::get_creator() -> creator_t
 {
     static_assert(std::is_same_v<Py_ssize_t, ssize_t>);
