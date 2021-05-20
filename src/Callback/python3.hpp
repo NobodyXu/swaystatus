@@ -263,12 +263,21 @@ struct Conversion<
 
 class str: public Object {
 public:
+    /**
+     * Default ctor that construct an empty Object
+     */
+    str() = default;
+
     str(const std::string_view &view);
 
     str(Object &&object);
 
     auto get_view() const noexcept -> std::string_view;
     operator std::string_view () const noexcept;
+};
+
+class str_view {
+    ;
 };
 
 class tuple: public Object {
