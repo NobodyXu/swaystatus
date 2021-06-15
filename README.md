@@ -205,6 +205,18 @@ Note that `{"brightness": false}` overrides "order":
 <br>If block specified in "order" is disabled by setting it to `false`, then the block
 will not appear.
 
+#### `custom`
+
+Using this block, you can import a python/c module and display whatever you want in this 
+block.
+
+You need to provide `update_callback` and `do_print_callback`, which need to have the 
+same fields as click event handler `type`, `module_name`, `function_name`,
+(optional `code` for python).
+
+Check [`example-config.json`](/example-config.json) for example configuration of this 
+block.
+
 #### `update_interval`
 
 If specified, then the block will update at `update_interval * main_loop_interval ms`,
