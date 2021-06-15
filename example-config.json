@@ -2,7 +2,7 @@
     "_comment": "Any variable starts with '_' is a comment",
 
     "order": [
-        "battery", "brightness", "volume", "memory_usage", "network_interface", "load", "time"
+        "battery", "brightness", "volume", "memory_usage", "network_interface", "load", "time", "custom"
     ],
 
     "battery": {
@@ -30,5 +30,19 @@
             "Setting update_interval to 20 means it will be updated per 20sec by default",
             "if cmdline arg \"--interval\" is not specified"
         ]
+    },
+    "custom": {
+        "update_callback": {
+            "type": "python",
+            "module_name": "inline_code",
+            "code": "import sys\ncounter = 0\ndef handler():\n    global counter\n    counter += 1\n\ndef get_counter():\n    return counter",
+            "function_name": "handler"
+        },
+        "do_print_callback": {
+            "type": "python",
+            "module_name": "inline_code2",
+            "code": "from inline_code import get_counter\ndef handler():\n    return str(get_counter())",
+            "function_name": "handler"
+        }
     }
 }
