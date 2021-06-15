@@ -5,30 +5,30 @@
 #include "Callable.hpp"
 
 namespace swaystatus {
-static const char *get_click_event_str(
+static const char *get_str_from_config(
     const char *name,
-    const json_object *click_event_handler,
+    const json_object *callable_config,
     const char *attr
 )
 {
     struct json_object *val;
-    if (!json_object_object_get_ex(click_event_handler, attr, &val))
-        errx(1, "Attr %s.click_event_handler.%s %s", name, attr, "is missing");
+    if (!json_object_object_get_ex(callable_config, attr, &val))
+        errx(1, "Attr %s.click_event_handler/callback.%s %s", name, attr, "is missing");
 
     if (json_object_get_type(val) != json_type_string)
-        errx(1, "Attr %s.click_event_handler.%s %s", name, attr, "contains invalid value");
+        errx(1, "Attr %s.click_event_handler/callback.%s %s", name, attr, "contains invalid value");
 
     return json_object_get_string(val);
 }
 
-Callable_base::Callable_base(const char *name, const void *click_event_handler_config)
+Callable_base::Callable_base(const char *name, const void *callable_config_arg)
 {
-    auto *click_event_handler = static_cast<const json_object*>(click_event_handler_config);
-    const char *type = get_click_event_str(name, click_event_handler, "type");
+    auto *callable_config = static_cast<const json_object*>(callable_config_arg);
+    const char *type = get_str_from_config(name, callable_config, "type");
 
     auto get_str = [&](const char *attr)
     {
-        return get_click_event_str(name, click_event_handler, attr);
+        return get_str_from_config(name, callable_config, attr);
     };
 
     auto *module_name = get_str("module_name");
@@ -41,7 +41,7 @@ Callable_base::Callable_base(const char *name, const void *click_event_handler_c
 
         auto module = [&]{
             struct json_object *code;
-            if (json_object_object_get_ex(click_event_handler, "code", &code)) {
+            if (json_object_object_get_ex(callable_config, "code", &code)) {
                 python::Compiled compiled{module_name, get_str("code")};
                 return python::Module{module_name, compiled};
             } else

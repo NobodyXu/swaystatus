@@ -53,7 +53,7 @@ class Callable_base {
 public:
     Callable_base() = default;
 
-    Callable_base(const char *name, const void *click_event_handler_config);
+    Callable_base(const char *name, const void *callable_config);
 
     Callable_base(Callable_base&&) = default;
     Callable_base& operator = (Callable_base&&) = default;
@@ -68,12 +68,16 @@ class Callable {
     struct monostate {
         Ret operator () (Args ...args) const noexcept
         {
-            return Ret{};
+            if constexpr(!std::is_void_v<Ret>)
+                return Ret{};
         }
     };
 
 # ifdef USE_PYTHON
-    using py_callback = python::Callable<Ret, Args...>;
+    using py_callback = python::Callable<
+        std::conditional_t<std::is_void_v<Ret>, python::None, Ret>, 
+        Args...
+    >;
 # endif
 
     std::variant<
@@ -112,10 +116,16 @@ public:
             python::Interpreter::GIL_scoped(nullptr);
 # endif
 
-        return std::visit([&](auto &&f)
-        {
-            return f(std::forward<Args>(args)...);
-        }, v);
+        if constexpr(std::is_void_v<Ret>) {
+            std::visit([&](auto &&f) {
+                f(std::forward<Args>(args)...);
+            }, v);
+        } else {
+            return std::visit([&](auto &&f)
+            {
+                return f(std::forward<Args>(args)...);
+            }, v);
+        }
     }
 };
 } /* namespace swaystatus */

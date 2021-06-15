@@ -20,6 +20,7 @@
 #include "TemperaturePrinter.hpp"
 #include "TimePrinter.hpp"
 #include "VolumePrinter.hpp"
+#include "CustomPrinter.hpp"
 
 using namespace std::literals;
 
@@ -106,9 +107,11 @@ static constexpr const char * const default_order[] = {
     "network_interface",
     "sensors",
     "time",
-    "volume"
+    "volume",
+    "custom",
 };
-static constexpr std::size_t default_order_len = sizeof(default_order) / sizeof(const char*);
+static constexpr auto default_order_len = sizeof(default_order) / sizeof(const char*);
+
 static constexpr const std::size_t default_index[] = {
     0,
     1,
@@ -119,7 +122,9 @@ static constexpr const std::size_t default_index[] = {
     6,
     7,
 };
-static_assert(default_order_len == sizeof(default_index) / sizeof(std::size_t));
+static constexpr auto default_index_len = sizeof(default_index) / sizeof(std::size_t);
+static_assert(default_order_len >= default_index_len);
+
 using Factory = std::unique_ptr<Base> (*)(void *config);
 static constexpr const Factory factories[] = {
     makeBacklightPrinter,
@@ -130,6 +135,7 @@ static constexpr const Factory factories[] = {
     makeTemperaturePrinter,
     makeTimePrinter,
     makeVolumePrinter,
+    makeCustomPrinter,
 };
 static_assert(default_order_len == sizeof(factories) / sizeof(Factory));
 
@@ -155,7 +161,11 @@ auto makeModules(void *config) -> std::vector<std::unique_ptr<Base>>
 {
     init_click_events_handling();
 
+    std::vector<std::unique_ptr<Base>> modules;
+
     const char *buffer[20];
+    _Static_assert(sizeof(buffer) / sizeof(const char*) >= default_order_len);
+
     auto *end = get_module_order(config, buffer, sizeof(buffer) / sizeof(const char*));
     if (end) {
         std::size_t len = end - buffer;
@@ -175,8 +185,10 @@ auto makeModules(void *config) -> std::vector<std::unique_ptr<Base>>
             index_buffer[i] = it - default_order;
         }
 
-        return makeModules(config, index_buffer, len);
+        modules = makeModules(config, index_buffer, len);
     } else
-        return makeModules(config, default_index, default_order_len);
+        modules = makeModules(config, default_index, default_index_len);
+
+    return modules;
 }
 } /* namespace swaystatus::modules */

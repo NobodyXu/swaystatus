@@ -142,6 +142,20 @@ public:
     ~Object();
 };
 
+/**
+ * None can only serve as a dummy return value for Callable
+ */
+struct None {
+    None() = default;
+
+    None(const None&) = default;
+    None& operator = (const None&) = default;
+
+    ~None() = default;
+
+    None(Object &&obj);
+};
+
 template <class T>
 static constexpr const bool is_object_v = std::is_base_of_v<Object, rm_cvref_t<T>>;
 
@@ -155,7 +169,7 @@ struct Conversion {
 };
 
 template <class T>
-struct Conversion<T, std::enable_if_t< is_object_v<T> >> {
+struct Conversion<T, std::enable_if_t< is_object_v<T> || std::is_same_v<T, None> >> {
     using result_type = T;
 };
 
@@ -249,9 +263,37 @@ struct Conversion<
 
 class str: public Object {
 public:
+    /**
+     * Default ctor that construct an empty Object
+     */
+    str() = default;
+
     str(const std::string_view &view);
 
     str(Object &&object);
+
+    auto get_view() const noexcept -> std::string_view;
+    operator std::string_view () const noexcept;
+};
+
+template <>
+struct Conversion<std::string> {
+    using result_type = str;
+};
+
+class str_view {
+    const str string;
+    const std::string_view view;
+
+public:
+    str_view(std::string_view view) noexcept;
+    str_view(str &&string) noexcept;
+
+    str_view(const str_view&) = delete;
+    str_view(str_view&&) = delete;
+
+    str_view& operator = (const str_view&) = delete;
+    str_view& operator = (str_view&&) = delete;
 
     auto get_view() const noexcept -> std::string_view;
     operator std::string_view () const noexcept;

@@ -59,6 +59,7 @@ const char* get_short_format(const void *module_config, const char *default_val)
  */
 uint32_t get_update_interval(const void *module_config, const char *module_name, uint32_t default_val);
 
+const void* get_callable(const void *module_config, const char *property_name);
 const void* get_click_event_handler(const void *module_config);
 
 /**

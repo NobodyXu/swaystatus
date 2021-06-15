@@ -202,10 +202,15 @@ const char* get_user_specified_property_str_impl2(void *module_config, unsigned 
 
     return ret;
 }
+
+const void* get_callable(const void *module_config, const char *property_name)
+{
+    struct json_object *callable_config;
+    if (!json_object_object_get_ex(module_config, property_name, &callable_config))
+        return NULL;
+    return callable_config;
+}
 const void* get_click_event_handler(const void *module_config)
 {
-    struct json_object *click_event_handler;
-    if (!json_object_object_get_ex(module_config, "click_event_handler", &click_event_handler))
-        return NULL;
-    return click_event_handler;
+    return get_callable(module_config, "click_event_handler");
 }

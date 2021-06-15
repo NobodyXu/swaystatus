@@ -276,12 +276,18 @@ void Object::setattr(const char *name, Object object)
 
 void Object::free() noexcept
 {
-    if (obj && obj != Py_None)
+    if (obj)
         Py_DECREF(getPyObject(*this));
 }
 Object::~Object()
 {
     free();
+}
+
+None::None(Object &&obj)
+{
+    if (!obj.is_none())
+        errx(1, "Error in None: obj is not actually Py_None!");
 }
 
 static PyObject* compile(const char *code, const char *pseudo_filename, Compiled::Type type)
@@ -423,6 +429,23 @@ auto str::get_view() const noexcept -> std::string_view
     return {s, static_cast<std::size_t>(size)};
 }
 str::operator std::string_view () const noexcept
+{
+    return get_view();
+}
+
+str_view::str_view(std::string_view view) noexcept:
+    view{view}
+{}
+str_view::str_view(str &&string_arg) noexcept:
+    string{std::move(string_arg)},
+    view{string}
+{}
+
+auto str_view::get_view() const noexcept -> std::string_view
+{
+    return view;
+}
+str_view::operator std::string_view () const noexcept
 {
     return get_view();
 }
