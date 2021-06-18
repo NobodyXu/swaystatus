@@ -119,6 +119,6 @@ install_release_build: release_build
 	$(MAKE) BUILD_DIR=release_build DEBUG=false PYTHON=true install
 
 clean:
-	rm -rf $(OBJS) $(BUILD_DIR)/swaystatus *_build/
+	rm -rf $(OBJS) $(BUILD_DIR)/swaystatus $(DEPFILES)
 
 .PHONY: DEBUG all_builds debug_build release_build release_no_py_build install install_release_build clean
