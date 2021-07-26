@@ -56,7 +56,7 @@ struct Callback {
 };
 
 static struct json_tokener *parser;
-static Callback callbacks[12];
+static Callback callbacks[CALLBACK_CNT];
 static std::size_t callback_cnt;
 
 static void click_events_handler(int fd, enum Event events, void *data);

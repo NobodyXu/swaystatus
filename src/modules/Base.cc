@@ -111,6 +111,7 @@ static constexpr const char * const default_order[] = {
     "custom",
 };
 static constexpr auto default_order_len = sizeof(default_order) / sizeof(const char*);
+static_assert(CALLBACK_CNT >= default_order_len);
 
 static constexpr const std::size_t default_index[] = {
     0,

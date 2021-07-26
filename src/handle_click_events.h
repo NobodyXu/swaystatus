@@ -4,6 +4,8 @@
 # include <stddef.h>
 # include <stdint.h>
 
+# define CALLBACK_CNT 12
+
 # ifdef __cplusplus
 extern "C" {
 
