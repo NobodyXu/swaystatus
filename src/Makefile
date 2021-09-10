@@ -11,15 +11,17 @@ EXCEPTION ?= true
 CC := clang
 CXX := clang++
 
+CFLAGS := -Wall
+
 ifeq ($(DEBUG), false)
-	CFLAGS := -Wall -march=native -O3 -Wall -flto
+	CFLAGS += -O3 -flto
 	CFLAGS += -fno-asynchronous-unwind-tables -fno-unwind-tables
 
 	CXXFLAGS := -fno-rtti
 
-	LDFLAGS := -s -flto -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3,--as-needed
+	LDFLAGS := -march=native -s -flto -fuse-ld=lld -Wl,-icf=all,--gc-sections,--plugin-opt=O3,-O3,--as-needed
 else
-	CFLAGS := -Og -g -Wall
+	CFLAGS += -Og -g
 endif
 
 ifeq ($(EXCEPTION), false)
