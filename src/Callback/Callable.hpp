@@ -74,6 +74,7 @@ class Callable {
                 return 0;
             };
             const int dummy_array[] = {dummy(std::forward<Args>(args))...};
+            (void) dummy_array;
 
             if constexpr(!std::is_void_v<Ret>)
                 return Ret{};
