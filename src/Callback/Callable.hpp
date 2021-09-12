@@ -68,6 +68,13 @@ class Callable {
     struct monostate {
         Ret operator () (Args ...args) const noexcept
         {
+            auto dummy = [](auto &&arg) noexcept
+            {
+                (void) arg;
+                return 0;
+            };
+            const int dummy_array[] = {dummy(std::forward<Args>(args))...};
+
             if constexpr(!std::is_void_v<Ret>)
                 return Ret{};
         }
