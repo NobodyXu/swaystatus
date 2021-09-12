@@ -92,6 +92,8 @@ uint8_t* add_click_event_handler(const char *name, const void *click_event_handl
 static void click_event_handler(const struct json_object *event);
 static void click_events_handler(int fd, enum Event events, void *data)
 {
+    (void) data;
+
     if (events == invalid_fd)
         errx(1, "fd %d %s", fd, "is invalid");
     if (events == hup)
