@@ -28,6 +28,8 @@ public:
     }
     void do_print(const char *format)
     {
+        (void) format;
+
         print_str2(do_print_callback());
     }
     void reload()
