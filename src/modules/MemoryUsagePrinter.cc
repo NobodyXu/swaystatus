@@ -89,7 +89,7 @@ public:
     void update()
     {
         read_meminfo();
-        if (UNLIKELY(memtotal == -1))
+        if (UNLIKELY(memtotal == static_cast<std::size_t>(-1) ))
             memtotal = get_memusage("MemTotal"sv);
     }
     void do_print(const char *format)
