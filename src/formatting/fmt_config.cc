@@ -9,6 +9,7 @@ namespace swaystatus {
 static const char *module = nullptr;
 void fmt_set_calling_module(const char *module_arg) noexcept
 {
+    (void) module_arg;
 #ifndef CXX_HAS_EXCEPTION
     module = module_arg;
 #endif
