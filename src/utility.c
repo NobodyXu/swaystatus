@@ -159,7 +159,7 @@ void close_all()
 
         errno = 0;
         char *endptr;
-        unsigned long fd = strtoul(ent->d_name, &endptr, 10);
+        int fd = strtoul(ent->d_name, &endptr, 10);
         if (errno != 0 || *endptr != '\0')
             err(1, "%s on %s failed", "Assumption", "/proc/self/fd");
 
