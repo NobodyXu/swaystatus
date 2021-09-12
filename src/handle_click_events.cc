@@ -155,7 +155,7 @@ static void click_events_handler(int fd, enum Event events, void *data)
         }
 
         i += bytes_processed;
-    } while (i != len);
+    } while (i != (size_t) len);
 }
 static void click_event_handler(const struct json_object *event)
 {
