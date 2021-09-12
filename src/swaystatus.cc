@@ -37,12 +37,14 @@ static void terminate_handler()
 }
 static void sigabort_handler(int sig)
 {
+    (void) sig;
     stack_bt();
 }
 
 static bool reload_requested;
 static void handle_reload_request(int sig)
 {
+    (void) sig;
     reload_requested = true;
 }
 
