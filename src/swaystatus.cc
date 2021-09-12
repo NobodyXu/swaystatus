@@ -57,6 +57,8 @@ static void print_blocks(int fd, enum Event events, void *data)
      */
     static uintmax_t cycle_cnt = trim_interval - 1;
 
+    (void) events;
+
     auto &modules = *static_cast<std::vector<std::unique_ptr<modules::Base>>*>(data);
 
     print_literal_str("[");
