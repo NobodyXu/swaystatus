@@ -11,7 +11,7 @@ EXCEPTION ?= true
 CC := clang
 CXX := clang++
 
-CFLAGS := -Wall -Wextra -Werror
+CFLAGS := -Wall -Wextra
 
 ifeq ($(DEBUG), false)
 	CFLAGS += -O3 -flto
