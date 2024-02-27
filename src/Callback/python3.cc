@@ -123,11 +123,6 @@ void Interpreter::release()
 
 static void initialize_interpreter()
 {
-    auto empty_wstr = Py_DecodeLocale_Checked("");
-
-    wchar_t* argv[] = {empty_wstr.str.get(), nullptr};
-    PySys_SetArgvEx(1, argv, 0);
-
     Module sys("sys");
 
     sys.setattr("stdin", Object::get_none());
@@ -141,8 +136,17 @@ void MainInterpreter::load_libpython3()
     if (Py_IsInitialized())
         return;
 
+    PyConfig cfg;
+    PyConfig_InitPythonConfig(&cfg);
+
     auto wstr = Py_DecodeLocale_Checked("python3");
-    Py_SetProgramName(wstr.str.get());
+    cfg.program_name = wstr.str.get();
+    /* 
+     * Depreciated in version 3.11: Py_SetProgramName(...)
+     */
+    auto empty_wstr = Py_DecodeLocale_Checked("");
+    wchar_t* argv[] = {empty_wstr.str.get(), nullptr};
+    PyConfig_SetArgv(&cfg, 1, argv);
 
     /*
      * Changed in version 3.7: Py_Initialize() now initializes the GIL.
