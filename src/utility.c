@@ -327,7 +327,7 @@ void visit_all_subdirs(const char *path, subdir_visiter visiter, ...)
                 // Check if it is a dir after resolution
                 if (!isdir(path, path_fd, ent->d_name))
                     break;
-                [[fallthrough]];
+		//[[fallthrough]];
 
             case DT_DIR:
                 if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0)
